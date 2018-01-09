@@ -8,12 +8,21 @@
 // Last update Sun Nov  5 17:00:15 2017 Quentin Albertone
 //
 
-#include "Socket.hpp"
+#include "ModuleLauncher.hpp"
 
-int		main(__attribute__((unused))int argc, char **argv)
+int		main(int argc, char **argv)
 {
-  Socket	a(atoi(argv[1]));
+  // Socket	a(atoi(argv[1]));
+  zia::api::ModuleLauncher launcher;
 
-  std::cout << a << std::endl;
+  (void)argc;
+  (void)argv;
+  try {
+    launcher.launchModule("sources/api/modules/TestModule.cpp");
+  } catch (std::exception &e) {
+    std::cerr << e.what() << '\n';
+  }
+
+  // std::cout << a << std::endl;
   return (0);
 }

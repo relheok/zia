@@ -15,7 +15,7 @@ Example &Example::operator=(const Example &copy) {
   return (*this);
 }
 
-~Example::Example() {}
+Example::~Example() {}
 
 bool  Example::initComponent() {
   _ptr.reset(new Example);
