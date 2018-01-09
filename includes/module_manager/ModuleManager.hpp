@@ -11,20 +11,31 @@
 #include "api/module.h"
 #include "api/net.h"
 #include <iostream>
+#include <vector>
 
 class	ModuleManager
 {
 public:
-	ModuleManager();
-	ModuleManager(const std::string &);
+	// Cannonique forme
+	ModuleManager() {};
+	ModuleManager(const std::vector<std::string> &,
+					const std::vector<std::string> &);
 	ModuleManager(ModuleManager const &);
 	ModuleManager &operator=(ModuleManager const &);
 	~ModuleManager();
 
-	std::string		getTest() const;
-	void			setTest(std::string const &);
+	//Getter/Setter
+	std::vector<std::string>		getModName() const;
+	std::vector<std::string>		getModPath() const;
+	void							setModName(std::vector<std::string> const &);
+	void							setModPath(std::vector<std::string> const &);
+
+	// Core method
+	bool							init_start();
+	bool							run();
 private:
-	std::string _test;
+	std::vector<std::string> _mod_name;
+	std::vector<std::string> _mod_path;
 };
 
 #endif /* !ModuleManager.hpp */

@@ -7,21 +7,33 @@
 
 #include "module_manager/ModuleManager.hpp"
 
-ModuleManager::ModuleManager()
+//Core method
+
+bool		ModuleManager::run()
 {
-	_test = "const by default.";
-	return ;
+	return (true);
 }
 
+bool		ModuleManager::init_start()
+{
+	std::cout << _mod_name.back() << std::endl;
+	std::cout << _mod_path.back() << std::endl;
+	return (true);
+}
+
+//Cannonique Forme
 ModuleManager::ModuleManager(ModuleManager const &p)
 {
-	_test = p.getTest();
+	_mod_name = p.getModName();
+	_mod_path = p.getModPath();
 	return ;
 }
 
-ModuleManager::ModuleManager(const std::string &test)
+ModuleManager::ModuleManager(const std::vector<std::string> &mod_name,
+							 const std::vector<std::string> &mod_path)
 {
-	_test = test;
+	_mod_name = mod_name;
+	_mod_path = mod_path;
 	return ;
 }
 
@@ -33,17 +45,31 @@ ModuleManager::~ModuleManager()
 
 ModuleManager	&ModuleManager::operator=(ModuleManager const &p)
 {
-	_test = p.getTest();
+	_mod_name = p.getModName();
+	_mod_path = p.getModPath();
 	return (*this);
 }
 
-std::string	ModuleManager::getTest() const
+// Getter
+std::vector<std::string>	ModuleManager::getModName() const
 {
-	return (_test);
+	return (_mod_name);
 }
 
-void		ModuleManager::setTest(std::string const &test)
+std::vector<std::string>	ModuleManager::getModPath() const
 {
-	_test = test;
+	return (_mod_path);
+}
+
+// Setter
+void		ModuleManager::setModName(std::vector<std::string> const &mod_name)
+{
+	_mod_name = mod_name;
+	return ;
+}
+
+void		ModuleManager::setModPath(std::vector<std::string> const &mod_path)
+{
+	_mod_path = mod_path;
 	return ;
 }

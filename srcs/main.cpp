@@ -7,23 +7,38 @@
 
 #include "module_manager/ModuleManager.hpp"
 
-int	main(int ac, char **av)
+int	main()
 {
-	(void)ac;
-	(void)av;
-	ModuleManager	p;
-	ModuleManager	p1("Const by var.");
-	ModuleManager	p2(p);
-	//p
-	std::cout << "test p:" << p.getTest() << std::endl;
-	//p1
-	std::cout << "test p1:" << p1.getTest() << std::endl;
-	//p2
-	std::cout << "test p2:" << p2.getTest() << std::endl;
-	p2.setTest("Set work.");
-	std::cout << "test set:" << p2.getTest() << std::endl;
-	//=
-	p = p1;
-	std::cout << "test = :"<< p.getTest() << std::endl;
+	std::vector<std::string> mod_name;
+	std::vector<std::string> mod_path;
+
+	mod_name.push_back("php");
+	mod_name.push_back("ssl");
+	mod_name.push_back("gzip");
+	mod_name.push_back("caca");
+
+	mod_path.push_back("/usr/bin");
+	mod_path.push_back("/usr/bin/openssl");
+	mod_path.push_back("/usr/lib");
+	mod_path.push_back("/usr");
+	
+
+	ModuleManager p(mod_name, mod_path);
+
+	if (p.init_start() == false)
+	{
+		std::cerr << "init start failed" << std::endl;
+		return (-1);
+	}
+	else
+		std::cout << "init start work" << std::endl;
+	
+	if (p.run() == false)
+	{
+		std::cerr << "run failed" << std::endl;
+		return (-1);
+	}
+	else
+		std::cout << "run work" << std::endl;
 	return (0);
 }
