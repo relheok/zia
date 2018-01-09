@@ -22,7 +22,7 @@ bool  Example::initComponent() {
   _name = "Example";
 }
 
-std::string   &Example::getName() {
+std::string   &Example::getName() const {
   return (_name);
 }
 
