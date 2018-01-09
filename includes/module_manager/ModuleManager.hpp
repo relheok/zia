@@ -17,11 +17,11 @@ class	ModuleManager
 public:
 	ModuleManager();
 	ModuleManager(const std::string &);
-	ModuleManager(ModuleManager &);
-	ModuleManager &operator=(ModuleManager &);
+	ModuleManager(ModuleManager const &);
+	ModuleManager &operator=(ModuleManager const &);
 	~ModuleManager();
 
-	std::string		&getTest();
+	std::string		getTest() const;
 	void			setTest(std::string const &);
 private:
 	std::string _test;

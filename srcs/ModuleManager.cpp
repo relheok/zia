@@ -13,7 +13,7 @@ ModuleManager::ModuleManager()
 	return ;
 }
 
-ModuleManager::ModuleManager(ModuleManager &p)
+ModuleManager::ModuleManager(ModuleManager const &p)
 {
 	_test = p.getTest();
 	return ;
@@ -31,13 +31,13 @@ ModuleManager::~ModuleManager()
 	return ;
 }
 
-ModuleManager	&ModuleManager::operator=(ModuleManager &p)
+ModuleManager	&ModuleManager::operator=(ModuleManager const &p)
 {
 	_test = p.getTest();
 	return (*this);
 }
 
-std::string	&ModuleManager::getTest()
+std::string	ModuleManager::getTest() const
 {
 	return (_test);
 }
