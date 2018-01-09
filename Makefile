@@ -17,7 +17,10 @@ RM	= rm -f
 
 DIR		= sources/api/
 
-CXXFLAGS += -Iincludes/api/ -W -Wall -Wextra -std=c++17 #-Werror
+CXXFLAGS += -Iincludes/api/ -Iincludes/api/modules -W -Wall -Wextra -std=c++17 #-Werror
+
+# Debug
+CXXFLAGS += -g3
 
 LDFLAGS = -ldl
 
@@ -27,10 +30,10 @@ SRCS	= $(DIR)main.cpp						\
 OBJS	= $(SRCS:.cpp=.o)
 
 all: $(NAME)
+	cd $(DIR)modules && make
 
 $(NAME): $(OBJS)
 	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
-	cd $(DIR)modules && make
 
 clean:
 	@$(RM) $(OBJS)
@@ -40,7 +43,7 @@ fclean: clean
 	@$(RM) $(NAME)
 	@cd $(DIR)modules && make fclean
 
-re: fclean all
+re: fclean $(NAME)
 	cd $(DIR)modules && make re
 
 .PHONY: all clean fclean re

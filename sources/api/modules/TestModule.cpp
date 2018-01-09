@@ -1,5 +1,11 @@
 #include "TestModule.hpp"
 
+extern "C" {
+  zia::api::TestModule   *Create() {
+    return (new zia::api::TestModule);
+  }
+}
+
 namespace zia::api {
   TestModule::TestModule() {}
 
@@ -14,8 +20,9 @@ namespace zia::api {
 
   TestModule::~TestModule() {}
 
-  bool TestModule::config(const Conf &conf) {
-    (void)conf;
+  // bool TestModule::config(const Conf &conf) {
+  bool TestModule::config() {
+    // (void)conf;
     std::cerr << "config" << '\n';
     return false;
   }

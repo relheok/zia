@@ -16,7 +16,8 @@ namespace zia::api {
         * Called after contruct and when config changed.
         * \return true on success, otherwise false.
         */
-        virtual bool config(const Conf& conf) = 0;
+        // virtual bool config(const Conf& conf) = 0;
+        virtual bool config() = 0;
 
         /**
         * Called on HTTP request.

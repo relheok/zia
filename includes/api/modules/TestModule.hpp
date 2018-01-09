@@ -6,7 +6,7 @@
 # include "module.h"
 # include "http.h"
 
-typedef zia::api::Module *(*myModule)(std::string const &);
+typedef zia::api::Module *(*myModule)();
 
 namespace zia::api {
   class   TestModule : public Module {
@@ -16,7 +16,8 @@ namespace zia::api {
     TestModule  &operator=(TestModule const &);
     virtual ~TestModule();
 
-    virtual bool config(const Conf &conf);
+    // virtual bool config(const Conf &conf);
+    virtual bool config();
     virtual bool exec(HttpDuplex& http);
   };
 }

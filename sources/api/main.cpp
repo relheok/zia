@@ -9,16 +9,19 @@
 //
 
 #include "ModuleLauncher.hpp"
+#include "TestModule.hpp"
 
 int		main(int argc, char **argv)
 {
   // Socket	a(atoi(argv[1]));
   zia::api::ModuleLauncher launcher;
+  zia::api::TestModule  *module;
 
   (void)argc;
   (void)argv;
   try {
-    launcher.launchModule("sources/api/modules/TestModule.cpp");
+    module = (zia::api::TestModule*)launcher.launchModule("sources/api/modules/test_module.so", "test_module.so");
+    module->config();
   } catch (std::exception &e) {
     std::cerr << e.what() << '\n';
   }

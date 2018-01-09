@@ -3,10 +3,11 @@
 
 # include <iostream>
 # include <memory>
+# include <dlfcn.h>
 # include "module.h"
 # include "Error.hpp"
 
-typedef zia::api::Module *(*myModule)(std::string const &);
+typedef zia::api::Module *(*myModule)();
 
 namespace zia::api {
   class     ModuleLauncher {
@@ -16,11 +17,12 @@ namespace zia::api {
     ModuleLauncher  &operator=(ModuleLauncher const &);
     ~ModuleLauncher();
 
-    Module    *launchModule(std::string const &);
+    Module    *launchModule(std::string const &, std::string const &);
 
   private:
     std::unique_ptr<Module> _module{nullptr};
-    std::string             _path;
+    std::string             _name;
+    void                    *_plib{nullptr};
   };
 }
 
