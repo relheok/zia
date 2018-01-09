@@ -1,7 +1,7 @@
 #include "TestModule.hpp"
 
 extern "C" {
-  zia::api::TestModule   *Create() {
+  zia::api::TestModule   *create() {
     return (new zia::api::TestModule);
   }
 }
@@ -20,16 +20,17 @@ namespace zia::api {
 
   TestModule::~TestModule() {}
 
-  // bool TestModule::config(const Conf &conf) {
-  bool TestModule::config() {
-    // (void)conf;
-    std::cerr << "config" << '\n';
+  bool TestModule::config(const Conf &conf) {
+    (void)conf;
     return false;
   }
 
   bool TestModule::exec(HttpDuplex& http) {
     (void)http;
-    std::cerr << "exec" << '\n';
     return true;
+  }
+
+  void TestModule::test() const {
+    std::cerr << "TestModule::test" << '\n';
   }
 }

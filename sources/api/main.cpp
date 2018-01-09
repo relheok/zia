@@ -8,20 +8,20 @@
 // Last update Sun Nov  5 17:00:15 2017 Quentin Albertone
 //
 
-#include "ModuleLauncher.hpp"
-#include "TestModule.hpp"
+#include "ModuleLoader.hpp"
+#include "module.h"
 
 int		main(int argc, char **argv)
 {
   // Socket	a(atoi(argv[1]));
-  zia::api::ModuleLauncher launcher;
-  zia::api::TestModule  *module;
+  zia::api::ModuleLoader launcher;
+  zia::api::Module  *module;
 
   (void)argc;
   (void)argv;
   try {
-    module = (zia::api::TestModule*)launcher.launchModule("sources/api/modules/test_module.so", "test_module.so");
-    module->config();
+    module = launcher.loadModule("sources/api/modules/test_module.so", "test_module.so");
+    module->test();
   } catch (std::exception &e) {
     std::cerr << e.what() << '\n';
   }

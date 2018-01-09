@@ -16,9 +16,9 @@ namespace zia::api {
     TestModule  &operator=(TestModule const &);
     virtual ~TestModule();
 
-    // virtual bool config(const Conf &conf);
-    virtual bool config();
+    virtual bool config(const Conf &conf);
     virtual bool exec(HttpDuplex& http);
+    virtual void test() const;
   };
 }
 

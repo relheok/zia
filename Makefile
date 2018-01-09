@@ -25,7 +25,7 @@ CXXFLAGS += -g3
 LDFLAGS = -ldl
 
 SRCS	= $(DIR)main.cpp						\
-				$(DIR)ModuleLauncher.cpp	\
+				$(DIR)ModuleLoader.cpp		\
 
 OBJS	= $(SRCS:.cpp=.o)
 

@@ -10,14 +10,14 @@
 typedef zia::api::Module *(*myModule)();
 
 namespace zia::api {
-  class     ModuleLauncher {
+  class     ModuleLoader {
   public:
-    ModuleLauncher();
-    ModuleLauncher(ModuleLauncher const &);
-    ModuleLauncher  &operator=(ModuleLauncher const &);
-    ~ModuleLauncher();
+    ModuleLoader();
+    ModuleLoader(ModuleLoader const &);
+    ModuleLoader  &operator=(ModuleLoader const &);
+    ~ModuleLoader();
 
-    Module    *launchModule(std::string const &, std::string const &);
+    Module    *loadModule(std::string const &, std::string const &);
 
   private:
     std::unique_ptr<Module> _module{nullptr};
