@@ -13,7 +13,7 @@ public:
 
   bool          initComponent();
 
-  std::string   &getName();
+  std::string   &getName() const;
   void          setName(std::string const &);
 
 private:
