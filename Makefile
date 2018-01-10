@@ -5,7 +5,7 @@
 ## juniqu_v
 ##
 
-NAME		= module_manager
+NAME		= config_manager
 
 RM		= rm -f
 
