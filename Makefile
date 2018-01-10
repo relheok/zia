@@ -20,7 +20,7 @@ DIR		= sources/api/
 CXXFLAGS += -Iincludes/api/ -Iincludes/api/modules -W -Wall -Wextra -std=c++17 #-Werror
 
 # Debug
-CXXFLAGS += -g3
+# CXXFLAGS += -g3
 
 LDFLAGS = -ldl
 

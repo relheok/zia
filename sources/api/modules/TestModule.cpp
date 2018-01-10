@@ -22,7 +22,7 @@ namespace zia::api {
 
   bool TestModule::config(const Conf &conf) {
     (void)conf;
-    return false;
+    return true;
   }
 
   bool TestModule::exec(HttpDuplex& http) {

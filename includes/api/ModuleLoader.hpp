@@ -17,7 +17,22 @@ namespace zia::api {
     ModuleLoader  &operator=(ModuleLoader const &);
     ~ModuleLoader();
 
-    Module    *loadModule(std::string const &, std::string const &);
+    /**
+    * Load the module [name] from the location [path]
+    */
+    Module        *loadModule(std::string const &path, std::string const &name);
+
+    /**
+    * Call the config method of the loaded module with parameter [conf]
+    * \return true on success, false otherwise
+    */
+    bool    configModule();
+
+    /**
+    * Getters
+    */
+    Module        *getModule();
+    std::string   getName() const;
 
   private:
     std::unique_ptr<Module> _module{nullptr};

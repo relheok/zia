@@ -4,12 +4,24 @@
 # include <iostream>
 # include <exception>
 
-class                 ModuleError : public std::exception {
+class                 FatalError : public std::exception {
 public:
-  ModuleError(std::string const &err) throw() {
-    _err = "Module error : " + err + ".";
+  ModuleError(std::string const &from, std::string const &err) throw() {
+    _err = "Fatal error (" + from + ") : " + err + ".";
   }
   virtual ~ModuleError() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+private:
+    std::string         _err;
+};
+
+class                 ModuleLoaderError : public std::exception {
+public:
+  ModuleLoaderError(std::string const &err) throw() {
+    _err = "ModuleLoader error : " + err + ".";
+  }
+  virtual ~ModuleLoaderError() throw() {}
 
   virtual const char  *what() const throw() { return (_err.c_str()); }
 private:

@@ -21,12 +21,24 @@ namespace zia::api {
   Module      *ModuleLoader::loadModule(std::string const &path, std::string const &name) {
     void      *ptr;
     myModule  fptr;
+    Module    *module;
 
     _name = name;
     if (!(_plib = dlopen(path.c_str(), RTLD_LAZY)) || !(ptr = dlsym(_plib, "create")))
-      throw ModuleError("can't open module " + name);
+      throw ModuleLoaderError("can't open module " + name);
     fptr = (myModule)ptr;
-    _module.reset((*fptr)());
+    module = (*fptr)();
+    _module.reset(module);
     return _module.get();
+  }
+
+  bool    con
+
+  Module        *ModuleLoader::getModule() {
+    return _module.get();
+  }
+
+  std::string   ModuleLoader::getName() const {
+    return _name;
   }
 }
