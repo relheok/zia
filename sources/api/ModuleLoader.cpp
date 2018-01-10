@@ -4,41 +4,37 @@ namespace zia::api {
   ModuleLoader::ModuleLoader() {}
 
   ModuleLoader::ModuleLoader(ModuleLoader const &copy) {
-    _name = copy._name;
+    _modules = copy.getModules();
   }
 
   ModuleLoader  &ModuleLoader::operator=(ModuleLoader const &copy) {
-    _name = copy._name;
+    _modules = copy.getModules();
     return (*this);
   }
 
   ModuleLoader::~ModuleLoader() {
-    delete _module.release();
-    if (_plib)
-      dlclose(_plib);
+    for (ModulesList::iterator it = _modules.begin(); it < _modules.end(); it++) {
+      delete it->first;
+      if (it->second)
+        dlclose(it->second);
+    }
   }
 
-  Module      *ModuleLoader::loadModule(std::string const &path, std::string const &name) {
+  Module      *ModuleLoader::loadModule(std::string const &path) {
     void      *ptr;
+    void      *plib;
     myModule  fptr;
     Module    *module;
 
-    _name = name;
-    if (!(_plib = dlopen(path.c_str(), RTLD_LAZY)) || !(ptr = dlsym(_plib, "create")))
-      throw ModuleLoaderError("can't open module " + name);
+    if (!(plib = dlopen(path.c_str(), RTLD_LAZY)) || !(ptr = dlsym(plib, "create")))
+      throw ModuleLoaderError("can't open module at location " + path);
     fptr = (myModule)ptr;
     module = (*fptr)();
-    _module.reset(module);
-    return _module.get();
+    _modules.push_back(ListItem(module, plib));
+    return module;
   }
 
-  bool    con
-
-  Module        *ModuleLoader::getModule() {
-    return _module.get();
-  }
-
-  std::string   ModuleLoader::getName() const {
-    return _name;
+  ModulesList  ModuleLoader::getModules() const {
+    return _modules;
   }
 }

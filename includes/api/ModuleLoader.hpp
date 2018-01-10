@@ -7,9 +7,12 @@
 # include "module.h"
 # include "Error.hpp"
 
-typedef zia::api::Module *(*myModule)();
-
 namespace zia::api {
+  typedef Module *(*myModule)();
+
+  using ListItem = std::pair<Module *, void *>;
+  using ModulesList = std::vector<ListItem>;
+
   class     ModuleLoader {
   public:
     ModuleLoader();
@@ -18,26 +21,18 @@ namespace zia::api {
     ~ModuleLoader();
 
     /**
-    * Load the module [name] from the location [path]
+    * Load the module from the location [path]
+    * \return a pointer to the loaded module (automatically deleted at destruction)
     */
-    Module        *loadModule(std::string const &path, std::string const &name);
-
-    /**
-    * Call the config method of the loaded module with parameter [conf]
-    * \return true on success, false otherwise
-    */
-    bool    configModule();
+    Module        *loadModule(std::string const &path);
 
     /**
     * Getters
     */
-    Module        *getModule();
-    std::string   getName() const;
+    ModulesList   getModules() const;
 
   private:
-    std::unique_ptr<Module> _module{nullptr};
-    std::string             _name;
-    void                    *_plib{nullptr};
+    ModulesList     _modules;
   };
 }
 

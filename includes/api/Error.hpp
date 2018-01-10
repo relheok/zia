@@ -6,10 +6,10 @@
 
 class                 FatalError : public std::exception {
 public:
-  ModuleError(std::string const &from, std::string const &err) throw() {
+  FatalError(std::string const &from, std::string const &err) throw() {
     _err = "Fatal error (" + from + ") : " + err + ".";
-  }
-  virtual ~ModuleError() throw() {}
+  }  
+  virtual ~FatalError() throw() {}
 
   virtual const char  *what() const throw() { return (_err.c_str()); }
 private:
