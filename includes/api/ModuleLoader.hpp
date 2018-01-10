@@ -10,7 +10,12 @@
 namespace zia::api {
   typedef Module *(*myModule)();
 
-  using ListItem = std::pair<Module *, void *>;
+  struct          ListItem {
+    Module        *module;
+    void          *plib;
+    std::string   name;
+  };
+
   using ModulesList = std::vector<ListItem>;
 
   class     ModuleLoader {
@@ -21,10 +26,17 @@ namespace zia::api {
     ~ModuleLoader();
 
     /**
-    * Load the module from the location [path]
+    * Load the module [name] from the location [path]
     * \return a pointer to the loaded module (automatically deleted at destruction)
     */
-    Module        *loadModule(std::string const &path);
+    Module        *loadModule(std::string const &path, std::string const &name);
+
+    /**
+    * Reload the module [name] from the location [path]
+    * Close the older module
+    * \return a pointer to the loaded module (automatically deleted at destruction)
+    */
+    Module        *reloadModule(std::string const &path, std::string const &name);
 
     /**
     * Getters

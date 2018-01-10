@@ -10,6 +10,7 @@
 
 #include "ModuleLoader.hpp"
 #include "module.h"
+// #include <unistd.h>
 
 int		main(int argc, char **argv)
 {
@@ -20,8 +21,11 @@ int		main(int argc, char **argv)
   (void)argc;
   (void)argv;
   try {
-    module = launcher.loadModule("sources/api/modules/test_module.so");
+    module = launcher.loadModule("sources/api/modules/test_module.so", "test_module.so");
     module->test();
+    // sleep(10);
+    // module = launcher.reloadModule("sources/api/modules/test_module.so", "test_module.so");
+    // module->test();
   } catch (std::exception &e) {
     std::cerr << e.what() << '\n';
     return (1);
