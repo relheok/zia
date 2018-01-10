@@ -1,49 +1,49 @@
 ##
-## Makefile for arcade in /home/maxoulak/work/B4/C++/cpp_arcade/
-##
-## Made by Maxime Maisonnas
-## Login   <maxime.maisonnas@epitech.eu>
-##
-## Started on  Mon Mar  6 11:20:32 2017 Maxime Maisonnas
-## Last update Thu Apr  6 19:18:35 2017 Steven Syp
+## EPITECH PROJECT, 2018
+## Makefile
+## File description:
+## juniqu_v
 ##
 
+NAME		= config_manager
 
-NAME	= zia
+RM		= rm -f
 
-CC	= g++
+CXX		= g++
 
-RM	= rm -f
+CXXFLAGS	+= -g3 -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -I includes -Iincludes/api
 
-DIR		= sources/api/
+LDFLAGS	+= -ldl
 
-CXXFLAGS += -Iincludes/api/ -Iincludes/api/modules -W -Wall -Wextra -std=c++17 #-Werror
+SRCS		= $(foreach dir,$(shell find sources/api -type d),$(wildcard $(dir)/*.cpp))
 
-# Debug
-# CXXFLAGS += -g3
-
-LDFLAGS = -ldl
-
-SRCS	= $(DIR)main.cpp						\
-				$(DIR)ModuleLoader.cpp		\
-
-OBJS	= $(SRCS:.cpp=.o)
+OBJS		= $(SRCS:.cpp=.o)
+DEPS		= $(SRCS:.cpp=.d)
 
 all: $(NAME)
-	cd $(DIR)modules && make
+	cd sources/modules && make
 
 $(NAME): $(OBJS)
-	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
+	@echo "Building $(NAME)..."
+	@$(CXX) -o $(NAME) $(OBJS) $(CXXFLAGS) $(LDFLAGS)
 
 clean:
+	@echo "Cleaning temporary files..."
 	@$(RM) $(OBJS)
-	@cd $(DIR)modules && make clean
+	@$(RM) $(DEPS)
+	cd sources/modules && make clean
 
 fclean: clean
+	@echo "Cleaning executable..."
 	@$(RM) $(NAME)
-	@cd $(DIR)modules && make fclean
+	cd sources/modules && make fclean
 
-re: fclean $(NAME)
-	cd $(DIR)modules && make re
+re: fclean all
 
-.PHONY: all clean fclean re
+%.o: %.cpp
+	@echo "=>" $<
+	@$(CXX) -c $< -o $@ $(CXXFLAGS) $(GRAPHICFLAGS) $(AIFLAGS)
+
+-include $(DEPS)
+
+.PHONY:	all clean fclean re
