@@ -1,0 +1,18 @@
+# Maintainer/Originator: zia
+pkgname=zia
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Zia web server"
+arch=(any)
+license=('GPL')
+depends=()
+optdepends=()
+backup=()
+source=('zia' 'zia.service')
+sha256sums=(SKIP SKIP)
+
+package() {
+  # mkdir -p -m 750 "$pkgdir"/var/lib/zia
+  install -Dm644 "$srcdir"/zia.service "$pkgdir"/usr/lib/systemd/system/zia.service
+  install -Dm755 "$srcdir"/zia "$pkgdir"/usr/bin/zia
+}
