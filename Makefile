@@ -5,13 +5,13 @@
 ## juniqu_v
 ##
 
-NAME		= config_manager
+NAME		= zia
 
 RM		= rm -f
 
 CXX		= g++
 
-CXXFLAGS	+= -g3 -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -I includes -Iincludes/api
+CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -I includes -Iincludes/api
 
 LDFLAGS	+= -ldl
 

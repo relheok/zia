@@ -29,6 +29,32 @@ public:
       std::string         _err;
 };
 
+class                 ModuleNotFoundError : public std::exception {
+public:
+  ModuleNotFoundError(std::string const &name) throw() {
+    _err = "Module " + name + " isn't loaded.";
+  }
+  virtual ~ModuleNotFoundError() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+
+  private:
+      std::string         _err;
+};
+
+class                 ModuleManagerError : public std::exception {
+public:
+  ModuleManagerError(std::string const &err) throw() {
+    _err = "Module manager error : " + err + ".";
+  }
+  virtual ~ModuleManagerError() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+
+  private:
+      std::string         _err;
+};
+
 class                 ConfigError : public std::exception {
 public:
   ConfigError(std::string const &err) throw() {

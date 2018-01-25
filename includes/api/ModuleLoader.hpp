@@ -27,6 +27,7 @@ namespace zia::api {
 
     /**
     * Load the module [name] from the location [path]
+    * Exception : ModuleLoaderError
     * \return a pointer to the loaded module (automatically deleted at destruction)
     */
     Module        *loadModule(std::string const &path, std::string const &name);
@@ -34,9 +35,17 @@ namespace zia::api {
     /**
     * Reload the module [name] from the location [path]
     * Close the older module
+    * Exception : ModuleNotFoundError
     * \return a pointer to the loaded module (automatically deleted at destruction)
     */
     Module        *reloadModule(std::string const &path, std::string const &name);
+
+    /**
+    * Get a module by its [name]
+    * Exception : ModuleNotFoundError
+    * \return a pointer to the module
+    */
+    Module        *getModuleByName(std::string const &name);
 
     /**
     * Getters

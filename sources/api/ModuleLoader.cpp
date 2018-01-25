@@ -26,7 +26,7 @@ namespace zia::api {
     Module    *module;
 
     if (!(plib = dlopen(path.c_str(), RTLD_LAZY)) || !(ptr = dlsym(plib, "create")))
-      throw ModuleLoaderError("can't open module " + name);
+      throw ModuleLoaderError("can't open module " + name + " from " + path);
     fptr = (myModule)ptr;
     module = (*fptr)();
     ListItem item = {module, plib, name};
@@ -43,10 +43,18 @@ namespace zia::api {
         return (loadModule(path, name));
       }
     }
-    throw ModuleLoaderError("the module " + name + " wasn't loaded");
+    throw ModuleNotFoundError(name);
   }
 
   ModulesList  ModuleLoader::getModules() const {
     return _modules;
+  }
+
+  Module    *ModuleLoader::getModuleByName(std::string const &name) {
+    for (ModulesList::iterator it = _modules.begin(); it < _modules.end(); it++) {
+      if (it->name.compare(name) == 0)
+        return (it->module);
+    }
+    throw ModuleNotFoundError("the module " + name + " wasn't loaded");
   }
 }

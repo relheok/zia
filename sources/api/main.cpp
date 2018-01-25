@@ -15,7 +15,7 @@
 
 int		main(int ac, char **av)
 {
-  zia::api::ModuleLoader launcher;
+  zia::api::ModuleManager launcher;
   zia::api::Module  *module;
 
   try {
