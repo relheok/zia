@@ -25,8 +25,10 @@ namespace zia::api {
     myModule  fptr;
     Module    *module;
 
+    if (name.length() < 4 || name.substr(name.length() - 3, 3).compare(".so") != 0)
+      throw ModuleLoaderError("expected \".so\" file, got \"" + name + "\"");
     if (!(plib = dlopen(path.c_str(), RTLD_LAZY)) || !(ptr = dlsym(plib, "create")))
-      throw ModuleLoaderError("can't open module " + name + " from " + path);
+      throw ModuleLoaderError("invalid library " + name);
     fptr = (myModule)ptr;
     module = (*fptr)();
     ListItem item = {module, plib, name};
@@ -55,6 +57,6 @@ namespace zia::api {
       if (it->name.compare(name) == 0)
         return (it->module);
     }
-    throw ModuleNotFoundError("the module " + name + " wasn't loaded");
+    throw ModuleNotFoundError(name);
   }
 }

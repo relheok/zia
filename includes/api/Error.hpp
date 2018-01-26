@@ -55,6 +55,19 @@ public:
       std::string         _err;
 };
 
+class                 TestError : public std::exception {
+public:
+  TestError(std::string const &err) throw() {
+    _err = "Test error : " + err + ".";
+  }
+  virtual ~TestError() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+
+  private:
+      std::string         _err;
+};
+
 class                 ConfigError : public std::exception {
 public:
   ConfigError(std::string const &err) throw() {

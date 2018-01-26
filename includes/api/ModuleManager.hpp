@@ -32,6 +32,12 @@ namespace zia::api {
     */
     Module        *getModuleByName(std::string const &name);
 
+    /**
+    * Test function
+    * Exception : std::exception
+    */
+    void    test();
+
   private:
     std::unique_ptr<ModuleLoader> _loader{nullptr};
     std::vector<Module*>  _modules;

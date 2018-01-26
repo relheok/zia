@@ -35,7 +35,7 @@ namespace zia::api {
     /**
     * Reload the module [name] from the location [path]
     * Close the older module
-    * Exception : ModuleNotFoundError
+    * Exception : ModuleNotFoundError, inherit ModuleLoaderError
     * \return a pointer to the loaded module (automatically deleted at destruction)
     */
     Module        *reloadModule(std::string const &path, std::string const &name);

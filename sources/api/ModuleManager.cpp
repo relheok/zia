@@ -35,16 +35,40 @@ namespace zia::api {
       return (module);
     } catch (ModuleNotFoundError &e) {
       std::cerr << e.what() << '\n';
+    } catch (ModuleLoaderError &e) {
+      std::cerr << e.what() << '\n';
     }
     return (nullptr);
   }
 
-  Module    *getModuleByName(std::string const &name) {
+  Module    *ModuleManager::getModuleByName(std::string const &name) {
     try {
       return (_loader.get()->getModuleByName(name));
     } catch (ModuleNotFoundError &e) {
       std::cerr << e.what() << '\n';
     }
     return (nullptr);
+  }
+
+  void    ModuleManager::test() {
+    ModulePathList modules;
+    modules.push_back(std::make_pair("sources/modules/test_module.so", "test_module.so"));
+    Conf conf;
+    init(modules, conf);
+    if (getModuleByName("toto"))
+      throw TestError("getModuleByName");
+    if (!getModuleByName("test_module.so"))
+      throw TestError("getModuleByName");
+    try {
+      if (!reloadModule("sources/modules/test_module.so", "test_module.so", conf))
+        throw TestError("reloadModule");
+      if (reloadModule("sources/modules/test_module.s", "test_module.so", conf))
+        throw TestError("reloadModule");
+      if (reloadModule("sources/modules/test_module.so", "test_module.s", conf))
+        throw TestError("reloadModule");
+    } catch (ModuleManagerError &e) {
+      std::cerr << e.what() << '\n';
+      throw TestError("reloadModule");
+    }
   }
 }
