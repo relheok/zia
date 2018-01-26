@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:04:17 2018 Jérémy Koehler
-// Last update Fri Jan 19 15:29:52 2018 Jérémy Koehler
+// Last update Fri Jan 26 12:45:33 2018 Jérémy Koehler
 //
 
 #include "daemon.hpp"
@@ -17,6 +17,7 @@ zia::Daemon		&zia::Daemon::getInstance(std::string file) {
 }
 
 void	zia::Daemon::stop() {
+  remove(_fileName.c_str());
   _killed = false;
 }
 
@@ -24,7 +25,8 @@ bool	zia::Daemon::isAlive() {
   return _killed;
 }
 
-zia::Daemon::Daemon(std::string file): _killed(true) {
+zia::Daemon::Daemon(std::string file):
+  _killed(true), _fileName(file) {
   signal(SIGCHLD, SIG_IGN);
 
   /* shutdown signals */
@@ -100,7 +102,6 @@ bool		zia::Daemon::killProcess(std::string fileName) {
     _killed = false;
     file >> pid;
     file.close();
-    remove(fileName.c_str());
     kill(pid, SIGINT);
     return true;
   }

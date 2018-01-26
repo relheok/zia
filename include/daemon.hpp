@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:06:13 2018 Jérémy Koehler
-// Last update Fri Jan 19 15:22:31 2018 Jérémy Koehler
+// Last update Fri Jan 26 12:45:16 2018 Jérémy Koehler
 //
 
 #ifndef DAEMON_HPP_
@@ -43,6 +43,7 @@ namespace zia {
     bool		killProcess(std::string fileName);
 
     bool	_killed;
+    std::string	_fileName;
 
   public:
     //avoid copies
