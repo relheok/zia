@@ -36,13 +36,24 @@ namespace zia::api {
     return module;
   }
 
-  Module      *ModuleLoader::reloadModule(std::string const &path, std::string const &name) {
+  Module      *ModuleLoader::reloadModuleByName(std::string const &path, std::string const &name) {
     for (ModulesList::iterator it = _modules.begin(); it < _modules.end(); it++) {
       if (it->name.compare(name) == 0) {
         delete it->module;
         dlclose(it->plib);
         _modules.erase(it);
         return (loadModule(path, name));
+      }
+    }
+    throw ModuleNotFoundError(name);
+  }
+
+  void      ModuleLoader::closeModuleByName(std::string const &name) {
+    for (ModulesList::iterator it = _modules.begin(); it < _modules.end(); it++) {
+      if (it->name.compare(name) == 0) {
+        delete it->module;
+        dlclose(it->plib);
+        _modules.erase(it);
       }
     }
     throw ModuleNotFoundError(name);

@@ -6,7 +6,7 @@
 namespace zia::api {
   using ModulePathList = std::vector<std::pair<std::string, std::string>>;
 
-  class     ModuleManager {
+  class     ModuleManager : public ModuleLoader {
   public:
     ModuleManager();
     ModuleManager(ModuleManager const &);
@@ -25,22 +25,6 @@ namespace zia::api {
     * \return a pointer to the module on success, nullptr otherwise
     */
     Module  *reloadModule(std::string const &path, std::string const &name, Conf &conf);
-
-    /**
-    * Find the module [name]
-    * \return a pointer to the module on success, nullptr otherwise
-    */
-    Module        *getModuleByName(std::string const &name);
-
-    /**
-    * Test function
-    * Exception : std::exception
-    */
-    void    test();
-
-  private:
-    std::unique_ptr<ModuleLoader> _loader{nullptr};
-    std::vector<Module*>  _modules;
   };
 }
 

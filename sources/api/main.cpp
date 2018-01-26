@@ -20,8 +20,6 @@ int		main(int ac, char **av)
   (void)ac;
   (void)av;
   try {
-    launcher.test();
-    std::cerr << "Tests ok" << '\n';
     // std::string path((ac == 2) ? (av[1]) : (""));
     // zia::api::ConfigManager p(path);
     // if (ac == 2)
