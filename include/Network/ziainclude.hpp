@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:45:06 2017 Quentin Albertone
-// Last update Sun Nov  5 16:50:08 2017 Quentin Albertone
+// Last update Wed Nov  8 21:14:51 2017 Quentin Albertone
 //
 
 #ifndef ZIAINCLUDE_HPP_
@@ -13,6 +13,9 @@
 
 // Common
 # include <iostream>
+# include <utility>
+# include <vector>
+# include <map>
 # include <string>
 # include <unistd.h>
 
@@ -23,11 +26,17 @@
 # include <netinet/in.h>
 # include <netdb.h>
 
+// poll
+# include <poll.h>
 
 
 # define TCP			0
 
+// Socket
 typedef struct sockaddr_in	t_sockaddr_in;
 typedef struct sockaddr		t_sockaddr;
+
+// Poll
+typedef struct pollfd		t_pollfd;
 
 #endif /* !ZIAINCLUDE_HPP_ */
