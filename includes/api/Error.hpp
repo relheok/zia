@@ -81,4 +81,26 @@ public:
       std::string         _err;
 };
 
+/**
+* Thrown in case of invalid request
+*/
+class                 BadRequestError : public std::exception {
+public:
+  BadRequestError() throw() {}
+  virtual ~BadRequestError() throw() {}
+
+  virtual const char  *what() const throw() { return ("Bad request"); }
+};
+
+/**
+* Thrown in case of invalid or unsupported method
+*/
+class                 InvalidMethodError : public std::exception {
+public:
+  InvalidMethodError() throw() {}
+  virtual ~InvalidMethodError() throw() {}
+
+  virtual const char  *what() const throw() { return ("Invalid HTTP Method"); }
+};
+
 #endif /* !Error.hpp */

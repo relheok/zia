@@ -11,15 +11,20 @@
 #include "config_manager/ConfigManager.hpp"
 #include "ModuleManager.hpp"
 #include "module.h"
+#include "HttpParser.hpp"
 // #include <unistd.h>
 
 int		main(int ac, char **av)
 {
-  zia::api::ModuleManager launcher;
+  //zia::api::ModuleManager launcher;
+  zia::api::HttpParser  parser;
 
   (void)ac;
   (void)av;
   try {
+    if (ac > 1) {
+      struct zia::api::HttpRequest request = parser.parseRequest(av[1]);
+    }
     // std::string path((ac == 2) ? (av[1]) : (""));
     // zia::api::ConfigManager p(path);
     // if (ac == 2)
