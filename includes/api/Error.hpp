@@ -86,21 +86,15 @@ public:
 */
 class                 BadRequestError : public std::exception {
 public:
-  BadRequestError() throw() {}
+  BadRequestError(std::string const &err) throw() {
+    _err = "Bad request : " + err + ".";
+  }
   virtual ~BadRequestError() throw() {}
 
-  virtual const char  *what() const throw() { return ("Bad request"); }
-};
+  virtual const char  *what() const throw() { return (_err.c_str()); }
 
-/**
-* Thrown in case of invalid or unsupported method
-*/
-class                 InvalidMethodError : public std::exception {
-public:
-  InvalidMethodError() throw() {}
-  virtual ~InvalidMethodError() throw() {}
-
-  virtual const char  *what() const throw() { return ("Invalid HTTP Method"); }
+  private:
+      std::string         _err;
 };
 
 #endif /* !Error.hpp */

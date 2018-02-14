@@ -14,16 +14,23 @@ namespace zia::api {
 
     /**
     * Parse the string [input] to make a HttpRequest
-    * Exception : BadRequestError, InvalidMethodError
-    * \return the request
+    * Exception : BadRequestError
+    * \return the parsed request
     */
-    struct HttpRequest  parseRequest(std::string const &input);
+    struct HttpRequest  parse(std::string const &input) const;
+
+    /**
+    * For test : print a struct HttpRequest
+    */
+    void    test(struct HttpRequest &) const;
 
   private:
-    struct HttpRequest  parsePostRequest(std::vector<std::string> const &);
-    struct HttpRequest  parseGetRequest(std::vector<std::string> const &);
+    http::Version                       getVersion(std::string const &) const;
+    std::map<std::string, std::string>  getHeaders(std::vector<std::string> const &) const;
+    Net::Raw                            getBody(std::vector<std::string> const &) const;
+    http::Method                        getMethod(std::string const &) const;
 
-    std::map<std::string, std::string>  getHeaders(std::vector<std::string> const &);
+    std::string                         inspectHttpLine(std::string const &) const;
 
   };
 } /* zia::api */

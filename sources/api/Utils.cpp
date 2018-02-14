@@ -2,13 +2,15 @@
 
 std::vector<std::string>    Utils::split(std::string const &str, std::string const &delimiters) {
   std::vector<std::string>  v;
-  char                      *tmp = strdup(str.c_str());
+  char                      *tmp;
+  char                      *toFree = strdup(str.c_str());
 
-  tmp = strtok(tmp, delimiters.c_str());
+  tmp = strtok(toFree, delimiters.c_str());
   while (tmp != NULL) {
     v.push_back(tmp);
     tmp = strtok(NULL, delimiters.c_str());
   }
+  free(toFree);
   return v;
 }
 
