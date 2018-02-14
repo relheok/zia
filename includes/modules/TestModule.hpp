@@ -2,9 +2,9 @@
 # define TESTMODULE_HPP_
 
 # include <iostream>
-# include "conf.h"
-# include "module.h"
-# include "http.h"
+# include "../server/api/conf.h"
+# include "../server/api/module.h"
+# include "../server/api/http.h"
 
 typedef zia::api::Module *(*myModule)();
 

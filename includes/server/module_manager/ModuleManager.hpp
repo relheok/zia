@@ -1,7 +1,7 @@
 #ifndef MODULEMANAGER_HPP_
 # define MODULEMANAGER_HPP_
 
-# include "ModuleLoader.hpp"
+# include "module_manager/ModuleLoader.hpp"
 
 namespace zia::api {
   using ModulePathList = std::vector<std::pair<std::string, std::string>>;

@@ -4,8 +4,8 @@
 # include <iostream>
 # include <memory>
 # include <dlfcn.h>
-# include "module.h"
-# include "Error.hpp"
+# include "api/module.h"
+# include "error/Error.hpp"
 
 namespace zia::api {
   typedef Module *(*myModule)();

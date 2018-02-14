@@ -7,15 +7,15 @@
 
 NAME		= zia
 
-RM		= rm -f
+RM			= rm -f
 
-CXX		= g++
+CXX			= g++
 
-CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -I includes -Iincludes/api
+CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -I includes/server
 
-LDFLAGS	+= -ldl
+LDFLAGS		+= -ldl
 
-SRCS		= $(foreach dir,$(shell find sources/api -type d),$(wildcard $(dir)/*.cpp))
+SRCS		= $(foreach dir,$(shell find sources/server -type d),$(wildcard $(dir)/*.cpp))
 
 OBJS		= $(SRCS:.cpp=.o)
 DEPS		= $(SRCS:.cpp=.d)
@@ -42,7 +42,7 @@ re: fclean all
 
 %.o: %.cpp
 	@echo "=>" $<
-	@$(CXX) -c $< -o $@ $(CXXFLAGS) $(GRAPHICFLAGS) $(AIFLAGS)
+	@$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 -include $(DEPS)
 
