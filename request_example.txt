@@ -1,0 +1,4 @@
+GET /fichier.html HTTP/1.1
+Host: www.monsite.com
+User-Agent: Mozilla/5.0 Safari/531.9
+
