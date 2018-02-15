@@ -3,6 +3,15 @@
 namespace zia::api {
   HttpParser::HttpParser() {}
 
+  HttpParser::HttpParser(HttpParser const &original) {
+    (void)original;
+  }
+
+  HttpParser  &HttpParser::operator=(HttpParser const &original) {
+    (void)original;
+    return *this;
+  }
+
   HttpParser::~HttpParser() {}
 
   struct HttpRequest          HttpParser::parse(std::string const &str) const {
@@ -20,6 +29,16 @@ namespace zia::api {
     request.method = getMethod(line[0]);
     request.uri = line[1];
     return request;
+  }
+
+  std::string     HttpParser::parse(struct HttpResponse const &response) const {
+    std::string   str = "";
+
+    str += getVersion(response.version) + ' ' + std::to_string(response.status) + ' ' + response.reason + "\r\n";
+    str += getHeaders(response.headers);
+    str += "\r\n";
+    str += getBody(response.body);
+    return str;
   }
 
   void        HttpParser::test(struct HttpRequest &request) const {
@@ -48,6 +67,26 @@ namespace zia::api {
     return http::Version::unknown;
   }
 
+  std::string   HttpParser::getVersion(http::Version const &version) const {
+    switch (version) {
+      case http::Version::http_0_9:
+        return "HTTP/0.9";
+        break;
+      case http::Version::http_1_0:
+        return "HTTP/1.0";
+        break;
+      case http::Version::http_1_1:
+        return "HTTP/1.1";
+        break;
+      case http::Version::http_2_0:
+        return "HTTP/2.0";
+        break;
+      default:
+        return "HTTP/1.1";
+        break;
+    }
+  }
+
   std::map<std::string, std::string>    HttpParser::getHeaders(std::vector<std::string> const &v) const {
     std::map<std::string, std::string>  m;
     std::vector<std::string>            line;
@@ -63,6 +102,14 @@ namespace zia::api {
       i++;
     }
     return m;
+  }
+
+  std::string   HttpParser::getHeaders(std::map<std::string, std::string> const &headers) const {
+    std::string str = "";
+
+    for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
+      str += it->first + ": " + it->second + "\r\n";
+    return str;
   }
 
   Net::Raw        HttpParser::getBody(std::vector<std::string> const &v) const {
@@ -85,6 +132,14 @@ namespace zia::api {
     for (size_t j = 0; j < sbody.size(); j++)
       body.push_back(std::byte(sbody[j]));
     return body;
+  }
+
+  std::string   HttpParser::getBody(Net::Raw const &body) const {
+    std::string str = "";
+
+    for (Net::Raw::const_iterator it = body.begin(); it != body.end(); it++)
+      str += (char)*it;
+    return str;
   }
 
   http::Method  HttpParser::getMethod(std::string const &method) const {
