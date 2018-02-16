@@ -12,6 +12,7 @@
 #include "ModuleManager.hpp"
 #include "module.h"
 #include "HttpParser.hpp"
+#include "HttpInterpreter.hpp"
 // #include <unistd.h>
 
 int		main(int ac, char **av)
@@ -24,7 +25,8 @@ int		main(int ac, char **av)
   try {
     if (ac > 1) {
       struct zia::api::HttpRequest request = parser.parse(av[1]);
-      parser.test(request);
+      zia::api::HttpInterpreter interpreter(".");
+      std::cout << parser.parse(interpreter.interpret(request)) << '\n';
     }
     // std::string path((ac == 2) ? (av[1]) : (""));
     // zia::api::ConfigManager p(path);

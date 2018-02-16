@@ -1,4 +1,4 @@
-POST /fichier.html HTTP/1.1
+GET /fichier.html HTTP/1.1
 Host: www.google.com
 
 toto
