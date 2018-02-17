@@ -146,10 +146,22 @@ namespace zia::api {
   }
 
   http::Method  HttpParser::getMethod(std::string const &method) const {
-    if (method.compare("POST") == 0)
-      return http::Method::post;
+    if (method.compare("OPTIONS") == 0)
+      return http::Method::options;
     else if (method.compare("GET") == 0)
       return http::Method::get;
+    else if (method.compare("HEAD") == 0)
+      return http::Method::head;
+    else if (method.compare("POST") == 0)
+      return http::Method::post;
+    else if (method.compare("PUT") == 0)
+      return http::Method::put;
+    else if (method.compare("DELETE") == 0)
+      return http::Method::delete_;
+    else if (method.compare("TRACE") == 0)
+      return http::Method::trace;
+    else if (method.compare("CONNECT") == 0)
+      return http::Method::connect;
     return http::Method::unknown;
   }
 
