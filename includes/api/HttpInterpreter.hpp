@@ -7,6 +7,7 @@
 #include "http.h"
 #include "Utils.hpp"
 #include "Constant.hpp"
+#include "HttpParser.hpp"
 
 namespace zia::api {
   class   HttpInterpreter {
@@ -21,9 +22,9 @@ namespace zia::api {
 
     /**
     * Interpret the request [request]
-    * \return the HTTP Response
+    * \return the formatted HTTP Response
     */
-    struct HttpResponse   interpret(struct HttpRequest const &request);
+    std::string           interpret(std::string const &request);
 
     /**
     * Setters
@@ -42,6 +43,7 @@ namespace zia::api {
     Net::Raw              getBody(std::string const &);
 
     std::string           _root;
+    HttpParser            _parser;
   };
 } /* zia::api */
 

@@ -97,6 +97,17 @@ public:
       std::string         _err;
 };
 
+/**
+* Thrown in case of invalid request
+*/
+class                 RequestUriTooLargeError : public std::exception {
+public:
+  RequestUriTooLargeError() throw() {}
+  virtual ~RequestUriTooLargeError() throw() {}
+
+  virtual const char  *what() const throw() { return ("Request Uri Too large"); }
+};
+
 class                 FileNotFound : public std::exception {
 public:
   FileNotFound(std::string const &err) throw() {

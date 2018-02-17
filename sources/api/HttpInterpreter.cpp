@@ -4,27 +4,49 @@ namespace zia::api {
   HttpInterpreter::HttpInterpreter(std::string const &root) : _root(root) {}
 
   HttpInterpreter::HttpInterpreter(HttpInterpreter const &original) {
-    _root = original.getRoot();
+    _root = original._root;
+    _parser = original._parser;
   }
 
   HttpInterpreter   &HttpInterpreter::operator=(HttpInterpreter const &original) {
     _root = original._root;
+    _parser = original._parser;
     return *this;
   }
 
   HttpInterpreter::~HttpInterpreter() {}
 
-  struct HttpResponse   HttpInterpreter::interpret(struct HttpRequest const &request) {
-    switch (request.method) {
-      case http::Method::get:
-        return get(request);
-        break;
-      case http::Method::head:
-        return get(request, false);
-      default:
-        return getDefaultResponse(http::common_status::method_not_allowed, "Method not allowed");
-        break;
+  std::string           HttpInterpreter::interpret(std::string const &request) {
+    struct HttpResponse response;
+    struct HttpRequest r;
+
+    try {
+      r = _parser.parse(request);
+      switch (r.method) {
+        case http::Method::get:
+          response = get(r);
+          break;
+        case http::Method::head:
+          response = get(r, false);
+          break;
+        case http::Method::options:
+        case http::Method::post:
+        case http::Method::put:
+        case http::Method::delete_:
+        case http::Method::trace:
+        case http::Method::connect:
+          response = getDefaultResponse(http::common_status::ok, "OK");
+          break;
+        default:
+          response = getDefaultResponse(http::common_status::bad_request, "Bad Request");
+          break;
+      }
+    } catch (BadRequestError) {
+      response = getDefaultResponse(http::common_status::bad_request, "Bad Request");
+    } catch (RequestUriTooLargeError) {
+      response = getDefaultResponse(http::common_status::request_uri_too_large, "Request-URI Too Long");
     }
+    return _parser.parse(response);
   }
 
   struct HttpResponse   HttpInterpreter::getDefaultResponse(http::Status const &status, std::string const &reason) {
@@ -53,7 +75,8 @@ namespace zia::api {
         response.headers["Content-Length"] = std::to_string(response.body.size());
         if (!body)
           response.body.clear();
-      }
+      } else
+        throw FileNotFound(request.uri);
     } catch (FileNotFound) {
       return getDefaultResponse(http::common_status::not_found, "Not found");
     }

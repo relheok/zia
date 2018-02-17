@@ -4,6 +4,7 @@
 #include <string>
 #include "http.h"
 #include "Utils.hpp"
+#include "Constant.hpp"
 #include "Error.hpp"
 
 namespace zia::api {
@@ -16,7 +17,7 @@ namespace zia::api {
 
     /**
     * Parse the string [input] to make a HttpRequest
-    * Exception : BadRequestError
+    * Exception : BadRequestError, RequestUriTooLargeError
     * \return the parsed request
     */
     struct HttpRequest  parse(std::string const &input) const;

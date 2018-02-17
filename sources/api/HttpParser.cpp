@@ -28,6 +28,8 @@ namespace zia::api {
     request.body = getBody(v);
     request.method = getMethod(line[0]);
     request.uri = line[1];
+    if (line[1].size() > MAX_URI_SIZE)
+      throw RequestUriTooLargeError();
     return request;
   }
 
@@ -96,9 +98,10 @@ namespace zia::api {
       line = Utils::split(inspectHttpLine(v[i]), ":");
       if (line.size() != 2)
         throw BadRequestError("invalid header (no key)");
-      if (line[1][0] != ' ')
-        throw BadRequestError("invalid header (no space)");
-      m[line[0]] = line[1].substr(1);
+      if (line[1][0] == ' ')
+        m[line[0]] = line[1].substr(1);
+      else
+        m[line[0]] = line[1];
       i++;
     }
     return m;
