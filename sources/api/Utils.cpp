@@ -22,3 +22,11 @@ std::string   Utils::trim(std::string const &str) {
     return str;
   return str.substr(first, (last - first + 1));
 }
+
+std::string   Utils::readFile(std::string const &path) {
+  if (access(path.c_str(), F_OK | R_OK) == -1)
+    throw FileNotFound(path);
+  std::ifstream file(path);
+	std::string str((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+  return str;
+}

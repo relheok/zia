@@ -1,9 +1,12 @@
 #ifndef UTILS_HPP_
 # define UTILS_HPP_
 
+#include <unistd.h>
 #include <string>
+#include <fstream>
 #include <vector>
 #include <string.h>
+#include "Error.hpp"
 
 class Utils {
 public:
@@ -18,6 +21,13 @@ public:
   * \return the new string
   */
   static std::string  trim(std::string const &str);
+
+  /**
+  * Open and read the file [path]
+  * throws FileNotFound
+  * \return the opened file
+  */
+  static std::string  readFile(std::string const &path);
 };
 
 #endif /* end of include guard: UTILS_HPP_ */
