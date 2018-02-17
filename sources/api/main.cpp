@@ -26,7 +26,7 @@ int		main(int ac, char **av)
     if (ac > 1) {
       struct zia::api::HttpRequest request = parser.parse(av[1]);
       zia::api::HttpInterpreter interpreter(".");
-      std::cout << parser.parse(interpreter.interpret(request)) << '\n';
+      std::cout << parser.parse(interpreter.interpret(request));
     }
     // std::string path((ac == 2) ? (av[1]) : (""));
     // zia::api::ConfigManager p(path);

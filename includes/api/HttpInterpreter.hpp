@@ -5,6 +5,7 @@
 #include <string>
 #include <ctime>
 #include "http.h"
+#include "Utils.hpp"
 #include "Constant.hpp"
 
 namespace zia::api {
@@ -36,7 +37,9 @@ namespace zia::api {
 
   private:
     struct HttpResponse   getDefaultResponse(http::Status const &status = http::common_status::unknown, std::string const &reason = "");
-    struct HttpResponse   get(struct HttpRequest const &);
+    struct HttpResponse   get(struct HttpRequest const &request, bool body = true);
+
+    Net::Raw              getBody(std::string const &);
 
     std::string           _root;
   };

@@ -97,4 +97,17 @@ public:
       std::string         _err;
 };
 
+class                 FileNotFound : public std::exception {
+public:
+  FileNotFound(std::string const &err) throw() {
+    _err = "File not found : " + err;
+  }
+  virtual ~FileNotFound() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+
+  private:
+      std::string         _err;
+};
+
 #endif /* !Error.hpp */
