@@ -5,7 +5,7 @@
 ## Login   <albert_q@epitech.net>
 ##
 ## Started on  Wed Jan 10 14:50:08 2018 Quentin Albertone
-## Last update Wed Jan 10 15:00:19 2018 Quentin Albertone
+## Last update Mon Feb 12 17:20:41 2018 Quentin Albertone
 ##
 
 CPP     =       g++
@@ -15,8 +15,12 @@ RM      =       \rm -f
 NAME    =       netStack
 
 SRCS    =      	src/Network/Client.cpp		\
+		src/Network/Request.cpp		\
 		src/Network/Network.cpp		\
+		src/Network/Balancer.cpp	\
+		src/Network/Worker.cpp		\
 		src/Network/main.cpp		\
+
 
 OBJS    =       $(SRCS:.cpp=.o)
 

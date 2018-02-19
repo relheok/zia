@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 17:10:18 2017 Quentin Albertone
-// Last update Wed Jan 24 12:56:58 2018 Quentin Albertone
+// Last update Mon Jan 29 18:17:21 2018 Quentin Albertone
 //
 
 #ifndef REQUEST_HPP_
@@ -16,15 +16,17 @@
 
 class			RequestList
 {
+public:
   RequestList();
   RequestList(RequestList const &);
   ~RequestList();
   RequestList					&operator=(RequestList &);
 
   void						setRequest(Client *, std::string);
-  RequestList					&operator+(RequestList const &);
+  std::vector<std::pair<Client *, std::string>>	getRequestList();
 
-  std::vector<std::pair<Client *, std::string>>		getRequestList();
+  RequestList					&operator>>(std::pair<Client *, std::string>);
+  RequestList					&operator+(RequestList const &);
   void						displayRequest();
 
 protected:

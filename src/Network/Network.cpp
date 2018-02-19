@@ -5,10 +5,11 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Mon Jan 29 16:07:24 2018 Quentin Albertone
+// Last update Mon Feb 12 17:54:51 2018 Quentin Albertone
 //
 
 #include "Network.hpp"
+//#include "Request.hpp"
 
 // ---------------------------- ----------------------------  //
 //			Coplien form			      //
@@ -137,8 +138,7 @@ void			Network::Socket::loop()
       // // Debug //
       // for (std::map<int, Client *>::iterator i = _clients.begin, i != )
 
-
-      if ((check = poll(_clientFds.data(), static_cast<nfds_t>(_clientFds.size()), 1000)) == -1)
+      if ((check = poll(_clientFds.data(), static_cast<nfds_t>(_clientFds.size()), 10)) == -1)
 	std::cout << "\t[:" << _port << "] - Erreur poll client on socket: " << _fd << std::endl;
       if (check > 0)
 	{
@@ -165,10 +165,11 @@ void			Network::Socket::loop()
 		{
 		  char		rec[200] = {0};
 
-		  std::cout << "\t[:" << _port << "] - New input from: " << clientIt->first << std::endl;
+		  		  std::cout << "\t[:" << _port << "] - New input from: " << clientIt->first << std::endl;
 		  if (read(clientIt->first, &rec, 199) == -1 || rec[0] == 0)
 		    disconnect = true;
-       		  std::cout << "\t\t" << rec << std::endl;
+		  // Register new POLLIN
+		  _req.setRequest(clientIt->second, std::string(rec)/*"NULL"*/);
 		}
 	      // Disconnect user with matters
 	      if (disconnect)
@@ -182,4 +183,9 @@ void			Network::Socket::loop()
 	    }
 	}
     }
+}
+
+void			Network::Socket::displayRequest()
+{
+  _req.displayRequest();
 }

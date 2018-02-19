@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:41:38 2017 Quentin Albertone
-// Last update Mon Jan 29 16:07:56 2018 Quentin Albertone
+// Last update Mon Feb 12 17:20:08 2018 Quentin Albertone
 //
 
 #ifndef NETWORK_HPP_
@@ -13,11 +13,8 @@
 
 # include "ziainclude.hpp"
 # include "Client.hpp"
-//# include "Request.hpp"
-
-class			RequestList
-{
-};
+# include "Request.hpp"
+# include "Balancer.hpp"
 
 namespace	Network
 {
@@ -34,12 +31,15 @@ namespace	Network
     int				getPort() const;
     t_sockaddr_in		*getSock();
     socklen_t			getSize() const;
-
+    RequestList			&getRequest();
     // Client
     std::vector<t_pollfd>	getClientFds();
 
     void			loop();
-  protected:
+
+    void			displayRequest();
+
+  private:
     int				_fd;
     int				_port;
     t_sockaddr_in		_sock;

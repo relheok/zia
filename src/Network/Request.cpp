@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 17:52:26 2017 Quentin Albertone
-// Last update Wed Jan 24 13:26:22 2018 Quentin Albertone
+// Last update Mon Jan 29 18:17:24 2018 Quentin Albertone
 //
 
 //#include <utility>
@@ -35,11 +35,6 @@ RequestList		&RequestList::operator=(RequestList &req)
 
 // ------------------------------------------------------------------------------------------------ //
 
-// RequestList				&RequestList::operator*()
-// {
-//   return (*this);
-// }
-
 void					RequestList::setRequest(Client *client, std::string query)
 {
   _request.push_back(std::make_pair(client, query));
@@ -60,6 +55,7 @@ void					RequestList::displayRequest()
 {
   std::vector<std::pair<Client *, std::string>>::iterator it = _request.begin();
 
-  for(it; it != _request.end(); ++it)
-    std::cout << "[" << it->first->getFd() << "]" << it->second << std::endl;
+  std::cout << "RequestList: " << std::endl;
+  for(; it != _request.end(); ++it)
+    std::cout << "[" << it->first->getFd() << "] " << it->second;
 }
