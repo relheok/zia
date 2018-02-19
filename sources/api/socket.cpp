@@ -8,6 +8,9 @@
 // Last update Mon Feb 19 13:19:50 2018 Jérémy Koehler
 */
 
+int fd_cliGlobal;
+int fd_inetGlobal;
+
 # include <sys/un.h>
 # include <sys/socket.h>
 
@@ -17,6 +20,8 @@
 # include <string.h>
 
 # include <netinet/in.h>
+
+#include "HttpInterpreter.hpp"
 
 # define BUFFSIZE 4096
 # define _DEBUG_PORT 4242
@@ -71,20 +76,29 @@ int			accept_socket(int fd, int port)
 int			main()
 {
   char			buff[BUFFSIZE];
-  int			fd_inet;
-  int			fd_cli;
+  zia::api::HttpInterpreter interpreter(std::map<std::string, std::string>{{"localhost:4242", "./example"}});
 
   printf("port: %d\n", _DEBUG_PORT);
 
-  fd_inet = create_socket(_DEBUG_PORT);
-  fd_cli = accept_socket(fd_inet, _DEBUG_PORT);
+  fd_inetGlobal = create_socket(_DEBUG_PORT);
+  fd_cliGlobal = accept_socket(fd_inetGlobal, _DEBUG_PORT);
   memset(buff, 0, BUFFSIZE);
-  while (read(fd_cli, &buff, BUFFSIZE) > 0)
+  while (read(fd_cliGlobal, &buff, BUFFSIZE) > 0)
     {
       /*
       ** DO STUFF
       */
-      printf("%s", buff);
+      try {
+        std::cerr << "got : " << buff << '\n';
+        std::string str = interpreter.interpret(buff);
+        str += "\n\0";
+        std::cerr << "write : " << str << '\n';
+        write(fd_cliGlobal, str.c_str(), str.size());
+      } catch (std::exception &e) {
+        std::cerr << e.what() << '\n';
+      }
+      //printf("%s", buff);
       memset(buff, 0, BUFFSIZE);
     }
+  close(fd_cliGlobal);
 }

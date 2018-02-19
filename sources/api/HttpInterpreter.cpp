@@ -1,15 +1,46 @@
 #include "HttpInterpreter.hpp"
 
 namespace zia::api {
-  HttpInterpreter::HttpInterpreter(std::string const &root) : _root(root) {}
+  HttpInterpreter::HttpInterpreter(std::map<std::string, std::string> const &roots, Module *php) : _roots(roots), _php(php) {
+    _mimeType = {
+      {"avi","video/x-msvideo"},
+      {"bin","application/octet-stream"},
+      {"css","text/css"},
+      {"csv","text/csv"},
+      {"doc","application/msword"},
+      {"gif","image/gif"},
+      {"htm","text/html; charset=UTF-8"},
+      {"html","text/html; charset=UTF-8"},
+      {"ico","image/x-icon"},
+      {"jar","application/java-archive"},
+      {"jpeg","image/jpeg"},
+      {"jpg","image/jpeg"},
+      {"js","application/javascript"},
+      {"json","application/json"},
+      {"mpeg","video/mpeg"},
+      {"otf","font/otf"},
+      {"png","image/png"},
+      {"pdf","application/pdf"},
+      {"rar","application/x-rar-compressed"},
+      {"rtf","application/rtf"},
+      {"sh","application/x-sh"},
+      {"svg","image/svg+xml"},
+      {"swf","application/x-shockwave-flash"},
+      {"tar","application/x-tar"},
+      {"wav","audio/x-wav"},
+      {"xhtml","application/xhtml+xml"},
+      {"xml","application/xml"},
+      {"zip","application/zip"}
+    };
+  }
 
   HttpInterpreter::HttpInterpreter(HttpInterpreter const &original) {
-    _root = original._root;
+    _roots = original._roots;
     _parser = original._parser;
   }
 
   HttpInterpreter   &HttpInterpreter::operator=(HttpInterpreter const &original) {
-    _root = original._root;
+    _roots = original._roots;
     _parser = original._parser;
     return *this;
   }
@@ -41,9 +72,11 @@ namespace zia::api {
           response = getDefaultResponse(http::common_status::bad_request, "Bad Request");
           break;
       }
-    } catch (BadRequestError) {
+    } catch (BadRequestError &e) {
+      std::cerr << e.what() << '\n';
       response = getDefaultResponse(http::common_status::bad_request, "Bad Request");
-    } catch (RequestUriTooLargeError) {
+    } catch (RequestUriTooLargeError &e) {
+      std::cerr << e.what() << '\n';
       response = getDefaultResponse(http::common_status::request_uri_too_large, "Request-URI Too Long");
     }
     return _parser.parse(response);
@@ -66,19 +99,37 @@ namespace zia::api {
   struct HttpResponse         HttpInterpreter::get(struct HttpRequest const &request, bool body) {
     struct HttpResponse       response;
     std::vector<std::string>  v = Utils::split(request.uri, "?");
+    HttpDuplex                duplex;
 
+    duplex.req = request;
     try {
+    std::string path = getRootFromHost(request.headers) + request.uri;
       response = getDefaultResponse(http::common_status::ok, "OK");
-      if (v[0].size() >= 5 && (v[0].substr(v[0].size() - 5, 5).compare(".html") == 0 || v[0].substr(v[0].size() - 4, 4).compare(".htm") == 0)) {
-        response.body = getBody(Utils::readFile(_root + request.uri));
-        response.headers["Content-Type"] = "text/html; charset=UTF-8";
+      if (_mimeType.find(Utils::getExtension(v[0])) != _mimeType.end()) {
+        response.body = getBody(Utils::readFile(path));
+        response.headers["Content-Type"] = _mimeType[Utils::getExtension(v[0])];
         response.headers["Content-Length"] = std::to_string(response.body.size());
         if (!body)
           response.body.clear();
+      } else if (Utils::getExtension(v[0]).compare("php") == 0) {
+        if (!_php)
+          throw BadRequestError("php isn't supported");
+        _php->exec(duplex);
+        return duplex.resp;
+      } else if (Utils::isDirectory(path)) {
+        response = getDefaultResponse(http::common_status::ok, "OK");
+        response.body = getBody(HtmlManager::viewDirectory(path, request.uri));
+        response.headers["Content-Type"] = _mimeType["html"];
+        response.headers["Content-Length"] = std::to_string(response.body.size());
+        return response;
       } else
         throw FileNotFound(request.uri);
-    } catch (FileNotFound) {
+    } catch (FileNotFound &e) {
+      std::cerr << e.what() << '\n';
       return getDefaultResponse(http::common_status::not_found, "Not found");
+    } catch (BadRequestError &e) {
+      std::cerr << e.what() << '\n';
+      return getDefaultResponse(http::common_status::bad_request, "Bad Request");
     }
     return response;
   }
@@ -89,5 +140,16 @@ namespace zia::api {
     for (std::string::const_iterator it = str.begin(); it != str.end(); it++)
       body.push_back(std::byte(*it));
     return body;
+  }
+
+  std::string   HttpInterpreter::getRootFromHost(std::map<std::string, std::string> const &headers) {
+    auto ith = headers.find("Host");
+
+    if (ith == headers.end())
+      throw BadRequestError("no Host header");
+    auto itr = _roots.find(ith->second);
+    if (itr == _roots.end())
+      throw BadRequestError("the specified host '" + ith->second + "' hasn't been found");
+    return itr->second;
   }
 } /* zia:api */

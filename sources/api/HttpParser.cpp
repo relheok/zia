@@ -96,12 +96,16 @@ namespace zia::api {
 
     while (i < v.size() && v[i].compare("\r") != 0) {
       line = Utils::split(inspectHttpLine(v[i]), ":");
-      if (line.size() != 2)
+      if (line.size() < 2)
         throw BadRequestError("invalid header (no key)");
       if (line[1][0] == ' ')
-        m[line[0]] = line[1].substr(1);
-      else
-        m[line[0]] = line[1];
+        line[1] = line[1].substr(1);
+      m[line[0]] = "";
+      for (size_t j = 1; j < line.size(); j++) {
+        m[line[0]] += line[j];
+        if ((j + 1) < line.size())
+          m[line[0]] += ':';
+      }
       i++;
     }
     return m;

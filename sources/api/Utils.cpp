@@ -30,3 +30,22 @@ std::string   Utils::readFile(std::string const &path) {
 	std::string str((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
   return str;
 }
+
+std::string   Utils::getExtension(std::string const &file) {
+  std::string ext;
+  size_t      pos;
+
+  pos = file.find_last_of(".");
+  if (pos == std::string::npos || pos == file.size() - 1)
+    return "";
+  return file.substr(pos + 1);
+}
+
+bool          Utils::isDirectory(std::string const &path) {
+  struct stat buf;
+
+  if (access(path.c_str(), F_OK | R_OK) == -1)
+    throw FileNotFound(path);
+  stat(path.c_str(), &buf);
+  return S_ISDIR(buf.st_mode);
+}

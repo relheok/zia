@@ -1,5 +1,5 @@
-HEAD /fichier.html HTTP/1.1
-Host: www.google.com
+GET /example.html HTTP/1.1
+Host: localhost
 
 toto
 tata

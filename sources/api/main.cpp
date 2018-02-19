@@ -15,7 +15,7 @@
 #include "HttpInterpreter.hpp"
 // #include <unistd.h>
 
-int		main(int ac, char **av)
+/*int		main(int ac, char **av)
 {
   //zia::api::ModuleManager launcher;
 
@@ -23,7 +23,7 @@ int		main(int ac, char **av)
   (void)av;
   try {
     if (ac > 1) {
-      zia::api::HttpInterpreter interpreter(".");
+      zia::api::HttpInterpreter interpreter(std::map<std::string, std::string>{{"localhost", "./example"}});
       std::cout << interpreter.interpret(av[1]);
     }
     // std::string path((ac == 2) ? (av[1]) : (""));
@@ -55,4 +55,4 @@ int		main(int ac, char **av)
     return (1);
   }
 	return (0);
-}
+}*/

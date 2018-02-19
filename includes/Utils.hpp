@@ -1,12 +1,15 @@
 #ifndef UTILS_HPP_
 # define UTILS_HPP_
 
-#include <unistd.h>
-#include <string>
-#include <fstream>
-#include <vector>
-#include <string.h>
-#include "Error.hpp"
+# include <unistd.h>
+# include <string>
+# include <fstream>
+# include <vector>
+# include <string.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <unistd.h>
+# include "Error.hpp"
 
 class Utils {
 public:
@@ -28,6 +31,19 @@ public:
   * \return the opened file
   */
   static std::string  readFile(std::string const &path);
+
+  /**
+  * Get the extension of a file [file]
+  * \return the extension or an empty string if there isn't
+  */
+  static std::string  getExtension(std::string const &file);
+
+  /**
+  * Check if [path] is a directory
+  * throws FileNotFound
+  * \return : bool
+  */
+  static bool         isDirectory(std::string const &path);
 };
 
 #endif /* end of include guard: UTILS_HPP_ */

@@ -1,21 +1,24 @@
 #ifndef HTTPINTERPRETER_HPP_
 # define HTTPINTERPRETER_HPP_
 
-#include <iostream>
-#include <string>
-#include <ctime>
-#include "http.h"
-#include "Utils.hpp"
-#include "Constant.hpp"
-#include "HttpParser.hpp"
+# include <iostream>
+# include <string>
+# include <ctime>
+# include "http.h"
+# include "Utils.hpp"
+# include "module.h"
+# include "Constant.hpp"
+# include "HttpParser.hpp"
+# include "HtmlManager.hpp"
 
 namespace zia::api {
   class   HttpInterpreter {
   public:
     /**
-    * [root] : the root directory
+    * [roots] : the roots directory as ("host","root")
+    * [module] : the PHP module
     */
-    HttpInterpreter(std::string const &root);
+    HttpInterpreter(std::map<std::string, std::string> const &root, Module *php = nullptr);
     HttpInterpreter(HttpInterpreter const &);
     HttpInterpreter   &operator=(HttpInterpreter const &);
     ~HttpInterpreter();
@@ -24,26 +27,35 @@ namespace zia::api {
     * Interpret the request [request]
     * \return the formatted HTTP Response
     */
-    std::string           interpret(std::string const &request);
+    std::string         interpret(std::string const &request);
+
+    /**
+    * Create a default HttpResponse with [status] and [reason] (has to be format with this._parser.parse(HttpResponse))
+    * \return the response
+    */
+    static struct HttpResponse getDefaultResponse(http::Status const &status = http::common_status::unknown, std::string const &reason = "");
 
     /**
     * Setters
     */
-    void                  setRoot(std::string const &root) { _root = root; }
+    void                setRoots(std::map<std::string, std::string> const &roots) { _roots = roots; }
 
     /**
     * Getters
     */
-    std::string           getRoot() const { return _root; }
+    std::map<std::string, std::string>  getRoots() const { return _roots; }
 
+    static Net::Raw            getBody(std::string const &);
+
+    HttpParser          _parser;
   private:
-    struct HttpResponse   getDefaultResponse(http::Status const &status = http::common_status::unknown, std::string const &reason = "");
-    struct HttpResponse   get(struct HttpRequest const &request, bool body = true);
+    struct HttpResponse get(struct HttpRequest const &request, bool body = true);
 
-    Net::Raw              getBody(std::string const &);
+    std::string         getRootFromHost(std::map<std::string, std::string> const &);
 
-    std::string           _root;
-    HttpParser            _parser;
+    std::map<std::string, std::string>  _roots;
+    std::map<std::string, std::string>  _mimeType;
+    Module                              *_php;
   };
 } /* zia::api */
 
