@@ -27,6 +27,6 @@ namespace zia::api {
         /**
         * Called only for test (print an error message with the module's name)
         */
-        virtual void test() const = 0;
+        virtual void test() = 0;
     };
 }

@@ -8,6 +8,7 @@
 // Last update Sun Nov  5 17:00:15 2017 Quentin Albertone
 //
 
+#include "SSLModule.hpp"
 #include "ModuleLoader.hpp"
 #include "module.h"
 // #include <unistd.h>
@@ -17,11 +18,14 @@ int		main(int argc, char **argv)
   // Socket	a(atoi(argv[1]));
   zia::api::ModuleLoader launcher;
   zia::api::Module  *module;
+  zia::api::HttpDuplex httpData;
 
   (void)argc;
   (void)argv;
   try {
-    module = launcher.loadModule("sources/api/modules/test_module.so", "test_module.so");
+    //module = launcher.loadModule("sources/api/modules/test_module.so", "test_module.so");
+    module = launcher.loadModule("sources/api/modules/ssl_module.so", "ssl_module.so");
+    // module->exec(httpData);
     module->test();
     // sleep(10);
     // module = launcher.reloadModule("sources/api/modules/test_module.so", "test_module.so");

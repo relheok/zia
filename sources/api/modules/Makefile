@@ -8,7 +8,7 @@
 ## Last update Mon Apr  3 21:38:13 2017 Maxime Maisonnas
 ##
 
-NAME	= test_module.so
+NAME	= ssl_module.so
 
 CC	= g++
 
@@ -16,13 +16,13 @@ RM	= rm -f
 
 CXXFLAGS += -I../../../includes/api/modules/ -I../../../includes/api/ -W -Wall -Wextra -std=c++17 #-Werror
 
-LDFLAGS	 +=
+LDFLAGS	 += -lssl -lcrypto
 
 # Flags lib dynamique
 CXXFLAGS += -fPIC -c
 LDFLAGS	+= -shared
 
-SRCS	= TestModule.cpp
+SRCS	= SSLModule.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 
