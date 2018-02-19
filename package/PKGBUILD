@@ -14,5 +14,5 @@ sha256sums=(SKIP '35492d709b549684963e822d8e3a24d61f8ea31da6ea8691d96665d2a86724
 package() {
   # mkdir -p -m 750 "$pkgdir"/var/lib/zia
   install -Dm644 "$srcdir"/zia.service "$pkgdir"/usr/lib/systemd/system/zia.service
-  install -Dm755 "$srcdir"/zia "$pkgdir"/bin/zia
+  install -Dm755 "$srcdir"/zia "$pkgdir"/usr/bin/zia
 }
