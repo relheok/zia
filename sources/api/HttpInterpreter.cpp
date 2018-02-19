@@ -66,23 +66,23 @@ namespace zia::api {
         case http::Method::delete_:
         case http::Method::trace:
         case http::Method::connect:
-          response = getDefaultResponse(http::common_status::ok, "OK");
+          response = getDefaultResponse(r, http::common_status::ok, "OK");
           break;
         default:
-          response = getDefaultResponse(http::common_status::bad_request, "Bad Request");
+          response = getDefaultResponse(r, http::common_status::bad_request, "Bad Request");
           break;
       }
     } catch (BadRequestError &e) {
       std::cerr << e.what() << '\n';
-      response = getDefaultResponse(http::common_status::bad_request, "Bad Request");
+      response = getDefaultResponse(r, http::common_status::bad_request, "Bad Request");
     } catch (RequestUriTooLargeError &e) {
       std::cerr << e.what() << '\n';
-      response = getDefaultResponse(http::common_status::request_uri_too_large, "Request-URI Too Long");
+      response = getDefaultResponse(r, http::common_status::request_uri_too_large, "Request-URI Too Long");
     }
     return _parser.parse(response);
   }
 
-  struct HttpResponse   HttpInterpreter::getDefaultResponse(http::Status const &status, std::string const &reason) {
+  struct HttpResponse   HttpInterpreter::getDefaultResponse(struct HttpRequest &req, http::Status const &status, std::string const &reason) {
     struct HttpResponse response;
     time_t              t = std::time(nullptr);
 
@@ -93,18 +93,21 @@ namespace zia::api {
     std::strftime(buf, 42, "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&t));
     response.headers["Date"] = buf;
     response.headers["Server"] = SERVER_NAME + std::string("/") + SERVER_VERSION;
+    if (req.headers.find("Cookie") != req.headers.end())
+      response.headers["Cookie"] = req.headers["Cookie"];
     return response;
   }
 
-  struct HttpResponse         HttpInterpreter::get(struct HttpRequest const &request, bool body) {
+  struct HttpResponse         HttpInterpreter::get(struct HttpRequest &request, bool body) {
     struct HttpResponse       response;
     std::vector<std::string>  v = Utils::split(request.uri, "?");
     HttpDuplex                duplex;
 
-    duplex.req = request;
     try {
-    std::string path = getRootFromHost(request.headers) + request.uri;
-      response = getDefaultResponse(http::common_status::ok, "OK");
+      duplex.req = request;
+      duplex.resp = getDefaultResponse(request, http::common_status::ok, "OK");
+      std::string path = getRootFromHost(request.headers) + request.uri;
+      response = getDefaultResponse(request, http::common_status::ok, "OK");
       if (_mimeType.find(Utils::getExtension(v[0])) != _mimeType.end()) {
         response.body = getBody(Utils::readFile(path));
         response.headers["Content-Type"] = _mimeType[Utils::getExtension(v[0])];
@@ -117,7 +120,7 @@ namespace zia::api {
         _php->exec(duplex);
         return duplex.resp;
       } else if (Utils::isDirectory(path)) {
-        response = getDefaultResponse(http::common_status::ok, "OK");
+        response = getDefaultResponse(request, http::common_status::ok, "OK");
         response.body = getBody(HtmlManager::viewDirectory(path, request.uri));
         response.headers["Content-Type"] = _mimeType["html"];
         response.headers["Content-Length"] = std::to_string(response.body.size());
@@ -126,10 +129,13 @@ namespace zia::api {
         throw FileNotFound(request.uri);
     } catch (FileNotFound &e) {
       std::cerr << e.what() << '\n';
-      return getDefaultResponse(http::common_status::not_found, "Not found");
+      return getDefaultResponse(request, http::common_status::not_found, "Not found");
     } catch (BadRequestError &e) {
       std::cerr << e.what() << '\n';
-      return getDefaultResponse(http::common_status::bad_request, "Bad Request");
+      return getDefaultResponse(request, http::common_status::bad_request, "Bad Request");
+    } catch (std::exception &e) {
+      std::cerr << e.what() << '\n';
+      return getDefaultResponse(request, http::common_status::internal_server_error, "Internal Server Error");
     }
     return response;
   }

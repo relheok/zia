@@ -31,9 +31,10 @@ namespace zia::api {
 
     /**
     * Create a default HttpResponse with [status] and [reason] (has to be format with this._parser.parse(HttpResponse))
+    * from the request [request]
     * \return the response
     */
-    static struct HttpResponse getDefaultResponse(http::Status const &status = http::common_status::unknown, std::string const &reason = "");
+    static struct HttpResponse getDefaultResponse(struct HttpRequest &request, http::Status const &status = http::common_status::unknown, std::string const &reason = "");
 
     /**
     * Setters
@@ -49,7 +50,7 @@ namespace zia::api {
 
     HttpParser          _parser;
   private:
-    struct HttpResponse get(struct HttpRequest const &request, bool body = true);
+    struct HttpResponse get(struct HttpRequest &request, bool body = true);
 
     std::string         getRootFromHost(std::map<std::string, std::string> const &);
 
