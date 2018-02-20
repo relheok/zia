@@ -9,112 +9,22 @@
 
 namespace zia::api {
 
-void		ConfigManager::ReadFile()
+void	ConfigManager::add_default(std::string key, std::string value)
 {
-	std::ifstream file(_path);
-	std::string res( (std::istreambuf_iterator<char>(file)),
-                       (std::istreambuf_iterator<char>()));
-	std::wstring widestr = std::wstring(res.begin(), res.end());
-	const wchar_t* test = widestr.c_str();
-	JSONValue *doc = JSON::Parse(test);
-	setDoc(doc);
-}
+	ConfValue	tmp;
 
-void		ConfigManager::ParseDoc()
-{
-	if (_doc == NULL || _doc->IsObject() == false)
-		throw ConfigError("Is it a json file ?");
-	else
-	{
-		JSONObject mod;
-		mod = getDoc()->AsObject();
-		find_modules(mod);
-		find_modules_path(mod);
-		// find any other key it's here !
- 	}
-}
-
-void		ConfigManager::find_modules(JSONObject mod)
-{
-	std::vector<std::string> modules;
-	std::string 			 tmp;
-	JSONArray array = mod[L"modules"]->AsArray();
-
-	if (mod.find(L"modules") != mod.end() && mod[L"modules"]->IsArray())
-	{
-		for (unsigned int i = 0; i < array.size(); i++)
-		{
-			tmp = format_wstring(array, i);
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\"' ), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\\' ), tmp.end());
-			modules.push_back(tmp);
-		}
-		setModules(modules);
-	}
-}
-
-void		ConfigManager::find_modules_path(JSONObject mod)
-{
-	std::vector<std::string> modules_path;
-	std::string 			 tmp;
-	JSONArray array = mod[L"modules_path"]->AsArray();
-
-	if (mod.find(L"modules_path") != mod.end() && mod[L"modules_path"]->IsArray())
-	{
-		for (unsigned int i = 0; i < array.size(); i++)
-		{
-			tmp = format_wstring(array, i);
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\"' ), tmp.end());
-			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\\' ), tmp.end());
-			modules_path.push_back(tmp);
-		}
-		setModules_path(modules_path);
-	}
-}
-
-std::string ConfigManager::format_wstring(JSONArray array, unsigned int i)
-{
-	std::string str;
-	std::wstring output;
-
-	output = array[i]->Stringify();
-	for (char x : output)
-		str += x;
-	return (str);
-}
-
-bool		ConfigManager::browser_conf()
-{
-	try 
-	{
-		CheckPath();
-		ParseDoc();
-		if (_modules.empty() == true || _modules_path.empty() == true)
-			return (true);
-		else
-		{
-			return (true);
-			//getModByPath();
-		}
-		return (true);
-	}
-	catch (std::exception &err)
-	{
-		std::cerr << err.what() << std::endl;
-		return (false);
-	}
-}
-
-void		ConfigManager::CheckPath()
-{
-	std::regex pattern {"^.*\\.(json)$"};
-
-	if (regex_match(getPath(), pattern) &&
-		access(getPath().c_str(), F_OK) == 0)
-		return ReadFile();
-	else
-		throw ConfigError("Need json file");
+	tmp.v = value;
+	_conf[key] = tmp;
 	return ;
+}
+
+void		ConfigManager::DefaultValue()
+{
+	// here if u want set other default value
+	add_default("root_dir", "/var/www");
+	add_default("server_name", "zia");
+	add_default("server_version", "0.1");
+	return ; 
 }
 
 //Cannonique Forme
@@ -138,19 +48,24 @@ ConfigManager::~ConfigManager()
 
 ConfigManager	&ConfigManager::operator=(ConfigManager const &p)
 {
-	_conf = p.getConfAr();
+	_conf = p.getConf();
 	_modules = p.getModules();
 	_modules_path = p.getModules_path();
 	return (*this);
 }
 
 // Getter
+zia::api::ModulePathList	ConfigManager::getListModules() const
+{
+	return (_list);
+}
+
 std::string					ConfigManager::getPath() const
 {
 	return (_path);
 }
 
-ConfArray					ConfigManager::getConfAr() const
+Conf						ConfigManager::getConf() const
 {
 	return (_conf);
 }
