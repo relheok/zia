@@ -9,7 +9,7 @@ depends=()
 optdepends=()
 backup=()
 source=('zia' 'zia.service')
-sha256sums=(SKIP '35492d709b549684963e822d8e3a24d61f8ea31da6ea8691d96665d2a86724be')
+sha256sums=(SKIP '736925b39f5854a27fcd526d4103aeedd6a3b2ffd3adfd4b5d8ad6052ce6dfd6')
 
 package() {
   # mkdir -p -m 750 "$pkgdir"/var/lib/zia

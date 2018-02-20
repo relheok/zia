@@ -7,6 +7,8 @@
 
 NAME		= zia
 
+PACKAGE		= package
+
 RM			= rm -f
 
 CXX			= g++
@@ -26,6 +28,8 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	@echo "Building $(NAME)..."
 	@$(CXX) -o $(NAME) $(OBJS) $(CXXFLAGS) $(LDFLAGS)
+	@cp $(NAME) $(PACKAGE)
+	@make -C $(PACKAGE)
 
 clean:
 	@echo "Cleaning temporary files..."
@@ -37,6 +41,7 @@ fclean: clean
 	@echo "Cleaning executable..."
 	@$(RM) $(NAME)
 	cd sources/modules && make fclean
+	@make -C $(PACKAGE) clean
 
 re: fclean all
 
