@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:04:17 2018 Jérémy Koehler
-// Last update Fri Jan 26 12:45:33 2018 Jérémy Koehler
+// Last update Tue Feb 20 17:01:27 2018 Jérémy Koehler
 //
 
 #include "daemon.hpp"
@@ -25,8 +25,17 @@ bool	zia::Daemon::isAlive() {
   return _killed;
 }
 
+void	zia::Daemon::setConf(api::ConfigManager *conf) {
+  _conf = conf;
+}
+
+void	zia::Daemon::updateConf() {
+  if (_conf)
+    _conf->browser_conf();
+}
+
 zia::Daemon::Daemon(std::string file):
-  _killed(true), _fileName(file) {
+  _killed(true), _fileName(file), _conf(NULL) {
   signal(SIGCHLD, SIG_IGN);
 
   /* shutdown signals */
@@ -39,8 +48,8 @@ zia::Daemon::Daemon(std::string file):
   signal(SIGHUP, zia::Daemon::shutdownSignal);
 
   /* do smth */
-  signal(SIGUSR1, SIG_IGN);
-  signal(SIGUSR2, SIG_IGN);
+  signal(SIGUSR1, zia::Daemon::reloadSignal);
+  signal(SIGUSR2, zia::Daemon::reloadSignal);
 
   if (!killProcess(file)) {
     std::ofstream test(file);
@@ -68,9 +77,6 @@ void	zia::Daemon::daemonize() {
   /* Close all open file descriptors */
   for (int x = sysconf(_SC_OPEN_MAX); x >= 0; --x)
     close (x);
-
-  /* Open the log file */
-  openlog("firstdaemon", LOG_PID, LOG_DAEMON);
 }
 
 void	zia::Daemon::closeParent() {
@@ -114,5 +120,5 @@ void	zia::Daemon::shutdownSignal(__attribute__((unused))int sig) {
 }
 
 void	zia::Daemon::reloadSignal(__attribute__((unused))int sig) {
-  std::cout << "Reloading config..." << std::endl;
+  zia::Daemon::getInstance().updateConf();
 }

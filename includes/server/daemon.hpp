@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:06:13 2018 Jérémy Koehler
-// Last update Fri Jan 26 12:45:16 2018 Jérémy Koehler
+// Last update Tue Feb 20 16:26:43 2018 Jérémy Koehler
 //
 
 #ifndef DAEMON_HPP_
@@ -21,6 +21,8 @@
 # include <iostream>
 # include <fstream>
 
+# include "config_manager/ConfigManager.hpp"
+
 namespace zia {
   class Daemon {
 
@@ -30,6 +32,8 @@ namespace zia {
 
     void		stop();
     bool		isAlive();
+    void		setConf(api::ConfigManager *conf);
+    void		updateConf();
 
     // signal handlers
     static void		shutdownSignal(int sig);
@@ -44,6 +48,7 @@ namespace zia {
 
     bool	_killed;
     std::string	_fileName;
+    api::ConfigManager *_conf;
 
   public:
     //avoid copies
