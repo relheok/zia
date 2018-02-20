@@ -11,7 +11,7 @@ RM			= rm -f
 
 CXX			= g++
 
-CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -I includes/server
+CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/server -Iincludes/server/api -Iincludes/server/error
 
 LDFLAGS		+= -ldl
 

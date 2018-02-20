@@ -81,4 +81,44 @@ public:
       std::string         _err;
 };
 
+/**
+* Thrown in case of invalid request
+*/
+class                 BadRequestError : public std::exception {
+public:
+  BadRequestError(std::string const &err) throw() {
+    _err = "Bad request : " + err + ".";
+  }
+  virtual ~BadRequestError() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+
+  private:
+      std::string         _err;
+};
+
+/**
+* Thrown in case of invalid request
+*/
+class                 RequestUriTooLargeError : public std::exception {
+public:
+  RequestUriTooLargeError() throw() {}
+  virtual ~RequestUriTooLargeError() throw() {}
+
+  virtual const char  *what() const throw() { return ("Request Uri Too large"); }
+};
+
+class                 FileNotFound : public std::exception {
+public:
+  FileNotFound(std::string const &err) throw() {
+    _err = "File not found : " + err;
+  }
+  virtual ~FileNotFound() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+
+  private:
+      std::string         _err;
+};
+
 #endif /* !Error.hpp */
