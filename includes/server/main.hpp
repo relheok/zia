@@ -9,6 +9,7 @@
 #ifndef _MAIN_HPP_
  #define _MAIN_HPP_
 
+#include "daemon.hpp"
 #include "config_manager/ConfigManager.hpp"
 #include "error/Error.hpp"
 #include "module_manager/ModuleManager.hpp"
