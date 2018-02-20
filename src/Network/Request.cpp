@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 17:52:26 2017 Quentin Albertone
-// Last update Mon Jan 29 18:17:24 2018 Quentin Albertone
+// Last update Tue Feb 20 12:13:55 2018 Jérémy Koehler
 //
 
 //#include <utility>
@@ -46,14 +46,14 @@ RequestList				&RequestList::operator+(RequestList const &list)
   return (*this);
 }
 
-std::vector<std::pair<Client *, std::string>>		RequestList::getRequestList()
+std::list<std::pair<Client *, std::string>>		RequestList::getRequestList()
 {
   return (_request);
 }
 
 void					RequestList::displayRequest()
 {
-  std::vector<std::pair<Client *, std::string>>::iterator it = _request.begin();
+  std::list<std::pair<Client *, std::string>>::iterator it = _request.begin();
 
   std::cout << "RequestList: " << std::endl;
   for(; it != _request.end(); ++it)
