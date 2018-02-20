@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Tue Feb 20 21:18:25 2018 Jérémy Koehler
+// Last update Tue Feb 20 23:10:22 2018 Jérémy Koehler
 //
 
 #include "main.hpp"
@@ -15,6 +15,17 @@
 #include "daemon.hpp"
 #include "http/HttpInterpreter.hpp"
 #include "module_manager/ModuleManager.hpp"
+
+void		usage(std::string execName)
+{
+  std::cout << "Usage: " << execName << " [OPTION]" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Options:" << std::endl;
+  std::cout << "  -c, --config=file   set configuration file (default: /etc/zia/zia.json)" << std::endl;
+  std::cout << "  -r, --reload        reload the configuration file" << std::endl;
+  std::cout << "  -s, --signal=sig    send signal sig to the master process: stop, quit, reload" << std::endl;
+  std::cout << "  -h, --help          display this help and exit" << std::endl;
+}
 
 int		process(std::string confPath)
 {
@@ -43,13 +54,14 @@ int		main(int argc, char **argv)
     {
       {"config", required_argument, 0, 'c'},
       {"reload", no_argument, 0, 'r'},
-      {"signal", required_argument, 0, 's'}
+      {"signal", required_argument, 0, 's'},
+      {"help", no_argument, 0, 'h'}
     };
   int option_index = 0;
   int c;
   std::string confPath("./example/example.json"); // this will be the default value of our conf path
 
-  while ((c = getopt_long (argc, argv, "c:rs:",
+  while ((c = getopt_long (argc, argv, "c:rs:h",
 			   long_options, &option_index)) != -1)
     {
       switch (c)
@@ -62,6 +74,9 @@ int		main(int argc, char **argv)
 	  return (0);
 	case 's':
 	  zia::Daemon::sendSignal(optarg);
+	  return (0);
+	case 'h':
+	  usage(argv[0]);
 	  return (0);
 	}
     }
