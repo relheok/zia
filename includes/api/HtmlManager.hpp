@@ -5,6 +5,7 @@
 # include <dirent.h>
 # include "http.h"
 # include "Utils.hpp"
+# include "Constant.hpp"
 
 
 namespace zia::api {
@@ -17,7 +18,7 @@ namespace zia::api {
     * throws FileNotFound
     * \return : the string containing the html
     */
-    static std::string    viewDirectory(std::string const &path, std::string const &uri);
+    static std::string    viewDirectory(std::string const &path, std::string uri);
   };
 } /* zia::api */
 

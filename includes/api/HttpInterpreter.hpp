@@ -6,7 +6,7 @@
 # include <ctime>
 # include "http.h"
 # include "Utils.hpp"
-# include "module.h"
+# include "ModuleManager.hpp"
 # include "Constant.hpp"
 # include "HttpParser.hpp"
 # include "HtmlManager.hpp"
@@ -18,7 +18,7 @@ namespace zia::api {
     * [roots] : the roots directory as ("host","root")
     * [module] : the PHP module
     */
-    HttpInterpreter(std::map<std::string, std::string> const &root, Module *php = nullptr);
+    HttpInterpreter(std::map<std::string, std::string> const &root, ModulesList modules);
     HttpInterpreter(HttpInterpreter const &);
     HttpInterpreter   &operator=(HttpInterpreter const &);
     ~HttpInterpreter();
@@ -56,7 +56,7 @@ namespace zia::api {
 
     std::map<std::string, std::string>  _roots;
     std::map<std::string, std::string>  _mimeType;
-    Module                              *_php;
+    ModulesList                         _modules;
   };
 } /* zia::api */
 

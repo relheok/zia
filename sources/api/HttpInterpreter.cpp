@@ -1,7 +1,7 @@
 #include "HttpInterpreter.hpp"
 
 namespace zia::api {
-  HttpInterpreter::HttpInterpreter(std::map<std::string, std::string> const &roots, Module *php) : _roots(roots), _php(php) {
+  HttpInterpreter::HttpInterpreter(std::map<std::string, std::string> const &roots, ModulesList modules) : _roots(roots), _modules(modules) {
     _mimeType = {
       {"avi","video/x-msvideo"},
       {"bin","application/octet-stream"},
@@ -48,17 +48,20 @@ namespace zia::api {
   HttpInterpreter::~HttpInterpreter() {}
 
   std::string           HttpInterpreter::interpret(std::string const &request) {
-    struct HttpResponse response;
-    struct HttpRequest r;
+    struct HttpDuplex   duplex;
 
     try {
-      r = _parser.parse(request);
-      switch (r.method) {
+      duplex.req = _parser.parse(request);
+      duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
+      for (auto it = _modules.begin(); it != _modules.end(); it++)
+        if (it->module->exec(duplex))
+          return _parser.parse(duplex.resp);
+      switch (duplex.req.method) {
         case http::Method::get:
-          response = get(r);
+          duplex.resp = get(duplex.req);
           break;
         case http::Method::head:
-          response = get(r, false);
+          duplex.resp = get(duplex.req, false);
           break;
         case http::Method::options:
         case http::Method::post:
@@ -66,20 +69,20 @@ namespace zia::api {
         case http::Method::delete_:
         case http::Method::trace:
         case http::Method::connect:
-          response = getDefaultResponse(r, http::common_status::ok, "OK");
+          duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
           break;
         default:
-          response = getDefaultResponse(r, http::common_status::bad_request, "Bad Request");
+          duplex.resp = getDefaultResponse(duplex.req, http::common_status::bad_request, "Bad Request");
           break;
       }
     } catch (BadRequestError &e) {
       std::cerr << e.what() << '\n';
-      response = getDefaultResponse(r, http::common_status::bad_request, "Bad Request");
+      duplex.resp = getDefaultResponse(duplex.req, http::common_status::bad_request, "Bad Request");
     } catch (RequestUriTooLargeError &e) {
       std::cerr << e.what() << '\n';
-      response = getDefaultResponse(r, http::common_status::request_uri_too_large, "Request-URI Too Long");
+      duplex.resp = getDefaultResponse(duplex.req, http::common_status::request_uri_too_large, "Request-URI Too Long");
     }
-    return _parser.parse(response);
+    return _parser.parse(duplex.resp);
   }
 
   struct HttpResponse   HttpInterpreter::getDefaultResponse(struct HttpRequest &req, http::Status const &status, std::string const &reason) {
@@ -104,8 +107,6 @@ namespace zia::api {
     HttpDuplex                duplex;
 
     try {
-      duplex.req = request;
-      duplex.resp = getDefaultResponse(request, http::common_status::ok, "OK");
       std::string path = getRootFromHost(request.headers) + request.uri;
       response = getDefaultResponse(request, http::common_status::ok, "OK");
       if (_mimeType.find(Utils::getExtension(v[0])) != _mimeType.end()) {
@@ -114,19 +115,19 @@ namespace zia::api {
         response.headers["Content-Length"] = std::to_string(response.body.size());
         if (!body)
           response.body.clear();
-      } else if (Utils::getExtension(v[0]).compare("php") == 0) {
-        if (!_php)
-          throw BadRequestError("php isn't supported");
-        _php->exec(duplex);
-        return duplex.resp;
       } else if (Utils::isDirectory(path)) {
         response = getDefaultResponse(request, http::common_status::ok, "OK");
         response.body = getBody(HtmlManager::viewDirectory(path, request.uri));
         response.headers["Content-Type"] = _mimeType["html"];
         response.headers["Content-Length"] = std::to_string(response.body.size());
         return response;
-      } else
-        throw FileNotFound(request.uri);
+      } else {
+        response = getDefaultResponse(request, http::common_status::ok, "OK");
+        response.body = getBody(Utils::readFile(path));
+        response.headers["Content-Type"] = "text/plain";
+        response.headers["Content-Length"] = std::to_string(response.body.size());
+        return response;
+      }
     } catch (FileNotFound &e) {
       std::cerr << e.what() << '\n';
       return getDefaultResponse(request, http::common_status::not_found, "Not found");
