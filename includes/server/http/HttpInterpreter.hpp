@@ -16,7 +16,7 @@ namespace zia::api {
   public:
     /**
     * [roots] : the roots directory as ("host","root")
-    * [module] : the PHP module
+    * [modules] : the modules' list
     */
     HttpInterpreter(std::map<std::string, std::string> const &root, ModulesList modules);
     HttpInterpreter(HttpInterpreter const &);

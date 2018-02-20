@@ -19,6 +19,13 @@ namespace zia::api {
     * \return : the string containing the html
     */
     static std::string    viewDirectory(std::string const &path, std::string uri);
+
+    /**
+    * Convert the Error into HTML
+    * throws FileNotFound
+    * \return : the string containing the html
+    */
+    static std::string    viewDirectory(http::Status const &status, std::string const &reason);
   };
 } /* zia::api */
 

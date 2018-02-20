@@ -92,8 +92,8 @@ namespace zia::api {
     response.version = http::Version::http_1_1;
     response.status = status;
     response.reason = reason;
-    char buf[42];
-    std::strftime(buf, 42, "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&t));
+    char buf[100];
+    std::strftime(buf, 100, "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&t));
     response.headers["Date"] = buf;
     response.headers["Server"] = SERVER_NAME + std::string("/") + SERVER_VERSION;
     if (req.headers.find("Cookie") != req.headers.end())
