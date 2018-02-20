@@ -82,6 +82,17 @@ namespace zia::api {
       std::cerr << e.what() << '\n';
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::request_uri_too_large, "Request-URI Too Long");
     }
+    if (duplex.resp.status != http::common_status::ok && duplex.resp.body.empty()) {
+      try {
+        duplex.resp.body = getBody(HtmlManager::viewError(duplex.resp.status, duplex.resp.reason, duplex.req.headers["Host"]));
+        duplex.resp.headers["Content-Type"] = _mimeType["html"];
+        duplex.resp.headers["Content-Length"] = std::to_string(duplex.resp.body.size());
+      } catch (std::exception &e) {
+        std::cerr << e.what() << '\n';
+        duplex.resp.status = http::common_status::internal_server_error;
+        duplex.resp.reason = "Internal Server Error";
+      }
+    }
     return _parser.parse(duplex.resp);
   }
 

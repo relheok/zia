@@ -3,8 +3,9 @@
 namespace zia::api {
   std::string    HtmlManager::viewDirectory(std::string const &path, std::string uri) {
     std::string   body = Utils::readFile(VIEW_DIR_FILE);
-    DIR *dir = opendir(path.c_str());
+    DIR           *dir = opendir(path.c_str());
     struct dirent *odir = NULL;
+
     if (!dir)
       throw FileNotFound("file not found : " + path);
     body.replace(body.find("[path]"), 6, uri);
@@ -18,6 +19,15 @@ namespace zia::api {
     list += "</ul>";
     body.replace(body.find("[list]"), 6, list);
     closedir(dir);
+    return body;
+  }
+
+  std::string   HtmlManager::viewError(http::Status const &status, std::string const &reason, std::string const &host) {
+    std::string body = Utils::readFile(VIEW_ERROR_FILE);
+
+    body.replace(body.find("[status]"), 8, std::to_string(status));
+    body.replace(body.find("[reason]"), 8, reason);
+    body.replace(body.find("[host]"), 6, host);
     return body;
   }
 } /* zia::api */
