@@ -179,7 +179,7 @@ ConfObject	ConfigManager::add_array_for_obj(std::string key, JSONValue *key_valu
 		}
 	}
 	ConfValue 	end;
-	end.v = obj; 
+	end.v = obj;
 	obj_end[key] = end;
 	return (obj_end);
 }
@@ -221,7 +221,7 @@ void	ConfigManager::add_array(std::string key, JSONValue *key_value)
 		}
 	}
 	ConfValue 	end;
-	end.v = obj; 
+	end.v = obj;
 	_conf[key] = end;
 }
 

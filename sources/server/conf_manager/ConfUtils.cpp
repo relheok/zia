@@ -62,7 +62,7 @@ void		ConfigManager::find_modules_path(JSONObject mod)
 void		ConfigManager::getModByPath()
 {
 	std::pair<std::string, std::string> key;
-	
+
 	for (unsigned int i = 0; i < _modules.size(); i++)
 	{
 		for (unsigned int x = 0; x < _modules_path.size(); x++)
@@ -76,8 +76,8 @@ void		ConfigManager::getModByPath()
 				break ;
 			}
 		}
-		if (_list.back().first != _modules[i])
-			std::cerr << "modules: " << _modules[i] << " not found !" << std::endl;
+	        if (_list.empty() || _list.back().first != _modules[i])
+		  std::cerr << "modules: " << _modules[i] << " not found !" << std::endl;
 	}
 }
 
@@ -95,16 +95,21 @@ void		ConfigManager::CheckPath()
 
 static int	check_str(std::string str)
 {
-	for (unsigned int i; i < str.size(); i++)
+	for (unsigned int i = 0; i < str.size(); i++)
 	{
-		if ((str[i] >= '0' && str[i] <= '9') || str[i] == '-')
-			continue ;
-		else if (str[i] == '.')
-			return (2);
+		if ((str[i] >= '0' && str[i] <= '9') || str[i] == '-' || str[i] == '.' || str[i] == '+')
+		  continue ;
 		else
-			return (1);
+		  return (0);
 	}
-	return (0);
+
+	for (unsigned int i = 0; i < str.size(); i++)
+	{
+		if (str[i] == '.')
+		  return (2);
+
+	}
+	return (1);
 }
 
 ConfValue 	ConfigManager::parse_str(std::string str)
@@ -115,7 +120,7 @@ ConfValue 	ConfigManager::parse_str(std::string str)
 	ConfValue 		ret;
 
 	switch (check_str(str)) {
-		case 1 : 
+		case 1 :
 			res1 = std::stol(str, NULL, 10);
 			ret.v = res1;
 			break;
