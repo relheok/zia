@@ -1,13 +1,1 @@
-{
-  "modules": [
-    "gzip",
-    "php",
-    "ssl",
-    "bar"
-  ],
-  "modules_path": [
-    "./lib",
-    "usr/lib",
-    "./toto"
-  ]
-}
+{}
