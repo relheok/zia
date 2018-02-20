@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:04:17 2018 Jérémy Koehler
-// Last update Tue Feb 20 17:01:27 2018 Jérémy Koehler
+// Last update Tue Feb 20 20:29:39 2018 Jérémy Koehler
 //
 
 #include "daemon.hpp"
@@ -16,9 +16,29 @@ zia::Daemon		&zia::Daemon::getInstance(std::string file) {
   return daemon;
 }
 
+void	zia::Daemon::sendSignal(std::string signal)
+{
+  if (signal == "stop" || signal == "STOP"
+      || signal == "quit" || signal == "QUIT")
+    {
+      if (killProcess(SIGINT) == false)
+	std::cerr << "Failed to kill process" << std::endl;
+    }
+  else if (signal == "reload" || signal == "RELOAD")
+    {
+      if (killProcess(SIGUSR1) == false)
+	std::cerr << "Failed to reload conf" << std::endl;
+    }
+  else
+    {
+      std::cerr << "Invalid signal " << signal << std::endl;
+    }
+}
+
 void	zia::Daemon::stop() {
   remove(_fileName.c_str());
   _killed = false;
+  Logger::getInstance().info("[ZIA] shutting down");
 }
 
 bool	zia::Daemon::isAlive() {
@@ -51,16 +71,22 @@ zia::Daemon::Daemon(std::string file):
   signal(SIGUSR1, zia::Daemon::reloadSignal);
   signal(SIGUSR2, zia::Daemon::reloadSignal);
 
-  if (!killProcess(file)) {
-    std::ofstream test(file);
+  struct stat info;
+  if (stat(_fileName.c_str(), &info) != 0)
+    {
+      std::ofstream test(_fileName);
 
-    if (!test.is_open()) {
-      std::cerr << "Can not open file " << file << ": Permission denied" << std::endl;
+      if (!test.is_open()) {
+	std::cerr << "Can not open file " << file << ": Permission denied" << std::endl;
+	exit(2);
+      };
+      daemonize();
+    }
+  else
+    {
+      std::cerr << "Can not launch server: " << _fileName << " already exist." << std::endl;
       exit(2);
     }
-    test.close();
-    daemonize();
-  }
 }
 
 void	zia::Daemon::daemonize() {
@@ -77,6 +103,7 @@ void	zia::Daemon::daemonize() {
   /* Close all open file descriptors */
   for (int x = sysconf(_SC_OPEN_MAX); x >= 0; --x)
     close (x);
+  Logger::getInstance().info("[ZIA] starting server");
 }
 
 void	zia::Daemon::closeParent() {
@@ -99,16 +126,15 @@ void		zia::Daemon::writePid() {
   file.close();
 }
 
-bool		zia::Daemon::killProcess(std::string fileName) {
+bool		zia::Daemon::killProcess(int signal) {
   pid_t		pid;
   std::ifstream	file;
 
-  file.open(fileName);
+  file.open("/run/zia.pid");
   if (file.is_open()) {
-    _killed = false;
     file >> pid;
     file.close();
-    kill(pid, SIGINT);
+    kill(pid, signal);
     return true;
   }
   return false;
@@ -121,4 +147,5 @@ void	zia::Daemon::shutdownSignal(__attribute__((unused))int sig) {
 
 void	zia::Daemon::reloadSignal(__attribute__((unused))int sig) {
   zia::Daemon::getInstance().updateConf();
+  zia::Logger::getInstance().info("[ZIA] reload conf");
 }

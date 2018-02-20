@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:06:13 2018 Jérémy Koehler
-// Last update Tue Feb 20 16:26:43 2018 Jérémy Koehler
+// Last update Tue Feb 20 20:16:13 2018 Jérémy Koehler
 //
 
 #ifndef DAEMON_HPP_
@@ -22,6 +22,7 @@
 # include <fstream>
 
 # include "config_manager/ConfigManager.hpp"
+# include "logger.hpp"
 
 namespace zia {
   class Daemon {
@@ -29,6 +30,8 @@ namespace zia {
   public:
     static Daemon	&getInstance(std::string file = "/run/zia.pid");
     ~Daemon()					= default;
+
+    static void		sendSignal(std::string signal);
 
     void		stop();
     bool		isAlive();
@@ -44,7 +47,7 @@ namespace zia {
     static void		daemonize();
     static void		closeParent();
     static void		writePid();
-    bool		killProcess(std::string fileName);
+    static bool		killProcess(int signal);
 
     bool	_killed;
     std::string	_fileName;
