@@ -21,11 +21,11 @@ namespace zia::api {
     static std::string    viewDirectory(std::string const &path, std::string uri);
 
     /**
-    * Convert the Error into HTML
+    * Convert the error [status] with message [reason] and add return link to [host] into HTML
     * throws FileNotFound
     * \return : the string containing the html
     */
-    //static std::string    viewDirectory(http::Status const &status, std::string const &reason);
+    static std::string    viewError(http::Status const &status, std::string const &reason, std::string const &host);
   };
 } /* zia::api */
 

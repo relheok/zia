@@ -47,7 +47,7 @@ int		main(int argc, char **argv)
     };
   int option_index = 0;
   int c;
-  std::string confPath("yolo.json"); // this will be the default value of our conf path
+  std::string confPath("./example/example.json"); // this will be the default value of our conf path
 
   while ((c = getopt_long (argc, argv, "c:rs:",
 			   long_options, &option_index)) != -1)
@@ -82,59 +82,55 @@ int		main(int argc, char **argv)
 }
 
 # define BUFFSIZE 4096
-# define _DEBUG_PORT 4243
 
 int		create_socket(int port);
 int		accept_socket(int fd, int port);
 
 int		old_main(int ac, char **av)
 {
+  int fd_cliGlobal;
+  int fd_inetGlobal;
   try {
-    std::string path((ac == 2) ? (av[1]) : (""));
+    std::string path((ac >= 2) ? (av[1]) : (""));
     zia::api::ConfigManager p(path);
-    if (ac >= 2 && p.browser_conf() == true) {
-      //zia::Daemon &daemon = zia::Daemon::getInstance();
+    if (!p.browser_conf())
+      std::cerr << "no conf file !" << std::endl;
+    //zia::Daemon &daemon = zia::Daemon::getInstance();
 
-      /* BEGIN TEST CODE */
-      int			fd_cliGlobal;
-      int			fd_inetGlobal;
-      char			buff[BUFFSIZE];
-      zia::api::HttpInterpreter interpreter(std::map<std::string, std::string>{{"localhost:4243", "."}}, zia::api::ModulesList());
+    /* BEGIN TEST CODE */
+    char			buff[BUFFSIZE];
+    zia::api::HttpInterpreter interpreter(std::map<std::string, std::string>{{"localhost:" + std::string(av[2]), "."}}, zia::api::ModulesList());
 
-      printf("port: %d\n", _DEBUG_PORT);
+    printf("port: %d\n", std::stoi(av[2]));
 
-      fd_inetGlobal = create_socket(_DEBUG_PORT);
-      fd_cliGlobal = accept_socket(fd_inetGlobal, _DEBUG_PORT);
-      memset(buff, 0, BUFFSIZE);
-      while (read(fd_cliGlobal, &buff, BUFFSIZE) > 0)
-        {
-          try {
-            std::cout << "\ngot :\n" << buff << '\n';
-            std::string str = interpreter.interpret(buff);
-            std::cout << "\nwrite :\n" << str << '\n';
-            write(fd_cliGlobal, str.c_str(), str.size());
-          } catch (std::exception &e) {
-            std::cout << e.what() << '\n';
-          }
-          //printf("%s", buff);
-          memset(buff, 0, BUFFSIZE);
+    fd_inetGlobal = create_socket(std::stoi(av[2]));
+    fd_cliGlobal = accept_socket(fd_inetGlobal, std::stoi(av[2]));
+    memset(buff, 0, BUFFSIZE);
+    while (read(fd_cliGlobal, &buff, BUFFSIZE) > 0)
+      {
+        try {
+          std::cout << "\ngot :\n" << buff << '\n';
+          std::string str = interpreter.interpret(buff);
+          std::cout << "\nwrite :\n" << str << '\n';
+          write(fd_cliGlobal, str.c_str(), str.size());
+        } catch (std::exception &e) {
+          std::cout << e.what() << '\n';
         }
-      close(fd_cliGlobal);
-      close(fd_inetGlobal);
-      /* END TEST CODE */
+        //printf("%s", buff);
+        memset(buff, 0, BUFFSIZE);
+      }
+    close(fd_cliGlobal);
+    close(fd_inetGlobal);
+    /* END TEST CODE */
 
-      //start server
-      // while (daemon.isAlive()) {
-      //   /*
-      //   ** TODO
-      //   */
-      // }
+    //start server
+    // while (daemon.isAlive()) {
+    //   /*
+    //   ** TODO
+    //   */
+    // }
 
-      return (0);
-    } else {
-      std::cout << "no conf file !" << std::endl;
-      // start server with default value
-    }
+    return (0);
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
     return (-1);
