@@ -25,7 +25,7 @@ namespace zia::api {
     * throws FileNotFound
     * \return : the string containing the html
     */
-    static std::string    viewDirectory(http::Status const &status, std::string const &reason);
+    //static std::string    viewDirectory(http::Status const &status, std::string const &reason);
   };
 } /* zia::api */
 
