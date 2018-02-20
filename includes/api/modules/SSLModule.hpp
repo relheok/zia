@@ -11,7 +11,13 @@
 # include "openssl/ssl.h"
 # include "openssl/err.h"
 
+#include <cstring>
+
 typedef zia::api::Module *(*myModule)();
+
+#define PRIVATE_KEY "key.pem"
+#define CERTIFICATE "cert.pem"
+#define BUFSIZE 1024
 
 namespace zia::api {
   class SSLModule : public Module {
@@ -24,6 +30,18 @@ namespace zia::api {
     virtual bool config(const Conf &conf);
     virtual bool exec(HttpDuplex &http);
     virtual void test();
+
+  private:
+    BIO       *_sbio;
+    BIO       *_io;
+    BIO       *_sslbio;
+    SSL       *_ssl;
+    SSL_CTX   *_ctx;
+
+    void      initCtx();
+    void      loadCertificate();
+    template<typename E>
+    void      exitOnError(E e);
   };
 }
 
