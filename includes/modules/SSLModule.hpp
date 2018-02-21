@@ -29,7 +29,6 @@ namespace zia::api {
 
     virtual bool config(const Conf &conf);
     virtual bool exec(HttpDuplex &http);
-    virtual void test();
 
   private:
     BIO       *_sbio;

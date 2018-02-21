@@ -50,10 +50,6 @@ namespace zia::api {
     return (true);
   }
 
-  void SSLModule::test() {
-
-  }
-
   void  SSLModule::initCtx() {
     const SSL_METHOD  *meth;
 

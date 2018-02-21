@@ -23,10 +23,5 @@ namespace zia::api {
         * \return true on success, otherwise false.
         */
         virtual bool exec(HttpDuplex& http) = 0;
-
-        /**
-        * Called only for test (print an error message with the module's name)
-        */
-        virtual void test() = 0;
     };
 }
