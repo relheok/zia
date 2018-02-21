@@ -49,6 +49,10 @@ void	zia::Daemon::setConf(api::ConfigManager *conf) {
   _conf = conf;
 }
 
+zia::api::Conf  &zia::Daemon::getConf() {
+  return _conf->getConf();
+}
+
 void	zia::Daemon::updateConf() {
   if (_conf)
     _conf->browser_conf();
