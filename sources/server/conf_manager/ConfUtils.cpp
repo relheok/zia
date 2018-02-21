@@ -26,6 +26,7 @@ void		ConfigManager::find_modules(JSONObject mod)
 {
 	std::vector<std::string> modules;
 	std::string 			 tmp;
+	std::string 			 str;
 
 	if (mod.find(L"modules") != mod.end() && mod[L"modules"]->IsArray())
 	{
@@ -34,6 +35,7 @@ void		ConfigManager::find_modules(JSONObject mod)
 		{
 			tmp = format_wstring(array[i]->Stringify());
 			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\"' ), tmp.end());
+			str = "lib" + tmp + ".so";
 			modules.push_back(tmp);
 		}
 		setModules(modules);
@@ -93,46 +95,11 @@ void		ConfigManager::CheckPath()
 	return ;
 }
 
-static int	check_str(std::string str)
-{
-	for (unsigned int i = 0; i < str.size(); i++)
-	{
-		if ((str[i] >= '0' && str[i] <= '9') || str[i] == '-' || str[i] == '.' || str[i] == '+')
-		  continue ;
-		else
-		  return (0);
-	}
-
-	for (unsigned int i = 0; i < str.size(); i++)
-	{
-		if (str[i] == '.')
-		  return (2);
-
-	}
-	return (1);
-}
-
 ConfValue 	ConfigManager::parse_str(std::string str)
 {
-	double			res2;
-	long long		res1;
-	std::string 	res3;
 	ConfValue 		ret;
 
-	switch (check_str(str)) {
-		case 1 :
-			res1 = std::stol(str, NULL, 10);
-			ret.v = res1;
-			break;
-		case 2 :
-			res2 = std::stod(str, NULL);
-			ret.v = res2;
-			break;
-		default :
-			res3 = str;
-			ret.v = res3;
-			break;
-	}
+	ret.v = str;
 	return (ret);
 }
 
@@ -143,6 +110,16 @@ std::string ConfigManager::format_wstring(std::wstring output)
 	for (char x : output)
 		str += x;
 	return (str);
+}
+
+bool		ConfigManager::isLong(double num)
+{
+	double fract, in;
+
+	fract = modf(num, &in);
+	if (fract == 0.0)
+		return (true);
+	return (false);
 }
 
 }
