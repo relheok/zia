@@ -7,3 +7,8 @@ vgcore*
 zia
 *.so
 *.d
+package/src
+package/*.tar.xz
+package/*.tar.gz
+package/*.db
+package/*.files
