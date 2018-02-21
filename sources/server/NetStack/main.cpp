@@ -5,12 +5,12 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Wed Feb 21 18:01:44 2018 Quentin Albertone
+// Last update Wed Feb 21 17:09:58 2018 Jérémy Koehler
 //
 
 #include "Network.hpp"
 
-int		main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
+int		main2(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 {
   Network::Socket	inet(atoi(argv[1]));
   Balancer		pipe;

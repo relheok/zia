@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Feb  7 14:25:23 2018 Quentin Albertone
-// Last update Wed Feb 21 18:03:03 2018 Quentin Albertone
+// Last update Wed Feb 21 17:20:08 2018 Jérémy Koehler
 //
 
 #include "Balancer.hpp"
@@ -27,9 +27,10 @@ void			Balancer::createSocket()
 {
   t_sockaddr_un		addr;
 
-  if ((_fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 3)
+  if ((_fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 1)
     {
       _fd = -1;
+      zia::Logger::getInstance().error("[BALANCER] Failed to create unix socket");
       return ;
     }
   addr.sun_family = AF_UNIX;
@@ -38,12 +39,14 @@ void			Balancer::createSocket()
     unlink(addr.sun_path);
   if (bind(_fd, (t_sockaddr *)&addr, sizeof(t_sockaddr_un)) < 0)
     {
-      printf("Error bind on fd: %d\n", _fd);
+      // printf("Error bind on fd: %d\n", _fd);
+      zia::Logger::getInstance().error("[BALANCER] Failed to bind fd");
       return ;
     }
   if (listen(_fd, SRV_BACKLOG))
     {
-      write(2, "Error listen\n", 13);
+      zia::Logger::getInstance().error("[BALANCER] Failed to listen");
+      // write(2, "Error listen\n", 13);
       return ;
     }
 }
@@ -58,8 +61,8 @@ int			Balancer::createWorker()
     {
       if ((pid = fork()) == -1)
 	{
-	  // zia::Logger::getInstance().error("Create Worker: Error fork\n");
-	  write(2, "Create Worker: Error fork\n", 26);
+	  zia::Logger::getInstance().error("Create Worker: Error fork\n");
+	  // write(2, "Create Worker: Error fork\n", 26);
 	  return (1);
 	}
       else if (pid == 0)

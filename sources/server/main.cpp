@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Wed Feb 21 17:52:51 2018 Quentin Albertone
+// Last update Wed Feb 21 17:10:02 2018 Jérémy Koehler
 //
 
 #include "main.hpp"
@@ -55,7 +55,7 @@ int		process(std::string confPath)
   return (0);
 }
 
-int		main2(int argc, char **argv)
+int		main(int argc, char **argv)
 {
   static struct option long_options[] =
     {
