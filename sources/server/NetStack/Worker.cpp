@@ -17,19 +17,12 @@ Worker::Worker(int id, zia::Daemon *daemon)
   _pid = getpid();
   _pPid = getppid();
 
-  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created begin 1");
-  //zia::Daemon &daemon = zia::Daemon::getInstance();
   zia::api::ConfigManager *conf = _daemon->getConf();
-  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created begin 2");
   zia::api::ModuleManager *manager = _daemon->getModuleManager();
-  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created begin 3");
   conf->getConf();
-  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created begin 4");
   manager->getModules();
-  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created begin 5");
 
-    // _http.reset(new zia::api::HttpInterpreter(conf->getConf(), std::map<std::string, std::string>{{"localhost", "."}}, manager->getModules()));
-  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created begin 7");
+  _http.reset(new zia::api::HttpInterpreter(conf->getConf(), std::map<std::string, std::string>{{"localhost", "."}}, manager->getModules()));
 
   sleep(1);
   if ((_logFd = open(_DEBUG_FILE, O_CREAT | O_APPEND | O_RDWR, _RIGHT)) < 3)
@@ -131,11 +124,11 @@ void			Worker::loop()
     {
       receivFd();
       if (_cliFd > 0)
-	{
-	  handleRequestFromClient();
-	  //resp = _http.get()->interpret(_cliReq);
-	  //write(_cliFd, resp.c_str(), resp.size());
-	  resetClient();
-	}
+      	{
+      	  handleRequestFromClient();
+      	  resp = _http.get()->interpret(_cliReq);
+      	  write(_cliFd, resp.c_str(), resp.size());
+      	  resetClient();
+      	}
     }
 }

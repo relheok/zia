@@ -19,6 +19,7 @@ Balancer::Balancer()
   createWorker();
   createSocket();
   acceptWorker();
+  _daemon->getModuleManager()->getModules();
 }
 
 Balancer::~Balancer()

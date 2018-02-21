@@ -1,7 +1,7 @@
 #include "http/HttpInterpreter.hpp"
 
 namespace zia::api {
-  HttpInterpreter::HttpInterpreter(Conf &conf, std::map<std::string, std::string> const &roots, ModulesList modules) : _conf(conf), _roots(roots), _modules(modules) {
+  HttpInterpreter::HttpInterpreter(Conf &conf, std::map<std::string, std::string> const &roots, ModulesList modules) : _conf(conf), _roots(roots), _modules(modules), _logger(zia::Logger::getInstance()) {
     _mimeType = {
       {"avi", "video/x-msvideo"},
       {"bin", "application/octet-stream"},
@@ -34,11 +34,12 @@ namespace zia::api {
     };
   }
 
-  HttpInterpreter::HttpInterpreter(HttpInterpreter const &original) {
+  HttpInterpreter::HttpInterpreter(HttpInterpreter const &original) : _logger(zia::Logger::getInstance()) {
     _conf = original._conf;
     _parser = original._parser;
     _roots = original._roots;
     _parser = original._parser;
+    _modules = original._modules;
   }
 
   HttpInterpreter   &HttpInterpreter::operator=(HttpInterpreter const &original) {
@@ -46,6 +47,7 @@ namespace zia::api {
     _parser = original._parser;
     _roots = original._roots;
     _parser = original._parser;
+    _modules = original._modules;
     return *this;
   }
 
@@ -54,6 +56,7 @@ namespace zia::api {
   std::string           HttpInterpreter::interpret(std::string const &request) {
     struct HttpDuplex   duplex;
 
+    _logger.info("Start interpret :\n" + request + "\n");
     try {
       duplex.req = _parser.parse(request);
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
@@ -80,10 +83,10 @@ namespace zia::api {
           break;
       }
     } catch (BadRequestError &e) {
-      std::cerr << e.what() << '\n';
+      _logger.error(e.what());
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::bad_request, "Bad Request");
     } catch (RequestUriTooLargeError &e) {
-      std::cerr << e.what() << '\n';
+      _logger.error(e.what());
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::request_uri_too_large, "Request-URI Too Long");
     }
     if (duplex.resp.status != http::common_status::ok && duplex.resp.body.empty()) {
@@ -92,11 +95,12 @@ namespace zia::api {
         duplex.resp.headers["Content-Type"] = _mimeType["html"];
         duplex.resp.headers["Content-Length"] = std::to_string(duplex.resp.body.size());
       } catch (std::exception &e) {
-        std::cerr << e.what() << '\n';
+        _logger.error(e.what());
         duplex.resp.status = http::common_status::internal_server_error;
         duplex.resp.reason = "Internal Server Error";
       }
     }
+    _logger.info("Response :\n" + _parser.parse(duplex.resp) + "\n");
     return _parser.parse(duplex.resp);
   }
 
@@ -113,7 +117,7 @@ namespace zia::api {
     try {
       response.headers["Server"] = std::get<std::string>(_conf["server_name"].v) + "/" + std::to_string(std::get<double>(_conf["server_version"].v));
     } catch (std::bad_variant_access &) {
-      std::cerr << "HttpInterpreter : invalid variant access" << '\n';
+      _logger.error("HttpInterpreter : invalid variant access");
       response.headers["Server"] = "Zia/1.0";
     }
     if (req.headers.find("Cookie") != req.headers.end())
@@ -149,13 +153,13 @@ namespace zia::api {
         return response;
       }
     } catch (FileNotFound &e) {
-      std::cerr << e.what() << '\n';
+      _logger.error(e.what());
       return getDefaultResponse(request, http::common_status::not_found, "Not found");
     } catch (BadRequestError &e) {
-      std::cerr << e.what() << '\n';
+      _logger.error(e.what());
       return getDefaultResponse(request, http::common_status::bad_request, "Bad Request");
     } catch (std::exception &e) {
-      std::cerr << e.what() << '\n';
+      _logger.error(e.what());
       return getDefaultResponse(request, http::common_status::internal_server_error, "Internal Server Error");
     }
     return response;

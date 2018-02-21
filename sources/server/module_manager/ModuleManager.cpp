@@ -4,11 +4,11 @@ namespace zia::api {
   ModuleManager::ModuleManager() {}
 
   ModuleManager::ModuleManager(ModuleManager const &copy) : ModuleLoader()  {
-    (void)copy;
+    _modules = copy._modules;
   }
 
   ModuleManager  &ModuleManager::operator=(ModuleManager const &copy) {
-    (void)copy;
+    _modules = copy._modules;
     return (*this);
   }
 

@@ -10,6 +10,7 @@
 # include "Constant.hpp"
 # include "http/HttpParser.hpp"
 # include "http/HtmlManager.hpp"
+# include "logger.hpp"
 
 namespace zia::api {
   class   HttpInterpreter {
@@ -40,12 +41,16 @@ namespace zia::api {
     /**
     * Setters
     */
+    void                setConf(Conf &conf) { _conf = conf; }
     void                setRoots(std::map<std::string, std::string> const &roots) { _roots = roots; }
+    void                setModulesList(ModulesList modules) { _modules = modules; }
 
     /**
     * Getters
     */
+    Conf                                getConf() const { return _conf; }
     std::map<std::string, std::string>  getRoots() const { return _roots; }
+    ModulesList                         getModules() const { return _modules; }
 
     static Net::Raw            getBody(std::string const &);
 
@@ -59,6 +64,7 @@ namespace zia::api {
     std::map<std::string, std::string>  _roots;
     std::map<std::string, std::string>  _mimeType;
     ModulesList                         _modules;
+    zia::Logger                         &_logger;
   };
 } /* zia::api */
 

@@ -36,7 +36,7 @@ int		process(std::string confPath)
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
     zia::Daemon &daemon = zia::Daemon::getInstance();
-    Network::Socket	inet(6666);
+    Network::Socket	inet(4243);
 
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
 
@@ -46,9 +46,6 @@ int		process(std::string confPath)
     daemon.setModuleManager(m.get());
 
     Balancer		pipe;
-
-    if (zia::Daemon::getInstance().getModuleManager() == NULL)
-      zia::Logger::getInstance().error("[MAIN] ModuleManager is NULL");
 
     while (daemon.isAlive()) {
       inet.loop();

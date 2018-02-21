@@ -1,11 +1,12 @@
 #ifndef HTTPPARSER_HPP_
 # define HTTPPARSER_HPP_
 
-#include <string>
-#include "http.h"
-#include "Utils.hpp"
-#include "Error.hpp"
-#include "conf.h"
+# include <string>
+# include "http.h"
+# include "Utils.hpp"
+# include "Error.hpp"
+# include "conf.h"
+# include "logger.hpp"
 
 namespace zia::api {
   class                 HttpParser {
@@ -39,6 +40,7 @@ namespace zia::api {
     std::string                         inspectHttpLine(std::string const &) const;
 
     Conf                                _conf;
+    zia::Logger                         &_logger;
   };
 } /* zia::api */
 

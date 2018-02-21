@@ -58,7 +58,7 @@ namespace zia::api {
     */
     ModulesList   getModules() const;
 
-  private:
+  protected:
     ModulesList     _modules;
   };
 }

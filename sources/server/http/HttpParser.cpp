@@ -1,9 +1,9 @@
 #include "http/HttpParser.hpp"
 
 namespace zia::api {
-  HttpParser::HttpParser(Conf &conf) : _conf(conf) {}
+  HttpParser::HttpParser(Conf &conf) : _conf(conf), _logger(zia::Logger::getInstance()) {}
 
-  HttpParser::HttpParser(HttpParser const &original) {
+  HttpParser::HttpParser(HttpParser const &original) : _logger(zia::Logger::getInstance()) {
     _conf = original._conf;
   }
 
@@ -29,11 +29,10 @@ namespace zia::api {
     request.method = getMethod(line[0]);
     request.uri = line[1];
     try {
-      std::cerr << "Max uri size : " << std::get<long long>(_conf["max_uri_size"].v) << '\n';
       if (line[1].size() > static_cast<unsigned long long>(std::get<long long>(_conf["max_uri_size"].v)))
         throw RequestUriTooLargeError();
     } catch (std::bad_variant_access &) {
-      std::cerr << "HttpParser : invalid variant access" << '\n';
+      _logger.error("HttpInterpreter : invalid variant access");
     }
     return request;
   }
