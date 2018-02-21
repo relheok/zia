@@ -4,13 +4,13 @@
 #include <string>
 #include "http.h"
 #include "Utils.hpp"
-#include "Constant.hpp"
 #include "Error.hpp"
+#include "conf.h"
 
 namespace zia::api {
   class                 HttpParser {
   public:
-    HttpParser();
+    HttpParser(Conf &conf);
     HttpParser(HttpParser const &);
     HttpParser  &operator=(HttpParser const &);
     ~HttpParser();
@@ -20,18 +20,13 @@ namespace zia::api {
     * Exception : BadRequestError, RequestUriTooLargeError
     * \return the parsed request
     */
-    struct HttpRequest  parse(std::string const &input) const;
+    struct HttpRequest  parse(std::string const &input);
 
     /**
     * Parse the HttpResponse [response] to make a string
     * \return the formatted response
     */
     std::string         parse(struct HttpResponse const &response) const;
-
-    /**
-    * For test : print a struct HttpRequest
-    */
-    void    test(struct HttpRequest &) const;
 
   private:
     http::Version                       getVersion(std::string const &) const;
@@ -41,9 +36,9 @@ namespace zia::api {
     Net::Raw                            getBody(std::vector<std::string> const &) const;
     std::string                         getBody(Net::Raw const &) const;
     http::Method                        getMethod(std::string const &) const;
-
     std::string                         inspectHttpLine(std::string const &) const;
 
+    Conf                                _conf;
   };
 } /* zia::api */
 

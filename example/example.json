@@ -1,1 +1,8 @@
-{}
+{
+  "server_name" : "Zia",
+  "server_version" : "1.0",
+  "max_uri_size" : "3",
+  "roots" : {
+    "localhost" : "/var/www"
+  }
+}
