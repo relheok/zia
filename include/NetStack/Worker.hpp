@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Mon Feb 12 16:09:39 2018 Quentin Albertone
+// Last update Wed Feb 21 16:07:05 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_
@@ -21,6 +21,11 @@
 #  include <sys/types.h>
 #  include <sys/stat.h>
 #  include <fcntl.h>
+
+#  include <sys/stat.h>
+#  include <sys/time.h>
+
+#  include <sys/wait.h>
 
 #  define SRV_SOCK_PATH		"/tmp/ux_socket"
 #  define BUFFSIZE		1024
@@ -44,6 +49,10 @@ public:
   Worker(int id);
   ~Worker();
 
+  void			receivFd();
+  void			handleRequestFromClient();
+  void			resetClient();
+
   void			createSocketWorker();
   void			loop();
 
@@ -53,6 +62,7 @@ protected:
   int			_logFd;
 
   int			_cliFd;
+  std::string		_cliReq;
 
   int			_pid;
   int			_pPid;

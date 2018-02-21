@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Mon Feb 12 16:12:50 2018 Quentin Albertone
+// Last update Wed Feb 21 16:27:37 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -51,24 +51,58 @@ void			Worker::createSocketWorker()
 	  _pid, _id, SRV_SOCK_PATH, _srvFd);
 }
 
-// void			Worker::getClientFd(char *buff)
-// {
-//   int			sourceFd;
-//   char			file[64];
+void			Worker::receivFd()
+{
+  unsigned char		*data;
+  char			cBuffer[256] = {0};
+  int			fd;
+  char			mBuffer[256] = {0};
+  struct msghdr		msg = {0};
+  struct iovec		iov = {.iov_base = mBuffer, .iov_len = sizeof(mBuffer)};
+  struct cmsghdr	*cmsg;
 
-//   sourceFd = atoi(buff);
-//   asprintf(&file)
-// }
+  msg.msg_iov = &iov;
+  msg.msg_iovlen = 1;
+  msg.msg_control = cBuffer;
+  msg.msg_controllen = sizeof(cBuffer);
+
+  if (recvmsg(_srvFd, &msg, 0) < 0)
+    return ;
+
+  cmsg = CMSG_FIRSTHDR(&msg);
+  data = CMSG_DATA(cmsg);
+
+  _cliFd = *((int *)data);
+  dprintf(_logFd, "[%d:%d] - new client %d\n", _pid, _id, _cliFd);
+}
+
+void			Worker::handleRequestFromClient()
+{
+  std::vector<char>	buff(BUFFSIZE);
+  int			bytes;
+
+  dprintf(_logFd, "[%d:%d]:%d - Reading fd\n", _pid, _id, _cliFd);
+  while ((bytes = recv(_cliFd, &buff[0], BUFFSIZE, 0)) == BUFFSIZE)
+    {
+      _cliReq.append(buff.cbegin(), buff.cend());
+    }
+  _cliReq.append(buff.cbegin(), buff.cend());
+  dprintf(_logFd, "[%d:%d]:%d - %s\n", _pid, _id, _cliFd, _cliReq.c_str());
+  resetClient();
+}
+
+void			Worker::resetClient()
+{
+  _cliFd = 0;
+  _cliReq.erase(_cliReq.begin(), _cliReq.end());
+}
 
 void			Worker::loop()
 {
-  ssize_t		bytes;
-  char			buff[BUFFSIZE];
-
-  memset(buff, 0, BUFFSIZE);
-  while ((bytes = read(_srvFd, &buff, BUFFSIZE)) > 0)
+  while (true)
     {
-      dprintf(_logFd, "[%d:%d] - %s\n", _pid, _id, buff);
-      memset(buff, 0, BUFFSIZE);
+      receivFd();
+      if (_cliFd > 0)
+	handleRequestFromClient();
     }
 }

@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Mon Feb 12 17:53:59 2018 Quentin Albertone
+// Last update Wed Feb 21 17:03:10 2018 Quentin Albertone
 //
 
 #include "Network.hpp"
@@ -13,15 +13,14 @@
 int		main(__attribute__((unused))int argc, __attribute__((unused))char **argv)
 {
   Network::Socket	inet(atoi(argv[1]));
-  RequestList		req();
-  //Balancer		pipe;
+  Balancer		pipe;
 
-  //pipe.display();
+  pipe.display();
   while (true)
     {
       inet.loop();
       inet.displayRequest();
-      //      req = inet.getReq();
+      pipe.balancer(inet.getRequest());
       sleep(3);
       std::cout << "\n----------------------------" << std::endl;
     }

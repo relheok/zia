@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 17:10:18 2017 Quentin Albertone
-// Last update Tue Feb 20 12:14:14 2018 Jérémy Koehler
+// Last update Wed Feb 21 11:54:29 2018 Quentin Albertone
 //
 
 #ifndef REQUEST_HPP_
@@ -24,6 +24,8 @@ public:
 
   void						setRequest(Client *, std::string);
   std::list<std::pair<Client *, std::string>>	getRequestList();
+  int						popFrontFd();
+  int						getSize();
 
   RequestList					&operator>>(std::pair<Client *, std::string>);
   RequestList					&operator+(RequestList const &);

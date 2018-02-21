@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Mon Feb 12 17:54:51 2018 Quentin Albertone
+// Last update Wed Feb 21 16:59:39 2018 Quentin Albertone
 //
 
 #include "Network.hpp"
@@ -106,6 +106,11 @@ std::vector<t_pollfd>	Network::Socket::getClientFds()
   return (_clientFds);
 }
 
+RequestList		&Network::Socket::getRequest()
+{
+  return (_req);
+}
+
 // ---------------------------- ----------------------------  //
 //		manage clients functions		      //
 // ---------------------------- ----------------------------  //
@@ -165,11 +170,12 @@ void			Network::Socket::loop()
 		{
 		  char		rec[200] = {0};
 
-		  		  std::cout << "\t[:" << _port << "] - New input from: " << clientIt->first << std::endl;
-		  if (read(clientIt->first, &rec, 199) == -1 || rec[0] == 0)
-		    disconnect = true;
-		  // Register new POLLIN
-		  _req.setRequest(clientIt->second, std::string(rec)/*"NULL"*/);
+		  std::cout << "\t[:" << _port << "] - New input from: " << clientIt->first << std::endl;
+		  // if (read(clientIt->first, &rec, 1) == -1 || rec[0] == 0)
+		  //   disconnect = true;
+		  // // Register new POLLIN
+		  _req.setRequest(clientIt->second, /*std::string(rec)*/"NULL");
+		  it->revents = 0;
 		}
 	      // Disconnect user with matters
 	      if (disconnect)

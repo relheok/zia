@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Feb  7 14:25:23 2018 Quentin Albertone
-// Last update Mon Feb 12 17:51:09 2018 Quentin Albertone
+// Last update Wed Feb 21 16:51:43 2018 Quentin Albertone
 //
 
 #include "Balancer.hpp"
@@ -95,13 +95,50 @@ void			Balancer::display()
     printf("\tWorker id: %d - fd: %d\n", it->first, it->second);
 }
 
-void			Balancer::sendWorker(char **list)
+int			Balancer::sendToWorker(int workerFd, int clientFd)
 {
-  for (int i = 0; list[i] != NULL; ++i)
-    {
-      dprintf(_worker[i % _nbWorker], list[i]);
-      printf("worker: %d:%d -> %s\n", i % _nbWorker, _worker[i % _nbWorker], list[i]);
-    }
+  struct msghdr		msg;
+  char			buff[CMSG_SPACE(sizeof(clientFd))];
+  struct iovec  	iov = {.iov_base = ((char *)"zia"), .iov_len = 3};
+
+  memset(&msg, 0, sizeof(struct msghdr));
+  memset(buff, 0, sizeof(buff));
+  msg.msg_iov = &iov;
+  msg.msg_iovlen = 1;
+  msg.msg_control = buff;
+  msg.msg_controllen = sizeof(buff);
+
+  struct cmsghdr	*cmsg = CMSG_FIRSTHDR(&msg);
+  cmsg->cmsg_level = SOL_SOCKET;
+  cmsg->cmsg_type = SCM_RIGHTS;
+  cmsg->cmsg_len = CMSG_LEN(sizeof(clientFd));
+
+  *(int*) CMSG_DATA(cmsg) = clientFd;
+
+  msg.msg_controllen = cmsg->cmsg_len;
+
+  if (sendmsg(workerFd, &msg, 0) < 0)
+    return (printf("Failed communicate with worker:%2d\n", workerFd));
+  printf("Send fd:%d to worker:%d\n", clientFd, workerFd);
+  usleep(100);
+  // while (read(clientFd, buff, sizeof(clientFd)) == sizeof(clientFd))
+  //   {
+  //     printf("%s\n", buff);
+  //   }
+  return (0);
+}
+
+int			Balancer::balancer(RequestList &req)
+{
+  int			i;
+  int			err;
+
+  err = 0;
+  i = -1;
+  while (req.getSize() > 0)
+    if (sendToWorker(_worker[++i % _nbWorker], req.popFrontFd()) != 0)
+      err = -1;
+  return (err);
 }
 
 // int			main(__attribute__((unused))int argc,

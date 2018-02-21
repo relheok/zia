@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Feb  7 14:26:37 2018 Quentin Albertone
-// Last update Mon Feb 12 20:01:37 2018 Quentin Albertone
+// Last update Wed Feb 21 11:49:47 2018 Quentin Albertone
 //
 
 #ifndef BALANCER_HPP_
@@ -13,6 +13,7 @@
 
 # include "ziainclude.hpp"
 # include "Worker.hpp"
+# include "Request.hpp"
 
 class			Balancer
 {
@@ -20,13 +21,13 @@ public:
   Balancer();
   ~Balancer();
 
-  //void			send(RequestList &list);
   void			createSocket();
   int			createWorker();
   void			acceptWorker();
   void			display();
 
-  void			sendWorker(char **argv);
+  int			balancer(RequestList &req);
+  int			sendToWorker(int workerFd, int clientFd);
 
 protected:
   int			_fd;
