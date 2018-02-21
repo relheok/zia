@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Thu Feb 22 00:42:37 2018 Quentin Albertone
+// Last update Thu Feb 22 00:51:35 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -30,7 +30,7 @@ Worker::Worker(int id, zia::Daemon *daemon)
       zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - " + "Error debug file");
       //std::cout << "[" << _pid << ":" << _id << "] - " << "Error debug file" << std::endl;
     }
-  dprintf(_logFd, "[%d:%d] - Open file %s\n", _pid, _id, _DEBUG_FILE);
+  // dprintf(_logFd, "[%d:%d] - Open file %s\n", _pid, _id, _DEBUG_FILE);
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created end");
   createSocketWorker();
   loop();
