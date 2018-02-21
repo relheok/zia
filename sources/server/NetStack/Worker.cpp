@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Wed Feb 21 21:48:51 2018 Quentin Albertone
+// Last update Thu Feb 22 00:42:37 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -25,11 +25,12 @@ Worker::Worker(int id, zia::Daemon *daemon)
   _http.reset(new zia::api::HttpInterpreter(conf->getConf(), std::map<std::string, std::string>{{"localhost", "."}}, manager->getModules()));
 
   sleep(1);
-  if ((_logFd = open(_DEBUG_FILE, O_CREAT | O_APPEND | O_RDWR, _RIGHT)) < 3)
+  if ((_logFd = open(_DEBUG_FILE, O_CREAT | O_APPEND | O_RDWR, _RIGHT)) < 1)
     {
       zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - " + "Error debug file");
       //std::cout << "[" << _pid << ":" << _id << "] - " << "Error debug file" << std::endl;
     }
+  dprintf(_logFd, "[%d:%d] - Open file %s\n", _pid, _id, _DEBUG_FILE);
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created end");
   createSocketWorker();
   loop();
