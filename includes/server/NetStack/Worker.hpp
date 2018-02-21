@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Wed Feb 21 19:46:28 2018 Quentin Albertone
+// Last update Wed Feb 21 21:47:28 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_
@@ -13,6 +13,7 @@
 # include "ziainclude.hpp"
 # include "http/HttpInterpreter.hpp"
 # include "daemon.hpp"
+# include "logger.hpp"
 
 
 # ifndef __STREAMPROTO_
@@ -35,7 +36,7 @@
 #  define SRV_BACKLOG		100
 
 #  define _DEBUG_FILE		"/tmp/_debug"
-#  define _DEBUG_NBWORKER	1
+#  define _DEBUG_NBWORKER	2
 
 #  define _RIGHT		S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
 
@@ -49,7 +50,7 @@ typedef struct sockaddr		t_sockaddr;
 class			Worker
 {
 public:
-  Worker(int id);
+  Worker(int id, zia::Daemon *);
   ~Worker();
 
   void			receivFd();
@@ -70,9 +71,8 @@ protected:
   int			_pid;
   int			_pPid;
 
-  //zia::api::Conf	_conf;
+  zia::Daemon		*_daemon;
   std::unique_ptr<zia::api::HttpInterpreter> _http{nullptr};
-  //HttpInterpreter	*_http;
 };
 
 

@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Feb  7 14:26:37 2018 Quentin Albertone
-// Last update Wed Feb 21 11:49:47 2018 Quentin Albertone
+// Last update Wed Feb 21 20:18:17 2018 Quentin Albertone
 //
 
 #ifndef BALANCER_HPP_
@@ -33,6 +33,8 @@ protected:
   int			_fd;
   std::map<int, int>	_worker;
   int			_nbWorker;
+
+  zia::Daemon		*_daemon;
 };
 
 

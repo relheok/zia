@@ -13,7 +13,7 @@ RM		= rm -f
 
 CXX		= g++
 
-CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/server -Iincludes/server/api -Iincludes/server/error -I./includes/server/NetStack
+CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/server -Iincludes/server/api -Iincludes/server/error -I./includes/server/NetStack -g3
 
 LDFLAGS		+= -ldl
 

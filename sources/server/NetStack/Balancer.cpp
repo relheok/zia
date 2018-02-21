@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Feb  7 14:25:23 2018 Quentin Albertone
-// Last update Wed Feb 21 18:33:20 2018 Quentin Albertone
+// Last update Wed Feb 21 21:30:31 2018 Quentin Albertone
 //
 
 #include "Balancer.hpp"
@@ -14,6 +14,8 @@
 Balancer::Balancer()
   : _nbWorker(_DEBUG_NBWORKER)
 {
+  _daemon = &zia::Daemon::getInstance();
+  zia::Logger::getInstance().info("Ctr Balancer");
   createWorker();
   createSocket();
   acceptWorker();
@@ -30,7 +32,7 @@ void			Balancer::createSocket()
   if ((_fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 1)
     {
       _fd = -1;
-      zia::Logger::getInstance().error("[BALANCER] Failed to create unix socket");
+      zia::Logger::getInstance().error("[BALANCER] - Failed to create unix socket");
       return ;
     }
   addr.sun_family = AF_UNIX;
@@ -57,20 +59,24 @@ int			Balancer::createWorker()
   int			pid;
 
   i = -1;
+  zia::Logger::getInstance().error("[BALANCER] - Create Worker begining - _nbWorker:" + std::to_string(_nbWorker));
   while (++i < _nbWorker)
     {
       if ((pid = fork()) == -1)
 	{
-	  zia::Logger::getInstance().error("Create Worker: Error fork\n");
+	  zia::Logger::getInstance().error("[BALANCER] - Create Worker: Error fork");
 	  // write(2, "Create Worker: Error fork\n", 26);
 	  return (1);
 	}
       else if (pid == 0)
 	{
-	  Worker slave(i);
+	  zia::Logger::getInstance().info("[BALANCER] - Create Worker: child process");
+	  Worker slave(i, _daemon);
 	  slave.loop();
 	  exit(1);
 	}
+      else
+	zia::Logger::getInstance().error("[BALANCER] - Create Worker " + std::to_string(i) + " pid : " + std::to_string(pid));
       _worker.insert(std::pair<int, int>(i, i));
       usleep(100);
     }
@@ -84,18 +90,20 @@ void			Balancer::acceptWorker()
   i = -1;
   while (++i < _nbWorker)
     if ((_worker[i] = accept(_fd, NULL, NULL)) < 3)
-      write(2, "Error: acceptWorker\n", 20);
+      zia::Logger::getInstance().info("[BALANCER] - Accept Worker");
+      //write(2, "Error: acceptWorker\n", 20);
 }
 
-void			Balancer::display()
-{
-  std::map<int, int>::iterator it = _worker.begin();
+// void			Balancer::display()
+// {
+//   std::map<int, int>::iterator it = _worker.begin();
 
-  printf("[Balancer:%d] -> fd: %d\n\tsrv_sock_path: %s - _debug_file: %s - _nbWorker: %d\n",
-	 getpid(), _fd, SRV_SOCK_PATH, _DEBUG_FILE, _nbWorker);
-  for (; it != _worker.end(); ++it)
-    printf("\tWorker id: %d - fd: %d\n", it->first, it->second);
-}
+//   zia::Logger::getInstance().error("[BALANCER] - Create Worker: Error fork");
+//   printf("[Balancer:%d] -> fd: %d\n\tsrv_sock_path: %s - _debug_file: %s - _nbWorker: %d\n",
+// 	 getpid(), _fd, SRV_SOCK_PATH, _DEBUG_FILE, _nbWorker);
+//   for (; it != _worker.end(); ++it)
+//     printf("\tWorker id: %d - fd: %d\n", it->first, it->second);
+// }
 
 int			Balancer::sendToWorker(int workerFd, int clientFd)
 {
@@ -120,8 +128,12 @@ int			Balancer::sendToWorker(int workerFd, int clientFd)
   msg.msg_controllen = cmsg->cmsg_len;
 
   if (sendmsg(workerFd, &msg, 0) < 0)
-    return (printf("Failed communicate with worker:%2d\n", workerFd));
-  printf("Send fd:%d to worker:%d\n", clientFd, workerFd);
+    {
+      zia::Logger::getInstance().error("[BALANCER] - Failed communicate with worker:" + std::to_string(workerFd));
+      return (-1); //printf("Failed communicate with worker:%2d\n", workerFd));
+    }
+  zia::Logger::getInstance().error("[BALANCER] - Send fd:" + std::to_string(clientFd) + "to worker:" + std::to_string(workerFd));
+  //printf("Send fd:%d to worker:%d\n", clientFd, workerFd);
   usleep(100);
   // while (read(clientFd, buff, sizeof(clientFd)) == sizeof(clientFd))
   //   {
@@ -142,13 +154,3 @@ int			Balancer::balancer(RequestList &req)
       err = -1;
   return (err);
 }
-
-// int			main(__attribute__((unused))int argc,
-// 			     __attribute__((unused))char **argv)
-// {
-//   Balancer		a;
-
-//   a.display();
-//   a.sendWorker(argv);
-//   //sleep(7);
-// }
