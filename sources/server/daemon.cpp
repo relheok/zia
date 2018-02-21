@@ -53,6 +53,14 @@ zia::api::ConfigManager  *zia::Daemon::getConf() {
   return _conf;
 }
 
+void	zia::Daemon::setModuleManager(api::ModuleManager *m) {
+  _m = m;
+}
+
+zia::api::ModuleManager  *zia::Daemon::getModuleManager() {
+  return _m;
+}
+
 void	zia::Daemon::updateConf() {
   if (_conf)
     _conf->browser_conf();

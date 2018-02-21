@@ -15,8 +15,9 @@ Worker::Worker(int id)
 {
   zia::Daemon &daemon = zia::Daemon::getInstance();
   zia::api::ConfigManager *conf = daemon.getConf();
+  zia::api::ModuleManager *manager = daemon.getModuleManager();
 
-  _http.reset(new zia::api::HttpInterpreter(conf->getConf(), std::map<std::string, std::string>{{"localhost", "."}}, conf->getListModules()));
+  _http.reset(new zia::api::HttpInterpreter(conf->getConf(), std::map<std::string, std::string>{{"localhost", "."}}, manager->getModules()));
 
   sleep(1);
   _pid = getpid();

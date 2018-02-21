@@ -15,7 +15,6 @@ namespace zia::api {
 
     /**
     * Load the [modules] passed as parameter (path, name) with [conf]
-    * Exception : ModuleManagerError
     */
     void    init(ModulePathList const &, Conf &);
 

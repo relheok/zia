@@ -37,9 +37,13 @@ int		process(std::string confPath)
     Network::Socket	inet(6666);
     Balancer		pipe;
 
+    zia::api::ModuleManager m;
+    m.init(p.getListModules(), p.getConf());
+
     // pipe.display();
 
     daemon.setConf(&p);
+    daemon.setModuleManager(&m);
 
     while (daemon.isAlive()) {
       inet.loop();

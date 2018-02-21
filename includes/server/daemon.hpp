@@ -37,6 +37,8 @@ namespace zia {
     bool		isAlive();
     void		setConf(api::ConfigManager *conf);
     api::ConfigManager	*getConf();
+    void		setModuleManager(api::ModuleManager *m);
+    api::ModuleManager	*getModuleManager();
     void		updateConf();
 
     // signal handlers
@@ -53,6 +55,7 @@ namespace zia {
     bool	_killed;
     std::string	_fileName;
     api::ConfigManager *_conf;
+    api::ModuleManager *_m;
 
   public:
     //avoid copies

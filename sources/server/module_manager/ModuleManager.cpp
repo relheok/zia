@@ -19,7 +19,7 @@ namespace zia::api {
       try {
         if (!loadModule(it->first, it->second)->config(conf))
           throw ModuleManagerError("can't config module " + it->second);
-      } catch (ModuleLoaderError &e) {
+      } catch (std::exception &e) {
         std::cerr << e.what() << '\n';
       }
     }
