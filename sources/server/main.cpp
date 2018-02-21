@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Wed Feb 21 17:10:02 2018 Jérémy Koehler
+// Last update Wed Feb 21 23:05:40 2018 Jérémy Koehler
 //
 
 #include "main.hpp"
@@ -32,18 +32,23 @@ int		process(std::string confPath)
 {
   try {
     std::cout << "Run with config file: " << confPath << std::endl;
-    zia::api::ConfigManager p(confPath);
+    // zia::api::ConfigManager p(confPath);
+    std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
+    std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
     zia::Daemon &daemon = zia::Daemon::getInstance();
     Network::Socket	inet(6666);
-    Balancer		pipe;
 
-    zia::api::ModuleManager m;
-    m.init(p.getListModules(), p.getConf());
+    m.get()->init(p.get()->getListModules(), p.get()->getConf());
 
     // pipe.display();
 
-    daemon.setConf(&p);
-    daemon.setModuleManager(&m);
+    daemon.setConf(p.get());
+    daemon.setModuleManager(m.get());
+
+    Balancer		pipe;
+
+    if (zia::Daemon::getInstance().getModuleManager() == NULL)
+      zia::Logger::getInstance().error("[MAIN] ModuleManager is NULL");
 
     while (daemon.isAlive()) {
       inet.loop();
