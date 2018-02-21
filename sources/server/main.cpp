@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Tue Feb 20 23:10:22 2018 Jérémy Koehler
+// Last update Wed Feb 21 17:52:51 2018 Quentin Albertone
 //
 
 #include "main.hpp"
@@ -15,6 +15,7 @@
 #include "daemon.hpp"
 #include "http/HttpInterpreter.hpp"
 #include "module_manager/ModuleManager.hpp"
+#include "Network.hpp"
 
 void		usage(std::string execName)
 {
@@ -33,14 +34,20 @@ int		process(std::string confPath)
     std::cout << "Run with config file: " << confPath << std::endl;
     zia::api::ConfigManager p(confPath);
     zia::Daemon &daemon = zia::Daemon::getInstance();
+    Network::Socket	inet(6666);
+    Balancer		pipe;
+
+    // pipe.display();
 
     daemon.setConf(&p);
 
     while (daemon.isAlive()) {
-      /*
-      ** TODO
-      */
-    }
+      inet.loop();
+      inet.displayRequest();
+      pipe.balancer(inet.getRequest());
+      sleep(3);
+      // std::cout << "\n----------------------------" << std::endl;
+   }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
     return (1);
@@ -48,7 +55,7 @@ int		process(std::string confPath)
   return (0);
 }
 
-int		main(int argc, char **argv)
+int		main2(int argc, char **argv)
 {
   static struct option long_options[] =
     {
@@ -95,8 +102,6 @@ int		main(int argc, char **argv)
 
   return (0);
 }
-
-# define BUFFSIZE 4096
 
 int		create_socket(int port);
 int		accept_socket(int fd, int port);

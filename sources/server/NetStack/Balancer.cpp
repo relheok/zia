@@ -1,0 +1,151 @@
+//
+// Balancer.cpp for  in /home/albert_q/rendu/Tech3/Zia/cpp_zia/src/Network
+//
+// Made by Quentin Albertone
+// Login   <albert_q@epitech.net>
+//
+// Started on  Wed Feb  7 14:25:23 2018 Quentin Albertone
+// Last update Wed Feb 21 18:03:03 2018 Quentin Albertone
+//
+
+#include "Balancer.hpp"
+#include "logger.hpp"
+
+Balancer::Balancer()
+  : _nbWorker(_DEBUG_NBWORKER)
+{
+  createWorker();
+  createSocket();
+  acceptWorker();
+}
+
+Balancer::~Balancer()
+{
+}
+
+void			Balancer::createSocket()
+{
+  t_sockaddr_un		addr;
+
+  if ((_fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 3)
+    {
+      _fd = -1;
+      return ;
+    }
+  addr.sun_family = AF_UNIX;
+  strcpy(addr.sun_path, SRV_SOCK_PATH);
+  if (access(SRV_SOCK_PATH, F_OK) == 0)
+    unlink(addr.sun_path);
+  if (bind(_fd, (t_sockaddr *)&addr, sizeof(t_sockaddr_un)) < 0)
+    {
+      printf("Error bind on fd: %d\n", _fd);
+      return ;
+    }
+  if (listen(_fd, SRV_BACKLOG))
+    {
+      write(2, "Error listen\n", 13);
+      return ;
+    }
+}
+
+int			Balancer::createWorker()
+{
+  int			i;
+  int			pid;
+
+  i = -1;
+  while (++i < _nbWorker)
+    {
+      if ((pid = fork()) == -1)
+	{
+	  // zia::Logger::getInstance().error("Create Worker: Error fork\n");
+	  write(2, "Create Worker: Error fork\n", 26);
+	  return (1);
+	}
+      else if (pid == 0)
+	{
+	  Worker slave(i);
+	  slave.loop();
+	  exit(1);
+	}
+      _worker.insert(std::pair<int, int>(i, i));
+      usleep(100);
+    }
+  return (0);
+}
+
+void			Balancer::acceptWorker()
+{
+  int			i;
+
+  i = -1;
+  while (++i < _nbWorker)
+    if ((_worker[i] = accept(_fd, NULL, NULL)) < 3)
+      write(2, "Error: acceptWorker\n", 20);
+}
+
+void			Balancer::display()
+{
+  std::map<int, int>::iterator it = _worker.begin();
+
+  printf("[Balancer:%d] -> fd: %d\n\tsrv_sock_path: %s - _debug_file: %s - _nbWorker: %d\n",
+	 getpid(), _fd, SRV_SOCK_PATH, _DEBUG_FILE, _nbWorker);
+  for (; it != _worker.end(); ++it)
+    printf("\tWorker id: %d - fd: %d\n", it->first, it->second);
+}
+
+int			Balancer::sendToWorker(int workerFd, int clientFd)
+{
+  struct msghdr		msg;
+  char			buff[CMSG_SPACE(sizeof(clientFd))];
+  struct iovec  	iov = {.iov_base = ((char *)"zia"), .iov_len = 3};
+
+  memset(&msg, 0, sizeof(struct msghdr));
+  memset(buff, 0, sizeof(buff));
+  msg.msg_iov = &iov;
+  msg.msg_iovlen = 1;
+  msg.msg_control = buff;
+  msg.msg_controllen = sizeof(buff);
+
+  struct cmsghdr	*cmsg = CMSG_FIRSTHDR(&msg);
+  cmsg->cmsg_level = SOL_SOCKET;
+  cmsg->cmsg_type = SCM_RIGHTS;
+  cmsg->cmsg_len = CMSG_LEN(sizeof(clientFd));
+
+  *(int*) CMSG_DATA(cmsg) = clientFd;
+
+  msg.msg_controllen = cmsg->cmsg_len;
+
+  if (sendmsg(workerFd, &msg, 0) < 0)
+    return (printf("Failed communicate with worker:%2d\n", workerFd));
+  printf("Send fd:%d to worker:%d\n", clientFd, workerFd);
+  usleep(100);
+  // while (read(clientFd, buff, sizeof(clientFd)) == sizeof(clientFd))
+  //   {
+  //     printf("%s\n", buff);
+  //   }
+  return (0);
+}
+
+int			Balancer::balancer(RequestList &req)
+{
+  int			i;
+  int			err;
+
+  err = 0;
+  i = -1;
+  while (req.getSize() > 0)
+    if (sendToWorker(_worker[++i % _nbWorker], req.popFrontFd()) != 0)
+      err = -1;
+  return (err);
+}
+
+// int			main(__attribute__((unused))int argc,
+// 			     __attribute__((unused))char **argv)
+// {
+//   Balancer		a;
+
+//   a.display();
+//   a.sendWorker(argv);
+//   //sleep(7);
+// }

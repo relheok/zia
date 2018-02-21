@@ -9,11 +9,11 @@ NAME		= zia
 
 PACKAGE		= package
 
-RM			= rm -f
+RM		= rm -f
 
-CXX			= g++
+CXX		= g++
 
-CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/server -Iincludes/server/api -Iincludes/server/error
+CXXFLAGS	+= -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/server -Iincludes/server/api -Iincludes/server/error -I./includes/server/NetStack
 
 LDFLAGS		+= -ldl
 
