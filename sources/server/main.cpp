@@ -114,7 +114,7 @@ int		old_main(int ac, char **av)
 
     /* BEGIN TEST CODE */
     char			buff[BUFFSIZE];
-    zia::api::HttpInterpreter interpreter(std::map<std::string, std::string>{{"localhost:" + std::string(av[2]), "."}}, zia::api::ModulesList());
+    zia::api::HttpInterpreter interpreter(p.getConf(), std::map<std::string, std::string>{{"localhost:" + std::string(av[2]), "."}}, zia::api::ModulesList());
 
     printf("port: %d\n", std::stoi(av[2]));
 

@@ -40,7 +40,7 @@ namespace zia::api {
 			~ConfigManager();
 
 			//Getter/Setter
-			Conf							getConf() const;
+			Conf							&getConf();
 			std::string						getPath() const;
 			std::vector<std::string>		getModules() const;
 			std::vector<std::string>		getModules_path() const;
@@ -50,7 +50,7 @@ namespace zia::api {
 			void							setModules(std::vector<std::string> const &);
 			void							setModules_path(std::vector<std::string> const &);
 			void							setDoc(JSONValue* const &doc);
-			
+
 			// Utils method
 			ConfValue 						parse_str(std::string);
 			std::string						format_wstring(std::wstring);
@@ -67,11 +67,12 @@ namespace zia::api {
 				refresh or add Default value with defaultvalue method
 			*/
 			bool							browser_conf();
-			void							DefaultValue(); 
+			void							DefaultValue();
 
-			//Parser method		
+			//Parser method
 			void							getKey();
-			void							add_default(std::string, std::string);
+			void							add_default(std::string const &, std::string const &);
+			void							add_default(std::string const &, long long const &);
 				// for obj
 			ConfObject						add_bool_to_obj(std::string, bool, ConfObject);
 			ConfObject						add_string_to_obj(std::string, std::wstring str, ConfObject);
@@ -85,7 +86,7 @@ namespace zia::api {
 				// for bool and string
 			void							add_string(std::string , std::wstring);
 			void							add_bool(std::string , bool);
-	
+
 	private:
 		Conf				 	 _conf;
 		std::string				 _path;

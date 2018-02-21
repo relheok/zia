@@ -15,10 +15,11 @@ namespace zia::api {
   class   HttpInterpreter {
   public:
     /**
+    * [conf] : the conf file
     * [roots] : the roots directory as ("host","root")
     * [modules] : the modules' list
     */
-    HttpInterpreter(std::map<std::string, std::string> const &root, ModulesList modules);
+    HttpInterpreter(Conf &conf, std::map<std::string, std::string> const &root, ModulesList modules);
     HttpInterpreter(HttpInterpreter const &);
     HttpInterpreter   &operator=(HttpInterpreter const &);
     ~HttpInterpreter();
@@ -54,6 +55,7 @@ namespace zia::api {
 
     std::string         getRootFromHost(std::map<std::string, std::string> const &);
 
+    Conf                                _conf;
     std::map<std::string, std::string>  _roots;
     std::map<std::string, std::string>  _mimeType;
     ModulesList                         _modules;

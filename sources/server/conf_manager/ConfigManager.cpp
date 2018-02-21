@@ -9,7 +9,16 @@
 
 namespace zia::api {
 
-void	ConfigManager::add_default(std::string key, std::string value)
+void	ConfigManager::add_default(std::string const &key, std::string const &value)
+{
+	ConfValue	tmp;
+
+	tmp.v = value;
+	_conf[key] = tmp;
+	return ;
+}
+
+void	ConfigManager::add_default(std::string const &key, long long const &value)
 {
 	ConfValue	tmp;
 
@@ -24,7 +33,8 @@ void		ConfigManager::DefaultValue()
 	add_default("root_dir", "/var/www");
 	add_default("server_name", "zia");
 	add_default("server_version", "0.1");
-	return ; 
+	add_default("max_uri_size", 1000);
+	return ;
 }
 
 //Cannonique Forme
@@ -48,7 +58,7 @@ ConfigManager::~ConfigManager()
 
 ConfigManager	&ConfigManager::operator=(ConfigManager const &p)
 {
-	_conf = p.getConf();
+	_conf = _conf;
 	_modules = p.getModules();
 	_modules_path = p.getModules_path();
 	return (*this);
@@ -65,7 +75,7 @@ std::string					ConfigManager::getPath() const
 	return (_path);
 }
 
-Conf						ConfigManager::getConf() const
+Conf						&ConfigManager::getConf()
 {
 	return (_conf);
 }
