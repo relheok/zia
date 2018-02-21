@@ -36,6 +36,7 @@ namespace zia {
     void		stop();
     bool		isAlive();
     void		setConf(api::ConfigManager *conf);
+    api::Conf    &getConf();
     void		updateConf();
 
     // signal handlers

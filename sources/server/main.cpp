@@ -55,7 +55,7 @@ int		process(std::string confPath)
   return (0);
 }
 
-int		old_main(int argc, char **argv)
+int		main(int argc, char **argv)
 {
   static struct option long_options[] =
     {
@@ -106,7 +106,7 @@ int		old_main(int argc, char **argv)
 int		create_socket(int port);
 int		accept_socket(int fd, int port);
 
-int		main(int ac, char **av)
+int		old_main(int ac, char **av)
 {
   int fd_cliGlobal;
   int fd_inetGlobal;
