@@ -30,9 +30,8 @@ void	ConfigManager::add_default(std::string const &key, long long const &value)
 void		ConfigManager::DefaultValue()
 {
 	// here if u want set other default value
-	add_default("root_dir", "/var/www");
-	add_default("server_name", "zia");
-	add_default("server_version", "0.1");
+	add_default("server_name", "Zia");
+	add_default("server_version", "1.0");
 	add_default("max_uri_size", 1000);
 	return ;
 }

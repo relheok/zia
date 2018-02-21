@@ -1,20 +1,20 @@
 #include "http/HttpParser.hpp"
 
 namespace zia::api {
-  HttpParser::HttpParser() {}
+  HttpParser::HttpParser(Conf &conf) : _conf(conf) {}
 
   HttpParser::HttpParser(HttpParser const &original) {
-    (void)original;
+    _conf = original._conf;
   }
 
   HttpParser  &HttpParser::operator=(HttpParser const &original) {
-    (void)original;
+    _conf = original._conf;
     return *this;
   }
 
   HttpParser::~HttpParser() {}
 
-  struct HttpRequest          HttpParser::parse(std::string const &str) const {
+  struct HttpRequest          HttpParser::parse(std::string const &str) {
     std::vector<std::string>  v;
     std::vector<std::string>  line;
     struct HttpRequest        request;
@@ -28,8 +28,13 @@ namespace zia::api {
     request.body = getBody(v);
     request.method = getMethod(line[0]);
     request.uri = line[1];
-    if (line[1].size() > MAX_URI_SIZE)
-      throw RequestUriTooLargeError();
+    try {
+      std::cerr << "Max uri size : " << std::get<long long>(_conf["max_uri_size"].v) << '\n';
+      if (line[1].size() > static_cast<unsigned long long>(std::get<long long>(_conf["max_uri_size"].v)))
+        throw RequestUriTooLargeError();
+    } catch (std::bad_variant_access &) {
+      std::cerr << "HttpParser : invalid variant access" << '\n';
+    }
     return request;
   }
 
@@ -41,20 +46,6 @@ namespace zia::api {
     str += "\r\n";
     str += getBody(response.body);
     return str;
-  }
-
-  void        HttpParser::test(struct HttpRequest &request) const {
-    std::cout << "HttpParser Test Function" << '\n';
-    std::cout << "Http Version : " << (int)request.version << '\n';
-    std::cout << "Headers :" << '\n';
-    for (std::map<std::string, std::string>::iterator it = request.headers.begin() ; it != request.headers.end(); it++)
-      std::cout << it->first << " -> " << it->second << '\n';
-    std::cout << "Body :" << '\n';
-    for (Net::Raw::iterator it = request.body.begin(); it != request.body.end(); it++)
-      std::cout << (char)*it;
-    std::cout << std::endl;
-    std::cout << "Http Method : " << (int)request.method << '\n';
-    std::cout << "URI : " << request.uri << '\n';
   }
 
   http::Version   HttpParser::getVersion(std::string const &version) const {

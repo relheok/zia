@@ -35,7 +35,7 @@ namespace zia::api {
     * from the request [request]
     * \return the response
     */
-    static struct HttpResponse getDefaultResponse(struct HttpRequest &request, http::Status const &status = http::common_status::unknown, std::string const &reason = "");
+    struct HttpResponse getDefaultResponse(struct HttpRequest &request, http::Status const &status = http::common_status::unknown, std::string const &reason = "");
 
     /**
     * Setters
@@ -49,13 +49,13 @@ namespace zia::api {
 
     static Net::Raw            getBody(std::string const &);
 
-    HttpParser          _parser;
   private:
     struct HttpResponse get(struct HttpRequest &request, bool body = true);
 
     std::string         getRootFromHost(std::map<std::string, std::string> const &);
 
     Conf                                _conf;
+    HttpParser                          _parser{_conf};
     std::map<std::string, std::string>  _roots;
     std::map<std::string, std::string>  _mimeType;
     ModulesList                         _modules;
