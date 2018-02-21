@@ -5,7 +5,7 @@
 ## Login   <koehle_j@epitech.net>
 ## 
 ## Started on  Fri Jan 19 13:13:47 2018 Jérémy Koehler
-## Last update Tue Feb 20 23:09:42 2018 Jérémy Koehler
+## Last update Wed Feb 21 13:28:08 2018 Jérémy Koehler
 ##
 
 NAME	= zia
@@ -21,6 +21,6 @@ $(DEP):
 	@echo -e "\e[1m[$(NAME)]\nSigLevel = Never\nServer = file://`pwd`\e[0m"
 
 clean:
-	@rm -rf src pkg $(NAME).db* $(NAME).files* *.pkg.tar.xz todel
+	@rm -rf src pkg $(NAME).db* $(NAME).files* *.pkg.tar.xz zia
 
 re:	clean all
