@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <time.h>
+#include <math.h>
 #include <sstream>
 
 //using namespace rapidjson;
@@ -52,6 +53,7 @@ namespace zia::api {
 			void							setDoc(JSONValue* const &doc);
 
 			// Utils method
+			bool 							isLong(double num);
 			ConfValue 						parse_str(std::string);
 			std::string						format_wstring(std::wstring);
 			void							CheckPath();
@@ -83,7 +85,9 @@ namespace zia::api {
 			void							add_array(std::string , JSONValue *);
 			ConfValue						new_array(JSONValue*);
 			ConfObject						add_array_for_obj(std::string , JSONValue *, ConfObject);
-				// for bool and string
+				// for number, bool and string
+			void							add_num(std::string key, double num);
+			ConfObject						add_number_to_obj(std::string key, double num, ConfObject obj);
 			void							add_string(std::string , std::wstring);
 			void							add_bool(std::string , bool);
 

@@ -42,10 +42,12 @@ void	ConfigManager::getKey()
 	{
 		key = format_wstring(*iter);
 		JSONValue *key_value = _doc->Child((*iter).c_str());
-		if (key_value)
+		if (key_value && !key_value->IsNull())
 		{
 			if (key_value->IsString())
 				add_string(key, key_value->Stringify().c_str());
+			else if (key_value->IsNumber())
+				add_num(key, key_value->AsNumber());
 			else if (key_value->IsBool())
 				add_bool(key, (key_value->AsBool() ? (true) : (false)));
 			else if (key_value->IsArray())
@@ -76,10 +78,13 @@ void		ConfigManager::add_object(std::string key, JSONValue *key_value)
 					obj = add_string_to_obj(tmp, value->Stringify(), obj);
 				else if (value->IsBool())
 					obj = add_bool_to_obj(tmp, (value->AsBool() ? (true) : (false)), obj);
+				else if (value->IsNumber())
+					obj =  add_number_to_obj(tmp, value->AsNumber(), obj);
 				else if (value->IsArray())
 					obj = add_array_for_obj(tmp, value, obj);
 				else if (value->IsObject())
-					obj = add_obj_to_obj(tmp, value, obj);			}
+					obj = add_obj_to_obj(tmp, value, obj);		
+			}
 		iter++;
 	}
 	end.v = obj;
@@ -104,10 +109,13 @@ Conf		ConfigManager::add_obj_to_obj(std::string key, JSONValue *key_value, ConfO
 					obj = add_string_to_obj(tmp, value->Stringify(), obj);
 				else if (value->IsBool())
 					obj = add_bool_to_obj(tmp, (value->AsBool() ? (true) : (false)), obj);
+				else if (value->IsNumber())
+					obj =  add_number_to_obj(tmp, value->AsNumber(), obj);
 				else if (value->IsArray())
 					obj = add_array_for_obj(tmp, value, obj);
 				else if (value->IsObject())
-					obj = add_obj_to_obj(tmp, value, obj);			}
+					obj = add_obj_to_obj(tmp, value, obj);		
+			}
 		iter++;
 	}
 	end.v = obj;
@@ -133,10 +141,13 @@ Conf		ConfigManager::new_object(JSONValue *key_value)
 					obj = add_string_to_obj(tmp, value->Stringify(), obj);
 				else if (value->IsBool())
 					obj = add_bool_to_obj(tmp, (value->AsBool() ? (true) : (false)), obj);
-			else if (value->IsArray())
+				else if (value->IsNumber())
+					obj =  add_number_to_obj(tmp, value->AsNumber(), obj);
+				else if (value->IsArray())
 					obj = add_array_for_obj(tmp, value, obj);
 				else if (value->IsObject())
-					obj = add_obj_to_obj(tmp, value, obj);			}
+					obj = add_obj_to_obj(tmp, value, obj);
+			}
 		iter++;
 	}
 	return (obj);
@@ -145,6 +156,7 @@ Conf		ConfigManager::new_object(JSONValue *key_value)
 // ARRAY adder
 ConfObject	ConfigManager::add_array_for_obj(std::string key, JSONValue *key_value, ConfObject obj_end)
 {
+	double			nb;
 	bool 			res;
 	std::string 	tmp;
 	ConfArray		obj;
@@ -167,6 +179,14 @@ ConfObject	ConfigManager::add_array_for_obj(std::string key, JSONValue *key_valu
 			value.v = res;
 			obj.push_back(value);
 		}
+		else if (array[i]->IsNumber())
+		{
+			nb = array[i]->AsNumber();
+			value.v = nb;
+			if (isLong(nb) == true)
+				value.v = (long long)nb;
+			obj.push_back(value);
+		}
 		else if (array[i]->IsArray())
 		{
 			value = new_array(array[i]);
@@ -186,6 +206,7 @@ ConfObject	ConfigManager::add_array_for_obj(std::string key, JSONValue *key_valu
 
 void	ConfigManager::add_array(std::string key, JSONValue *key_value)
 {
+	double			nb;
 	bool 			res;
 	std::string 	tmp;
 	ConfArray		obj;
@@ -209,6 +230,14 @@ void	ConfigManager::add_array(std::string key, JSONValue *key_value)
 			value.v = res;
 			obj.push_back(value);
 		}
+		else if (array[i]->IsNumber())
+		{
+			nb = array[i]->AsNumber();
+			value.v = nb;
+			if (isLong(nb) == true)
+				value.v = (long long)nb;
+			obj.push_back(value);
+		}
 		else if (array[i]->IsArray())
 		{
 			value = new_array(array[i]);
@@ -228,6 +257,7 @@ void	ConfigManager::add_array(std::string key, JSONValue *key_value)
 ConfValue	ConfigManager::new_array(JSONValue *arr)
 {
 	std::string str;
+	double		nb;
 	bool 		boolean;
 	ConfArray 	res;
 	ConfValue 	end;
@@ -250,6 +280,14 @@ ConfValue	ConfigManager::new_array(JSONValue *arr)
 			tmp.v = boolean;
 			res.push_back(tmp);
 		}
+		else if (array[i]->IsNumber())
+		{
+			nb = array[i]->AsNumber();
+			tmp.v = nb;
+			if (isLong(nb) == true)
+				tmp.v = (long long)nb;
+			res.push_back(tmp);
+		}
 		else if (array[i]->IsArray())
 		{
 			tmp = new_array(array[i]);
@@ -265,7 +303,29 @@ ConfValue	ConfigManager::new_array(JSONValue *arr)
 	return (end);
 }
 
-// Bool and string adder
+// Number, Bool and string adder
+ConfObject	ConfigManager::add_number_to_obj(std::string key, double num, ConfObject obj)
+{
+	ConfValue res;
+
+	res.v = num;
+	if (isLong(num) == true)
+		res.v = (long long)num;
+	obj[key] = res;
+	return (obj);
+}
+
+void	ConfigManager::add_num(std::string key, double num)
+{
+	ConfValue res;
+
+	res.v = num;
+	if (isLong(num) == true)
+		res.v = (long long)num;
+	_conf[key] = res;
+	return ;
+}
+
 void	ConfigManager::add_string(std::string key, std::wstring tmp)
 {
 	std::string 	value;
