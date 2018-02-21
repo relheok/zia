@@ -1,45 +1,49 @@
 #include "http/HttpInterpreter.hpp"
 
 namespace zia::api {
-  HttpInterpreter::HttpInterpreter(std::map<std::string, std::string> const &roots, ModulesList modules) : _roots(roots), _modules(modules) {
+  HttpInterpreter::HttpInterpreter(Conf &conf, std::map<std::string, std::string> const &roots, ModulesList modules) : _conf(conf), _roots(roots), _modules(modules) {
     _mimeType = {
-      {"avi","video/x-msvideo"},
-      {"bin","application/octet-stream"},
-      {"css","text/css"},
-      {"csv","text/csv"},
-      {"doc","application/msword"},
-      {"gif","image/gif"},
-      {"htm","text/html; charset=UTF-8"},
-      {"html","text/html; charset=UTF-8"},
-      {"ico","image/x-icon"},
-      {"jar","application/java-archive"},
-      {"jpeg","image/jpeg"},
-      {"jpg","image/jpeg"},
-      {"js","application/javascript"},
-      {"json","application/json"},
-      {"mpeg","video/mpeg"},
-      {"otf","font/otf"},
-      {"png","image/png"},
-      {"pdf","application/pdf"},
-      {"rar","application/x-rar-compressed"},
-      {"rtf","application/rtf"},
-      {"sh","application/x-sh"},
-      {"svg","image/svg+xml"},
-      {"swf","application/x-shockwave-flash"},
-      {"tar","application/x-tar"},
-      {"wav","audio/x-wav"},
-      {"xhtml","application/xhtml+xml"},
-      {"xml","application/xml"},
-      {"zip","application/zip"}
+      {"avi", "video/x-msvideo"},
+      {"bin", "application/octet-stream"},
+      {"css", "text/css"},
+      {"csv", "text/csv"},
+      {"doc", "application/msword"},
+      {"gif", "image/gif"},
+      {"htm", "text/html; charset=UTF-8"},
+      {"html", "text/html; charset=UTF-8"},
+      {"ico", "image/x-icon"},
+      {"jar", "application/java-archive"},
+      {"jpeg", "image/jpeg"},
+      {"jpg", "image/jpeg"},
+      {"js", "application/javascript"},
+      {"json", "application/json"},
+      {"mpeg", "video/mpeg"},
+      {"otf", "font/otf"},
+      {"png", "image/png"},
+      {"pdf", "application/pdf"},
+      {"rar", "application/x-rar-compressed"},
+      {"rtf", "application/rtf"},
+      {"sh", "application/x-sh"},
+      {"svg", "image/svg+xml"},
+      {"swf", "application/x-shockwave-flash"},
+      {"tar", "application/x-tar"},
+      {"wav", "audio/x-wav"},
+      {"xhtml", "application/xhtml+xml"},
+      {"xml", "application/xml"},
+      {"zip", "application/zip"}
     };
   }
 
   HttpInterpreter::HttpInterpreter(HttpInterpreter const &original) {
+    _conf = original._conf;
+    _parser = original._parser;
     _roots = original._roots;
     _parser = original._parser;
   }
 
   HttpInterpreter   &HttpInterpreter::operator=(HttpInterpreter const &original) {
+    _conf = original._conf;
+    _parser = original._parser;
     _roots = original._roots;
     _parser = original._parser;
     return *this;
@@ -106,7 +110,12 @@ namespace zia::api {
     char buf[100];
     std::strftime(buf, 100, "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&t));
     response.headers["Date"] = buf;
-    response.headers["Server"] = SERVER_NAME + std::string("/") + SERVER_VERSION;
+    try {
+      response.headers["Server"] = std::get<std::string>(_conf["server_name"].v) + "/" + std::to_string(std::get<double>(_conf["server_version"].v));
+    } catch (std::bad_variant_access &) {
+      std::cerr << "HttpInterpreter : invalid variant access" << '\n';
+      response.headers["Server"] = "Zia/1.0";
+    }
     if (req.headers.find("Cookie") != req.headers.end())
       response.headers["Cookie"] = req.headers["Cookie"];
     return response;
@@ -119,8 +128,8 @@ namespace zia::api {
 
     try {
       std::string path = getRootFromHost(request.headers) + request.uri;
-      response = getDefaultResponse(request, http::common_status::ok, "OK");
       if (_mimeType.find(Utils::getExtension(v[0])) != _mimeType.end()) {
+        response = getDefaultResponse(request, http::common_status::ok, "OK");
         response.body = getBody(Utils::readFile(path));
         response.headers["Content-Type"] = _mimeType[Utils::getExtension(v[0])];
         response.headers["Content-Length"] = std::to_string(response.body.size());
@@ -135,7 +144,7 @@ namespace zia::api {
       } else {
         response = getDefaultResponse(request, http::common_status::ok, "OK");
         response.body = getBody(Utils::readFile(path));
-        response.headers["Content-Type"] = "text/plain";
+        response.headers["Content-Type"] = "text/plain ; charset=UTF-8";
         response.headers["Content-Length"] = std::to_string(response.body.size());
         return response;
       }
