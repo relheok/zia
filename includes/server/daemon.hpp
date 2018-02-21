@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:06:13 2018 Jérémy Koehler
-// Last update Tue Feb 20 20:16:13 2018 Jérémy Koehler
+// Last update Wed Feb 21 19:40:28 2018 Quentin Albertone
 //
 
 #ifndef DAEMON_HPP_
@@ -36,7 +36,7 @@ namespace zia {
     void		stop();
     bool		isAlive();
     void		setConf(api::ConfigManager *conf);
-    api::Conf    &getConf();
+    api::ConfigManager	*getConf();
     void		updateConf();
 
     // signal handlers

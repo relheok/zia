@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:04:17 2018 Jérémy Koehler
-// Last update Tue Feb 20 20:29:39 2018 Jérémy Koehler
+// Last update Wed Feb 21 19:39:58 2018 Quentin Albertone
 //
 
 #include "daemon.hpp"
@@ -49,8 +49,8 @@ void	zia::Daemon::setConf(api::ConfigManager *conf) {
   _conf = conf;
 }
 
-zia::api::Conf  &zia::Daemon::getConf() {
-  return _conf->getConf();
+zia::api::ConfigManager  *zia::Daemon::getConf() {
+  return _conf;
 }
 
 void	zia::Daemon::updateConf() {

@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Wed Feb 21 17:41:35 2018 Quentin Albertone
+// Last update Wed Feb 21 19:47:31 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -13,6 +13,11 @@
 Worker::Worker(int id)
   : _id(id)
 {
+  zia::Daemon &daemon = zia::Daemon::getInstance();
+  zia::api::ConfigManager *conf = daemon.getConf();
+
+  _http.reset(new zia::api::HttpInterpreter(conf->getConf(), std::map<std::string, std::string>{{"localhost", "."}}, conf->getListModules()));
+
   sleep(1);
   _pid = getpid();
   _pPid = getppid();
@@ -88,7 +93,6 @@ void			Worker::handleRequestFromClient()
     }
   _cliReq.append(buff.cbegin(), buff.cend());
   dprintf(_logFd, "[%d:%d]:%d - %s\n", _pid, _id, _cliFd, _cliReq.c_str());
-  resetClient();
 }
 
 void			Worker::resetClient()
@@ -99,10 +103,17 @@ void			Worker::resetClient()
 
 void			Worker::loop()
 {
+  std::string		resp;
+
   while (true)
     {
       receivFd();
       if (_cliFd > 0)
-	handleRequestFromClient();
+	{
+	  handleRequestFromClient();
+	  resp = _http.get()->interpret(_cliReq);
+	  write(_cliFd, resp.c_str(), resp.size());
+	  resetClient();
+	}
     }
 }

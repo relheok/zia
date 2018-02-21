@@ -5,12 +5,15 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Wed Feb 21 18:43:21 2018 Quentin Albertone
+// Last update Wed Feb 21 19:46:28 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_
 # define WORKER_HPP_
 # include "ziainclude.hpp"
+# include "http/HttpInterpreter.hpp"
+# include "daemon.hpp"
+
 
 # ifndef __STREAMPROTO_
 #  define __STREAMPROTO_
@@ -66,6 +69,10 @@ protected:
 
   int			_pid;
   int			_pPid;
+
+  //zia::api::Conf	_conf;
+  std::unique_ptr<zia::api::HttpInterpreter> _http{nullptr};
+  //HttpInterpreter	*_http;
 };
 
 
