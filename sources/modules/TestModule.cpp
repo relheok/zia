@@ -30,7 +30,7 @@ namespace zia::api {
     return true;
   }
 
-  void TestModule::test() const {
+  void TestModule::test() {
     std::cerr << "TestModule::test" << '\n';
   }
 }
