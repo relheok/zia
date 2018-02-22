@@ -4,6 +4,8 @@
 # include <iostream>
 # include <memory>
 # include <dlfcn.h>
+# include "IModule.hpp"
+# include "logger.hpp"
 # include "api/module.h"
 # include "error/Error.hpp"
 
@@ -12,6 +14,7 @@ namespace zia::api {
 
   struct          ListItem {
     Module        *module;
+    unsigned int  priority;
     void          *plib;
     std::string   name;
   };

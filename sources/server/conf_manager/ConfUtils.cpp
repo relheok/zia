@@ -36,7 +36,7 @@ void		ConfigManager::find_modules(JSONObject mod)
 			tmp = format_wstring(array[i]->Stringify());
 			tmp.erase(std::remove(tmp.begin(), tmp.end(), '\"' ), tmp.end());
 			str = "lib" + tmp + ".so";
-			modules.push_back(tmp);
+			modules.push_back(str);
 		}
 		setModules(modules);
 	}

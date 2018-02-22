@@ -51,7 +51,6 @@ ConfigManager::ConfigManager(ConfigManager const &p)
 
 ConfigManager::~ConfigManager()
 {
-	std::cout << "ConfigManager stop is work" << std::endl;
 	return ;
 }
 

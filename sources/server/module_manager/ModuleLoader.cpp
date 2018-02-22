@@ -24,14 +24,19 @@ namespace zia::api {
     void      *plib;
     myModule  fptr;
     Module    *module;
+    IModule   *imodule;
+    std::string tmp = path + '/' + name;
 
     if (name.length() < 4 || name.substr(name.length() - 3, 3).compare(".so") != 0)
       throw ModuleLoaderError("expected \".so\" file, got \"" + name + "\"");
-    if (!(plib = dlopen(path.c_str(), RTLD_LAZY)) || !(ptr = dlsym(plib, "create")))
+    if (!(plib = dlopen(tmp.c_str(), RTLD_LAZY)) || !(ptr = dlsym(plib, "create")))
       throw ModuleLoaderError("invalid library " + name);
     fptr = (myModule)ptr;
     module = (*fptr)();
-    ListItem item = {module, plib, name};
+    unsigned int priority = 100;
+    if ((imodule = dynamic_cast<IModule*>(module)))
+      priority = imodule->getPriority();
+    ListItem item = {module, priority, plib, name};
     _modules.push_back(item);
     return module;
   }

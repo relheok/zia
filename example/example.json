@@ -1,7 +1,13 @@
 {
   "server_name" : "Zia",
   "server_version" : "1.0",
-  "max_uri_size" : "3",
+  "max_uri_size" : 1000,
+  "modules_path" : [
+    "./sources/modules"
+  ],
+  "modules" : [
+    "ssl_module"
+  ],
   "roots" : {
     "localhost" : "/var/www"
   }

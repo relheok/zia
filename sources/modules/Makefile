@@ -8,7 +8,7 @@
 ## Last update Mon Apr  3 21:38:13 2017 Maxime Maisonnas
 ##
 
-NAME	= ssl_module.so
+NAME	= libssl_module.so
 
 CC	= g++
 

@@ -56,7 +56,6 @@ namespace zia::api {
   std::string           HttpInterpreter::interpret(std::string const &request) {
     struct HttpDuplex   duplex;
 
-    _logger.info("Start interpret :\n" + request + "\n");
     try {
       duplex.req = _parser.parse(request);
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
@@ -100,7 +99,6 @@ namespace zia::api {
         duplex.resp.reason = "Internal Server Error";
       }
     }
-    _logger.info("Response :\n" + _parser.parse(duplex.resp) + "\n");
     return _parser.parse(duplex.resp);
   }
 
@@ -115,7 +113,7 @@ namespace zia::api {
     std::strftime(buf, 100, "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&t));
     response.headers["Date"] = buf;
     try {
-      response.headers["Server"] = std::get<std::string>(_conf["server_name"].v) + "/" + std::to_string(std::get<double>(_conf["server_version"].v));
+      response.headers["Server"] = std::get<std::string>(_conf["server_name"].v) + "/" + std::get<std::string>(_conf["server_version"].v);
     } catch (std::bad_variant_access &) {
       _logger.error("HttpInterpreter : invalid variant access");
       response.headers["Server"] = "Zia/1.0";
@@ -178,7 +176,8 @@ namespace zia::api {
 
     if (ith == headers.end())
       throw BadRequestError("no Host header");
-    auto itr = _roots.find(ith->second);
+    std::vector<std::string> v = Utils::split(ith->second, ":");
+    auto itr = _roots.find(v[0]);
     if (itr == _roots.end())
       throw BadRequestError("the specified host '" + ith->second + "' hasn't been found");
     return itr->second;

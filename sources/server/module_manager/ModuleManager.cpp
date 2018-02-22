@@ -16,11 +16,12 @@ namespace zia::api {
 
   void            ModuleManager::init(ModulePathList const &modules, Conf &conf) {
     for (ModulePathList::const_iterator it = modules.begin(); it < modules.end(); it++) {
+      zia::Logger::getInstance().info("Module : " + it->first);
       try {
-        if (!loadModule(it->first, it->second)->config(conf))
-          throw ModuleManagerError("can't config module " + it->second);
+        if (!loadModule(it->second, it->first)->config(conf))
+          throw ModuleManagerError("can't config module " + it->first);
       } catch (std::exception &e) {
-        std::cerr << e.what() << '\n';
+        zia::Logger::getInstance().error(e.what());
       }
     }
   }

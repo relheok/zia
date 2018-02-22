@@ -9,7 +9,7 @@
 //
 
 #include "main.hpp"
-
+#include "logger.hpp"
 
 #include <getopt.h>
 #include "daemon.hpp"
@@ -36,8 +36,11 @@ int		process(std::string confPath)
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
     zia::Daemon &daemon = zia::Daemon::getInstance();
-    Network::Socket	inet(4243);
+    Network::Socket	inet(5434);
 
+    if (!p.get()->browser_conf())
+      zia::Logger::getInstance().error("No conf file");
+    zia::Logger::getInstance().info(std::to_string(p.get()->getListModules().size()));
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
 
     // pipe.display();
@@ -52,7 +55,6 @@ int		process(std::string confPath)
       inet.displayRequest();
       pipe.balancer(inet.getRequest());
       sleep(3);
-      // std::cout << "\n----------------------------" << std::endl;
    }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
