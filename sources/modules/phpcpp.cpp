@@ -1,5 +1,6 @@
 #include "phpcpp.hpp"
 #include <unistd.h>
+#include <cstring>
 
 zia::api::cppModule::cppModule() {
   std::string tmp("cppModule");
