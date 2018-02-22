@@ -1,17 +1,20 @@
 #ifndef SSLMODULE_HPP_
 # define SSLMODULE_HPP_
 
+
+# include <string>
 # include <iostream>
 # include <memory>
+# include <cstring>
+# include <limits.h>
+# include <unistd.h>
 # include "conf.h"
-# include "IModule.hpp"
 # include "http.h"
+# include "IModule.hpp"
 
 # include "openssl/bio.h"
 # include "openssl/ssl.h"
 # include "openssl/err.h"
-
-#include <cstring>
 
 typedef zia::api::Module *(*myModule)();
 
@@ -38,9 +41,11 @@ namespace zia::api {
     BIO       *_sslbio;
     SSL       *_ssl;
     SSL_CTX   *_ctx;
+    std::string _path;
 
     void      initCtx();
     void      loadCertificate();
+    std::string getCurrentDir();
     template<typename E>
     void      exitOnError(E e);
   };

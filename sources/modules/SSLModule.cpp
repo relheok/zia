@@ -7,7 +7,10 @@ extern "C" {
 }
 
 namespace zia::api {
-  SSLModule::SSLModule() {}
+  SSLModule::SSLModule() {
+    _path = getCurrentDir();
+    _path = _path.substr(0, _path.find_last_of("/\\")) + "/ressources/";
+  }
 
   SSLModule::SSLModule(SSLModule const &copy) {
     (void)copy;
@@ -65,17 +68,23 @@ namespace zia::api {
   }
 
   void SSLModule::loadCertificate() {
-    if (!(SSL_CTX_use_certificate_chain_file(_ctx, CERTIFICATE)))
+    if (!(SSL_CTX_use_certificate_chain_file(_ctx, (_path + CERTIFICATE).c_str())))
       exitOnError("Cannot use Certificate file: ");
-    if (!(SSL_CTX_use_PrivateKey_file(_ctx, PRIVATE_KEY, SSL_FILETYPE_PEM)))
+    if (!(SSL_CTX_use_PrivateKey_file(_ctx, (_path + PRIVATE_KEY).c_str(), SSL_FILETYPE_PEM)))
       exitOnError("Cannot use PrivateKey fi, ERR_error_string( ERR_get_error(), NULL )le: ");
-    if (!SSL_CTX_load_verify_locations(_ctx, CERTIFICATE, NULL))
+    if (!SSL_CTX_load_verify_locations(_ctx, (_path + CERTIFICATE).c_str(), NULL))
       exitOnError("Cannot verify Certificate: ");
+  }
+
+  std::string SSLModule::getCurrentDir() {
+    char result[ PATH_MAX ];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+    return std::string( result, (count > 0) ? count : 0 );
   }
 
   template<typename E>
   void  SSLModule::exitOnError(E e) {
-    std::cerr << e << '\n';
+    std::cerr << e << ERR_error_string( ERR_get_error(), NULL ) << '\n';
     exit(EXIT_FAILURE);
   }
 }
