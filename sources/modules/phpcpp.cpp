@@ -60,6 +60,7 @@ bool  zia::api::cppModule::initComponent() {
 }
 
 bool	zia::api::cppModule::config(const Conf& conf) {
+  std::cerr << "Config PHP Module" << '\n';
   (void)conf;
   return (true);
 }
