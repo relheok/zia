@@ -7,7 +7,7 @@ extern "C" {
 }
 
 namespace zia::api {
-  SSLModule::SSLModule() {}
+  SSLModule::SSLModule() : _prio(0) {}
 
   SSLModule::SSLModule(SSLModule const &copy) {
     (void)copy;
@@ -27,27 +27,31 @@ namespace zia::api {
     return (true);
   }
 
-  bool SSLModule::exec(HttpDuplex& http) {
+  bool SSLModule::exec(HttpDuplex &http) {
     char buf[BUFSIZE];
 
-    _sbio = BIO_new_socket(http.info.sock->s, BIO_NOCLOSE);
-    _ssl = SSL_new(_ctx);
-    SSL_set_bio(_ssl, _sbio, _sbio);
-    if (SSL_accept(_ssl) <= 0)
+    _sbio.reset(BIO_new_socket(http.info.sock->s, BIO_NOCLOSE));
+    _ssl.reset(SSL_new(_ctx.get()));
+    SSL_set_bio(_ssl.get(), _sbio.get(), _sbio.get());
+    if (SSL_accept(_ssl.get()) <= 0)
       exitOnError("SSL accept error");
 
-    _io = BIO_new(BIO_f_buffer());
-    _sslbio = BIO_new(BIO_f_ssl());
-    BIO_set_ssl(_sslbio, _ssl, BIO_CLOSE);
-    BIO_push(_io, _sslbio);
+    _io.reset(BIO_new(BIO_f_buffer()));
+    _sslbio.reset(BIO_new(BIO_f_ssl()));
+    BIO_set_ssl(_sslbio.get(), _ssl.get(), BIO_CLOSE);
+    BIO_push(_io.get(), _sslbio.get());
 
     while (!std::strcmp(buf,"\r\n") || !std::strcmp(buf,"\n")) {
-      BIO_gets(_io, buf, BUFSIZE - 1);
+      BIO_gets(_io.get(), buf, BUFSIZE - 1);
     }
     std::cout << "Request: " << buf << std::endl;
     http.resp.reason.clear();
     http.resp.reason.append(buf);
     return (true);
+  }
+
+  unsigned int SSLModule::getPriority() const {
+    return _prio;
   }
 
   void  SSLModule::initCtx() {
@@ -58,18 +62,19 @@ namespace zia::api {
     SSL_load_error_strings();
 
     meth = SSLv23_method();
-    if (!(_ctx = SSL_CTX_new(meth))) {
+    _ctx.reset(SSL_CTX_new(meth));
+    if (!_ctx.get()) {
       ERR_print_errors_fp(stderr);
       exit(EXIT_FAILURE);
     }
   }
 
   void SSLModule::loadCertificate() {
-    if (!(SSL_CTX_use_certificate_chain_file(_ctx, CERTIFICATE)))
+    if (!(SSL_CTX_use_certificate_chain_file(_ctx.get(), CERTIFICATE)))
       exitOnError("Cannot use Certificate file: ");
-    if (!(SSL_CTX_use_PrivateKey_file(_ctx, PRIVATE_KEY, SSL_FILETYPE_PEM)))
+    if (!(SSL_CTX_use_PrivateKey_file(_ctx.get(), PRIVATE_KEY, SSL_FILETYPE_PEM)))
       exitOnError("Cannot use PrivateKey fi, ERR_error_string( ERR_get_error(), NULL )le: ");
-    if (!SSL_CTX_load_verify_locations(_ctx, CERTIFICATE, NULL))
+    if (!SSL_CTX_load_verify_locations(_ctx.get(), CERTIFICATE, NULL))
       exitOnError("Cannot verify Certificate: ");
   }
 
