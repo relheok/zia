@@ -10,6 +10,8 @@
 
 NAME	= ssl_module.so
 
+NAMEPHP	= php_module.so
+
 CC	= g++
 
 RM	= rm -f
@@ -24,18 +26,23 @@ LDFLAGS	+= -shared
 
 SRCS	= SSLModule.cpp
 
+SRCSPHP = phpcpp.cpp
+
 OBJS	= $(SRCS:.cpp=.o)
+
+OBJSPHP	= $(SRCSPHP:.cpp=.o)
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
+$(NAME): $(OBJS) $(OBJSPHP)
 	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
+	$(CC) $(OBJSPHP) -o $(NAMEPHP) $(LDFLAGS)
 
 clean:
-	@$(RM) $(OBJS)
+	@$(RM) $(OBJS) $(OBJSPHP)
 
 fclean: clean
-	@$(RM) $(NAME)
+	@$(RM) $(NAME) $(NAMEPHP)
 
 re: fclean all
 

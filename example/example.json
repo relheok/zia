@@ -2,6 +2,7 @@
   "server_name" : "Zia",
   "server_version" : "1.0",
   "max_uri_size" : "3",
+    "modules" : ["cppModule", "./sources/modules/php_module.so"],
   "roots" : {
     "localhost" : "/var/www"
   }
