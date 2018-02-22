@@ -6,6 +6,7 @@
 # include "conf.h"
 # include "IModule.hpp"
 # include "http.h"
+# include "logger.hpp"
 
 # include "openssl/bio.h"
 # include "openssl/ssl.h"

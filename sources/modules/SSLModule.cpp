@@ -7,7 +7,9 @@ extern "C" {
 }
 
 namespace zia::api {
-  SSLModule::SSLModule() {}
+  SSLModule::SSLModule() {
+    zia::Logger::getInstance().info("SSLModule creation");
+  }
 
   SSLModule::SSLModule(SSLModule const &copy) {
     (void)copy;
@@ -21,6 +23,7 @@ namespace zia::api {
   SSLModule::~SSLModule() {}
 
   bool SSLModule::config(const Conf &conf) {
+    zia::Logger::getInstance().info("In SSL config");
     (void)conf;
     initCtx();
     loadCertificate();
@@ -59,8 +62,7 @@ namespace zia::api {
 
     meth = SSLv23_method();
     if (!(_ctx = SSL_CTX_new(meth))) {
-      ERR_print_errors_fp(stderr);
-      exit(EXIT_FAILURE);
+      exitOnError("salut");
     }
   }
 
@@ -75,7 +77,7 @@ namespace zia::api {
 
   template<typename E>
   void  SSLModule::exitOnError(E e) {
-    std::cout << e  << ERR_error_string( ERR_get_error(), NULL ) << std::endl;
+    zia::Logger::getInstance().info(ERR_error_string( ERR_get_error(), NULL ));
     exit(EXIT_FAILURE);
   }
 }
