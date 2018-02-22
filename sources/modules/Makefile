@@ -10,7 +10,7 @@
 
 NAME	= libssl_module.so
 
-NAMEPHP	= php_module.so
+NAMEPHP	= libphp_module.so
 
 CC	= g++
 

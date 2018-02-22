@@ -20,7 +20,7 @@ typedef zia::api::Module *(*myModule)();
 #define BUFSIZE 1024
 
 namespace zia::api {
-  class SSLModule : public Module {
+  class SSLModule : public IModule {
   public:
     SSLModule();
     SSLModule(SSLModule const &);
@@ -29,6 +29,8 @@ namespace zia::api {
 
     virtual bool config(const Conf &conf);
     virtual bool exec(HttpDuplex &http);
+
+    virtual unsigned int getPriority() const { return 0; }
 
   private:
     BIO       *_sbio;

@@ -24,7 +24,6 @@ namespace zia::api {
     void      *plib;
     myModule  fptr;
     Module    *module;
-    IModule   *imodule;
     std::string tmp = path + '/' + name;
 
     if (name.length() < 4 || name.substr(name.length() - 3, 3).compare(".so") != 0)
@@ -34,6 +33,7 @@ namespace zia::api {
     fptr = (myModule)ptr;
     module = (*fptr)();
     unsigned int priority = 100;
+    IModule *imodule;
     if ((imodule = dynamic_cast<IModule*>(module)))
       priority = imodule->getPriority();
     ListItem item = {module, priority, plib, name};

@@ -6,7 +6,8 @@
     "./sources/modules"
   ],
   "modules" : [
-    "ssl_module"
+    "ssl_module",
+    "php_module"
   ],
   "roots" : {
     "localhost" : "/var/www"

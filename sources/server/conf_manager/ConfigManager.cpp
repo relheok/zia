@@ -88,6 +88,21 @@ std::vector<std::string>	ConfigManager::getModules_path() const
 	return (_modules_path);
 }
 
+std::map<std::string, std::string> 		ConfigManager::getRoots() {
+	std::map<std::string, std::string>	roots;
+
+	try {
+		if (_conf.find("roots") == _conf.end())
+			return roots;
+		ConfObject obj = std::get<ConfObject>(_conf["roots"].v);
+		for (auto it = obj.begin(); it != obj.end(); it++)
+			roots[it->first] = std::get<std::string>(it->second.v);
+	} catch (std::exception &) {
+		zia::Logger::getInstance().error("ConfigManager: Invalid roots config");
+	}
+	return roots;
+}
+
 JSONValue*					ConfigManager::getDoc() const
 {
 	return (_doc);

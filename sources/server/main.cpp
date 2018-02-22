@@ -40,8 +40,10 @@ int		process(std::string confPath)
 
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
-    zia::Logger::getInstance().info(std::to_string(p.get()->getListModules().size()));
+    std::map<std::string, std::string> map = p.get()->getRoots();
+    zia::Logger::getInstance().info("Get roots ok");
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
+    zia::Logger::getInstance().info("Init ok");
 
     // pipe.display();
 
