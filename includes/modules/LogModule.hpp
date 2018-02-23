@@ -1,8 +1,12 @@
-#pragma once
+# pragma once
 
-#include <iostream>
+# include <iostream>
+# include <fstream>
+# include <iomanip>
 
-#include "IModule.hpp"
+# include "IModule.hpp"
+
+# define FILE_PATH "Logs"
 
 typedef zia::api::Module *(*myModule)();
 
