@@ -32,6 +32,7 @@ namespace zia::api {
       {"xml", "application/xml"},
       {"zip", "application/zip"}
     };
+    std::sort(_modules.begin(), _modules.end(), compareListItem);
   }
 
   HttpInterpreter::HttpInterpreter(HttpInterpreter const &original) : _logger(zia::Logger::getInstance()) {
@@ -181,5 +182,9 @@ namespace zia::api {
     if (itr == _roots.end())
       throw BadRequestError("the specified host '" + ith->second + "' hasn't been found");
     return itr->second;
+  }
+
+  bool        HttpInterpreter::compareListItem(ListItem const &item1, ListItem const &item2) {
+    return item1.priority < item2.priority;
   }
 } /* zia:api */

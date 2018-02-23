@@ -58,6 +58,7 @@ namespace zia::api {
     struct HttpResponse get(struct HttpRequest &request, bool body = true);
 
     std::string         getRootFromHost(std::map<std::string, std::string> const &);
+    static bool         compareListItem(ListItem const &, ListItem const &);
 
     Conf                                _conf;
     HttpParser                          _parser{_conf};
