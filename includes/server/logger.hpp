@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Feb 20 17:04:36 2018 Jérémy Koehler
-// Last update Tue Feb 20 18:23:16 2018 Jérémy Koehler
+// Last update Fri Feb 23 21:50:39 2018 Quentin Albertone
 //
 
 #ifndef LOGGER_HPP_
@@ -25,7 +25,7 @@ namespace zia {
     ~Logger()					= default;
 
     void	debug(std::string message);
-    void  info(std::string message);
+    void	info(std::string message);
     void	warning(std::string message);
     void	error(std::string message);
 

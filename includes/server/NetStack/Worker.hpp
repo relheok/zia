@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Wed Feb 21 21:47:28 2018 Quentin Albertone
+// Last update Fri Feb 23 22:21:20 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_

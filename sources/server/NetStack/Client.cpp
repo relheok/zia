@@ -5,26 +5,26 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 14:54:28 2017 Quentin Albertone
-// Last update Tue Jan 23 18:51:12 2018 Quentin Albertone
+// Last update Fri Feb 23 22:21:58 2018 Quentin Albertone
 //
 
 #include "Client.hpp"
 
 Client::Client(int server)
 {
-  std::cout << "Acccepting new client" << std::endl;
+  zia::Logger::getInstance().info("[Balancer] - Acccepting new client");
   _size = sizeof(_sock);
   if ((_fd = accept(server, (t_sockaddr *)(&_sock), &_size)) < 3)
-    std::cout << "\tError while accepting client" << std::endl;
+    zia::Logger::getInstance().error("[Balancer] - Client error while accepting new client");
   //  _addr = Sockets::GetAddress(_sock);
   _port = ntohs(_sock.sin_port);
-
   // Manage poll events POLLIN
   _poll.fd = _fd;
   _poll.events = POLLIN;
 
-  std::cout << "Accepting new client and add poll event" << std::endl;
-  std::cout << "\tNew client: " << _fd << " addr: " << _addr << ":" << _port << std::endl;
+  zia::Logger::getInstance().info("[Balancer] - Client Accept new client");
+  zia::Logger::getInstance().info("[Balancer] - Client new client: " + std::to_string(_fd) + "port: " +
+				  _addr + std::to_string(_port));
 }
 
 Client::Client(Client const &client)
@@ -51,13 +51,13 @@ Client		&Client::operator=(Client const &client)
 
 Client::~Client()
 {
-  std::cout << "Dtor client: " << _fd << std::endl;
+  close(_fd);
 }
 
 
 // --------------------------------------------------------------------------------------------- //
 
-Client				&Client::operator*()
+Client			&Client::operator*()
 {
   return (*this);
 }
@@ -77,7 +77,7 @@ socklen_t		Client::getSize() const
   return (_size);
 }
 
-t_pollfd			Client::getPoll() const
+t_pollfd		Client::getPoll() const
 {
   return (_poll);
 }
