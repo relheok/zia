@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Feb  7 14:25:23 2018 Quentin Albertone
-// Last update Wed Feb 21 21:30:31 2018 Quentin Albertone
+// Last update Fri Feb 23 21:45:52 2018 Quentin Albertone
 //
 
 #include "Balancer.hpp"

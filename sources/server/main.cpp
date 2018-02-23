@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Wed Feb 21 23:05:40 2018 Jérémy Koehler
+// Last update Sat Feb 24 00:26:43 2018 Quentin Albertone
 //
 
 #include "main.hpp"
@@ -35,30 +35,27 @@ int		process(std::string confPath)
     // zia::api::ConfigManager p(confPath);
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
-    //zia::Daemon &daemon = zia::Daemon::getInstance();
-    Network::Socket	inet(5434);
+    zia::Daemon &daemon = zia::Daemon::getInstance();
+    Network::Socket	inet(4248);
 
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
     std::map<std::string, std::string> map = p.get()->getRoots();
-    zia::Logger::getInstance().info("Get roots ok");
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
-    zia::Logger::getInstance().info("Init ok");
-    return 0;
 
     // pipe.display();
 
-    /*daemon.setConf(p.get());
+    daemon.setConf(p.get());
     daemon.setModuleManager(m.get());
 
     Balancer		pipe;
 
     while (daemon.isAlive()) {
       inet.loop();
-      inet.displayRequest();
+      //inet.displayRequest();
       pipe.balancer(inet.getRequest());
       sleep(3);
-   }*/
+   }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
     return (1);

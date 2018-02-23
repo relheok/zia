@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Thu Feb 22 00:51:35 2018 Quentin Albertone
+// Last update Fri Feb 23 22:20:03 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -126,9 +126,7 @@ void			Worker::loop()
       receivFd();
       if (_cliFd > 0)
       	{
-          zia::Logger::getInstance().info("Work::loop : got a fd");
       	  handleRequestFromClient();
-          zia::Logger::getInstance().info("Work::loop : got a request");
       	  resp = _http.get()->interpret(_cliReq);
       	  write(_cliFd, resp.c_str(), resp.size());
       	  resetClient();

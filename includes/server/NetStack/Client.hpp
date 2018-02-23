@@ -5,12 +5,13 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 14:18:49 2017 Quentin Albertone
-// Last update Tue Jan 23 18:50:07 2018 Quentin Albertone
+// Last update Fri Feb 23 22:21:27 2018 Quentin Albertone
 //
 
 #ifndef CLIENT_HPP_
 # define CLIENT_HPP_
 # include "ziainclude.hpp"
+# include "logger.hpp"
 
 class			Client
 {
