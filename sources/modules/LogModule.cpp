@@ -7,7 +7,7 @@ extern "C" {
 }
 
 namespace zia::api {
-  LogModule::LogModule() {}
+  LogModule::LogModule() : _path(FILE_PATH) {}
 
   LogModule::LogModule(LogModule const &copy) {
     (void)copy;
@@ -21,7 +21,11 @@ namespace zia::api {
   LogModule::~LogModule() {}
 
   bool LogModule::config(const Conf &conf) {
-    (void)conf;
+    Conf copy = conf;
+
+    ConfObject obj = std::get<ConfObject>(copy["Log"].v);
+    if (obj.find("path") != obj.end())
+      _path = std::get<std::string>(obj["path"].v);
     return true;
   }
 
@@ -30,7 +34,7 @@ namespace zia::api {
     auto now = std::chrono::system_clock::now();
     auto now_c = std::chrono::system_clock::to_time_t(now);
 
-    file.open(FILE_PATH, std::fstream::in | std::fstream::out | std::fstream::app);
+    file.open(_path, std::fstream::in | std::fstream::out | std::fstream::app);
     file << "Time : " << std::put_time(std::localtime(&now_c), "%c") << '\n';
     file << "Request : " << printVersion(http.req.version) << '\n' <<
                             printMethod(http.req.method) << " " <<

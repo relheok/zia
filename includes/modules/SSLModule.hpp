@@ -17,8 +17,6 @@
 
 typedef zia::api::Module *(*myModule)();
 
-#define PRIVATE_KEY "key.pem"
-#define CERTIFICATE "cert.pem"
 #define BUFSIZE 4096
 
 using Ssl_ptr = std::unique_ptr<SSL, decltype(&SSL_free)>;

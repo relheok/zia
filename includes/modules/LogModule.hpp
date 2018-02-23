@@ -24,6 +24,8 @@ namespace zia::api {
       virtual unsigned int getPriority() const { return 100; };
 
     private:
+      std::string _path;
+
       std::string printBody(Net::Raw const &body) const;
       std::string printVersion(http::Version v) const ;
       std::string printMethod(http::Method m) const;
