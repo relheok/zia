@@ -1,6 +1,7 @@
 # pragma once
 
 # include <iostream>
+# include <string>
 # include <fstream>
 # include <iomanip>
 
@@ -20,9 +21,11 @@ namespace zia::api {
 
       virtual bool config(const Conf &conf);
       virtual bool exec(HttpDuplex &http);
-      virtual unsigned int getPriority() const;
+      virtual unsigned int getPriority() const { return 100; };
 
     private:
-      unsigned int  _prio;
+      std::string printBody(Net::Raw const &body) const;
+      std::string printVersion(http::Version v) const ;
+      std::string printMethod(http::Method m) const;
   };
 }

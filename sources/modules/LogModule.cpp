@@ -7,9 +7,7 @@ extern "C" {
 }
 
 namespace zia::api {
-  LogModule::LogModule() : _prio(100) {
-    std::cout << "LogModule creation" << std::endl;
-  }
+  LogModule::LogModule() {}
 
   LogModule::LogModule(LogModule const &copy) {
     (void)copy;
@@ -28,20 +26,65 @@ namespace zia::api {
   }
 
   bool LogModule::exec(HttpDuplex &http) {
-    std::cout << "Config LogModule" << std::endl;
     std::fstream file;
     auto now = std::chrono::system_clock::now();
     auto now_c = std::chrono::system_clock::to_time_t(now);
 
     file.open(FILE_PATH, std::fstream::in | std::fstream::out | std::fstream::app);
     file << "Time : " << std::put_time(std::localtime(&now_c), "%c") << '\n';
-//  file << "Request : " << http.req << '\n';
-//  file << "Response : " << http.resp << '\n';
+    file << "Request : " << printVersion(http.req.version) << '\n' <<
+                            printMethod(http.req.method) << " " <<
+                            printBody(http.req.body) << '\n';
+    file << "Response : " << http.resp.status << '\n' <<
+                             printVersion(http.req.version) << '\n' <<
+                             printBody(http.resp.body) << '\n';
     file.close();
     return true;
   }
 
-  unsigned int LogModule::getPriority() const {
-    return _prio;
+  std::string LogModule::printBody(Net::Raw const &body) const {
+    std::string str = "";
+
+    for (auto it = body.begin(); it != body.end(); it++)
+      str += (char)*it;
+    return str;
+  }
+
+  std::string LogModule::printVersion(http::Version v) const {
+    switch(v) {
+      case http::Version::http_0_9 :
+        return "http_0_9";
+      case http::Version::http_1_0 :
+        return "http_1_0";
+      case http::Version::http_1_1 :
+        return "http_1_1";
+      case http::Version::http_2_0 :
+        return "http_2_0";
+      default :
+        return "unknown";
+    }
+  }
+
+  std::string LogModule::printMethod(http::Method m) const {
+    switch(m) {
+      case http::Method::options :
+        return "OPTIONS";
+      case http::Method::get :
+        return "GET";
+      case http::Method::head :
+        return "HEAD";
+      case http::Method::post :
+        return "POST";
+      case http::Method::put :
+        return "PUT";
+      case http::Method::delete_ :
+        return "DELETE";
+      case http::Method::trace :
+        return "TRACE";
+      case http::Method::connect :
+        return "CONNECT";
+      default:
+        return "unknown";
+    }
   }
 }
