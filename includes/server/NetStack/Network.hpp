@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:41:38 2017 Quentin Albertone
-// Last update Wed Feb 21 15:53:16 2018 Quentin Albertone
+// Last update Sat Feb 24 00:26:14 2018 Quentin Albertone
 //
 
 #ifndef NETWORK_HPP_
@@ -37,7 +37,7 @@ namespace	Network
 
     void			loop();
 
-    void			displayRequest();
+    // void			displayRequest();
 
   private:
     int				_fd;

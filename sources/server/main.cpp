@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Fri Feb 23 21:40:37 2018 Quentin Albertone
+// Last update Sat Feb 24 00:26:43 2018 Quentin Albertone
 //
 
 #include "main.hpp"
@@ -52,7 +52,7 @@ int		process(std::string confPath)
 
     while (daemon.isAlive()) {
       inet.loop();
-      inet.displayRequest();
+      //inet.displayRequest();
       pipe.balancer(inet.getRequest());
       sleep(3);
    }

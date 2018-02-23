@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 17:52:26 2017 Quentin Albertone
-// Last update Wed Feb 21 16:57:04 2018 Quentin Albertone
+// Last update Sat Feb 24 00:25:13 2018 Quentin Albertone
 //
 
 //#include <utility>
@@ -35,9 +35,9 @@ RequestList		&RequestList::operator=(RequestList &req)
 
 // ------------------------------------------------------------------------------------------------ //
 
-void					RequestList::setRequest(Client *client, std::string query)
+void					RequestList::setRequest(Client *client)
 {
-  _request.push_back(std::make_pair(client, query));
+  _request.push_back(client);
 }
 
 RequestList				&RequestList::operator+(RequestList const &list)
@@ -53,27 +53,29 @@ int					RequestList::getSize()
 
 int					RequestList::popFrontFd()
 {
-  Client				*client;
   int					fd;
 
-  client = _request.front().first;
-  if (client == NULL)
-    return (0);
-  fd = client->getFd();
+  if (_request.size() < 1)
+    {
+      zia::Logger::getInstance().error("[REQUESTSTACK] - invalide size of list");
+      return (-1);
+    }
+  fd = _request.front()->getFd();
   _request.pop_front();
   return (fd);
 }
 
-std::list<std::pair<Client *, std::string>>		RequestList::getRequestList()
+std::list<Client *>		RequestList::getRequestList()
 {
   return (_request);
 }
 
-void					RequestList::displayRequest()
-{
-  std::list<std::pair<Client *, std::string>>::iterator it = _request.begin();
+// void					RequestList::displayRequest()
+// {
+//   std::list<Client *>::iterator it = _request.begin();
 
-  std::cout << "RequestList: " << std::endl;
-  for(; it != _request.end(); ++it)
-    std::cout << "[" << it->first->getFd() << "] " << it->second;
-}
+//   std::cout << "RequestList: " << std::endl;
+//   for(; it != _request.end(); ++it)
+//     zia::Logger::getInstance().debug("[REQUESTSTACK] - request from client: " + std::to_string(*it->first->getFd()));
+//   //std::cout << "[" << it->first->getFd() << "] " << it->second;
+// }

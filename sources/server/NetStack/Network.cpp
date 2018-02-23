@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Fri Feb 23 22:20:37 2018 Quentin Albertone
+// Last update Sat Feb 24 00:25:21 2018 Quentin Albertone
 //
 
 #include "Network.hpp"
@@ -159,7 +159,7 @@ void			Network::Socket::loop()
 	      else if (it->revents & POLLIN)
 		{
 		  zia::Logger::getInstance().info("[Balancer] - New input from : " + std::to_string(clientIt->first));
-		  _req.setRequest(clientIt->second, /*std::string(rec)*/"NULL");
+		  _req.setRequest(clientIt->second);
 		  // TODO:
 		  it->revents = 0;
 		}
@@ -177,7 +177,7 @@ void			Network::Socket::loop()
     }
 }
 
-void			Network::Socket::displayRequest()
-{
-  _req.displayRequest();
-}
+// void			Network::Socket::displayRequest()
+// {
+//   _req.displayRequest();
+// }
