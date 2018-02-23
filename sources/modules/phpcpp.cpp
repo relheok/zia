@@ -1,9 +1,7 @@
 #include "phpcpp.hpp"
 #include <unistd.h>
 #include <cstring>
-#include "getpost.h"
-
-int getpost_test();
+#include "getpost.hpp"
 
 extern "C" {
   zia::api::cppModule *create() {
@@ -58,30 +56,6 @@ bool	zia::api::cppModule::config(const Conf& conf) {
   (void)conf;
   getpost_test();
   return (true);
-}
-
-int	getpost_test() {
-  std::map<std::string, std::string> Get;
-  initializeGet(Get);
-  std::cout<< "Content-type: text/html" << std::endl << std::endl;
-  std::cout<< "<html><body>" << std::endl;
-  std::cout<< "<h1>Try post and get method</h1>" << std::endl;
-  std::cout<< "<form method=\"get\">" << std::endl;
-  std::cout<< " <label for=\"fname\">First name: </label>" << std::endl;
-  std::cout<< " <input type=\"text\" name=\"fname\" id=\"fname\"><br>" << std::endl;
-  std::cout<< " <label for=\"lname\">Last name: </label>" << std::endl;
-  std::cout<< " <input type=\"text\" name=\"lname\" id=\"lname\"><br>" << std::endl;
-  std::cout<< " <input type=\"submit\" />" << std::endl;
-  std::cout<< "</form><br /><br />" << std::endl;
-  if (Get.find("fname")!=Get.end() && Get.find("lname")!=Get.end()) {
-    std::cout << "Hello " << Get["fname"] << " " << Get["lname"]
-	      << ", I guess php-cgi module works" << std::endl;
-  }
-  else {
-    std::cout << "Fill up the above from and press submit" << std::endl;
-  }
-  std::cout << "</body></html>" << std::endl;
-  return (0);
 }
 
 bool	zia::api::cppModule::exec(HttpDuplex& http) {

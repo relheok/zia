@@ -1,31 +1,49 @@
-#ifndef __GETPOST_H__
-# define __GETPOST_H__
+#include "getpost.hpp"
 
-#include <string>
-#include <stdlib.h>
-#include <map>
-#include <new>
+int     getpost_test() {
+  std::map<std::string, std::string> Get;
+  initializeGet(Get);
+  std::cout<< "Content-type: text/html" << std::endl << std::endl;
+  std::cout<< "<html><body>" << std::endl;
+  std::cout<< "<h1>Try post and get method</h1>" << std::endl;
+  std::cout<< "<form method=\"get\">" << std::endl;
+  std::cout<< " <label for=\"fname\">First name: </label>" << std::endl;
+  std::cout<< " <input type=\"text\" name=\"fname\" id=\"fname\"><br>" << std::endl;
+  std::cout<< " <label for=\"lname\">Last name: </label>" << std::endl;
+  std::cout<< " <input type=\"text\" name=\"lname\" id=\"lname\"><br>" << std::endl;
+  std::cout<< " <input type=\"submit\" />" << std::endl;
+  std::cout<< "</form><br /><br />" << std::endl;
+  if (Get.find("fname")!=Get.end() && Get.find("lname")!=Get.end()) {
+    std::cout << "Hello " << Get["fname"] << " " << Get["lname"]
+              << ", I guess php-cgi module works" << std::endl;
+  }
+  else {
+    std::cout << "Fill up the above from and press submit" << std::endl;
+  }
+  std::cout << "</body></html>" << std::endl;
+  return (0);
+}
 
 std::string urlDecode(std::string str)
 {
   std::string temp;
-  char	tmp[5];
-  char	tmpchar;
+  char  tmp[5];
+  char  tmpchar;
   int size = str.size();
   strcpy(tmp,"0x");
   for (int i = 0; i < size; i++) {
     if (str[i] == '%') {
       if (i + 2 < size) {
-	tmp[2] = str[i + 1];
-	tmp[3] = str[i + 2];
-	tmp[4] = '\0';
-	tmpchar = (char)strtol(tmp, NULL, 0);
-	temp += tmpchar;
-	i += 2;
-	continue;
+        tmp[2] = str[i + 1];
+        tmp[3] = str[i + 2];
+        tmp[4] = '\0';
+        tmpchar = (char)strtol(tmp, NULL, 0);
+        temp += tmpchar;
+        i += 2;
+        continue;
       }
       else {
-	break;
+        break;
       }
     }
     else if (str[i] == '+') {
@@ -47,11 +65,11 @@ void initializeGet(std::map <std::string, std::string> &Get)
   if (raw_get == NULL) {
     Get.clear();
     return;
-  }
+ }
   while (*raw_get != '\0') {
     if (*raw_get == '&') {
       if (tmpkey != "") {
-	Get[urlDecode(tmpkey)] = urlDecode(tmpvalue);
+        Get[urlDecode(tmpkey)] = urlDecode(tmpvalue);
       }
       tmpkey.clear();
       tmpvalue.clear();
@@ -89,7 +107,7 @@ void initializePost(std::map <std::string, std::string> &Post)
   if (content_length == 0) {
     Post.clear();
     return;
-  }	
+  }
   try {
     buffer = new char[content_length*sizeof(char)];
   }
@@ -106,7 +124,7 @@ void initializePost(std::map <std::string, std::string> &Post)
   while (*ibuffer != '\0') {
     if (*ibuffer == '&') {
       if (tmpkey != "") {
-	Post[urlDecode(tmpkey)] = urlDecode(tmpvalue);
+        Post[urlDecode(tmpkey)] = urlDecode(tmpvalue);
       }
       tmpkey.clear();
       tmpvalue.clear();
@@ -126,5 +144,3 @@ void initializePost(std::map <std::string, std::string> &Post)
     tmpvalue.clear();
   }
 }
-
-#endif /*__GETPOST_H__*/
