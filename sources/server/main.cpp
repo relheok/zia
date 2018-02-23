@@ -37,17 +37,17 @@ int		process(std::string confPath)
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
     zia::Daemon &daemon = zia::Daemon::getInstance();
     Network::Socket	inet(4248);
-
+    
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
     std::map<std::string, std::string> map = p.get()->getRoots();
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
-
+    
     // pipe.display();
 
     daemon.setConf(p.get());
     daemon.setModuleManager(m.get());
-
+    
     Balancer		pipe;
 
     while (daemon.isAlive()) {
@@ -55,14 +55,15 @@ int		process(std::string confPath)
       inet.displayRequest();
       pipe.balancer(inet.getRequest());
       sleep(3);
-   }
+      
+    }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
     return (1);
   }
   return (0);
 }
-
+  
 int		main(int argc, char **argv)
 {
   static struct option long_options[] =

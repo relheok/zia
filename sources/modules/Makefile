@@ -33,10 +33,12 @@ OBJS	= $(SRCS:.cpp=.o)
 
 OBJSPHP	= $(SRCSPHP:.cpp=.o)
 
-all: $(NAME)
+all: $(NAME) $(NAMEPHP)
 
-$(NAME): $(OBJS) $(OBJSPHP)
+$(NAME): $(OBJS)
 	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
+
+$(NAMEPHP): $(OBJSPHP)
 	$(CC) $(OBJSPHP) -o $(NAMEPHP) $(LDFLAGS)
 
 clean:

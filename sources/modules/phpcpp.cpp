@@ -1,6 +1,9 @@
 #include "phpcpp.hpp"
 #include <unistd.h>
 #include <cstring>
+#include "getpost.h"
+
+int getpost_test();
 
 extern "C" {
   zia::api::cppModule *create() {
@@ -24,45 +27,61 @@ zia::api::cppModule &zia::api::cppModule::operator=(const zia::api::cppModule &c
 zia::api::cppModule::~cppModule() {}
 
 bool  zia::api::cppModule::initComponent() {
-  char				**sysCline = NULL;
-  char				**sysEnv = NULL;
-  std::string			sData = "var_1=val_1&var_2=val_2";
-  std::vector<std::string>	aEnv;
-  std::vector<std::string>	aArgs;
-
-  aArgs.push_back("/usr/bin/php-cgi");
-  aArgs.push_back("/test.php");
-
-  aEnv.push_back("GATEWAY_INTERFACE=CGI/1.1");
-  aEnv.push_back("SERVER_PROTOCOL=HTTP/1.1");
-  aEnv.push_back("QUERY_STRING=test=querystring");
-  aEnv.push_back("REDIRECT_STATUS=200");
-  aEnv.push_back("REQUEST_METHOD=POST");
-  aEnv.push_back("CONTENT_TYPE=application/x-www-form-urlencoded;charset=utf-8");
-  aEnv.push_back("SCRIPT_FILENAME=/test.php");
-  aEnv.push_back("CONTENT_LENGTH="+ std::to_string(sData.length()) );
-
-  sysCline = new char*[aArgs.size() + 1];
-  for (size_t i = 0; i < aArgs.size(); i++) {
-    sysCline[i] = new char[aArgs[i].size()+1];
-    strncpy(sysCline[i], aArgs[i].c_str(), aArgs[i].size()+1);
-  }
-  sysCline[aArgs.size()] = NULL;
-
-  sysEnv = new char*[aEnv.size() + 1];
-  for (size_t i = 0; i < aEnv.size(); i++) {
-    sysEnv[i] = new char[aEnv[i].size()+1];
-    strncpy(sysEnv[i], aEnv[i].c_str(), aEnv[i].size() + 1);
-  }
-  sysEnv[aEnv.size()] = NULL;
-  execve(sysCline[0], sysCline, sysEnv);
   return (true);
 }
 
 bool	zia::api::cppModule::config(const Conf& conf) {
   std::cerr << "Config PHP Module" << '\n';
+  std::cout << "Content-type:text/html\r\n\r\n";
+  std::cout << "<html>\n";
+  std::cout << "<head>\n";
+  std::cout << "<title>CGI Environment Variables</title>\n";
+  std::cout << "</head>\n";
+  std::cout << "<body>\n";
+  std::cout << "<table border = \"0\" cellspacing = \"2\">";
+
+  for (int i = 0; i < 24; i++) {
+    std::cout << "<tr><td>" << _env[i] << "</td><td>";
+    // attempt to retrieve value of environment variable
+    char *value = getenv(_env[i].c_str() );  
+    if ( value != 0 ) {
+      std::cout << value;                                 
+    }
+    else {
+      std::cout << "Environment variable does not exist.";
+    }
+    std::cout << "</td></tr>\n";
+  }
+  std::cout << "</table><\n";
+  std::cout << "</body>\n";
+  std::cout << "</html>\n";
   (void)conf;
+  getpost_test();
   return (true);
+}
+
+int	getpost_test() {
+  std::map<std::string, std::string> Get;
+  initializeGet(Get);
+  std::cout<< "Content-type: text/html" << std::endl << std::endl;
+  std::cout<< "<html><body>" << std::endl;
+  std::cout<< "<h1>Try post and get method</h1>" << std::endl;
+  std::cout<< "<form method=\"get\">" << std::endl;
+  std::cout<< " <label for=\"fname\">First name: </label>" << std::endl;
+  std::cout<< " <input type=\"text\" name=\"fname\" id=\"fname\"><br>" << std::endl;
+  std::cout<< " <label for=\"lname\">Last name: </label>" << std::endl;
+  std::cout<< " <input type=\"text\" name=\"lname\" id=\"lname\"><br>" << std::endl;
+  std::cout<< " <input type=\"submit\" />" << std::endl;
+  std::cout<< "</form><br /><br />" << std::endl;
+  if (Get.find("fname")!=Get.end() && Get.find("lname")!=Get.end()) {
+    std::cout << "Hello " << Get["fname"] << " " << Get["lname"]
+	      << ", I guess php-cgi module works" << std::endl;
+  }
+  else {
+    std::cout << "Fill up the above from and press submit" << std::endl;
+  }
+  std::cout << "</body></html>" << std::endl;
+  return (0);
 }
 
 bool	zia::api::cppModule::exec(HttpDuplex& http) {

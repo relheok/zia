@@ -21,6 +21,17 @@ namespace zia::api {
     virtual bool  exec(HttpDuplex& http);
 
     virtual unsigned int getPriority() const { return 1; }
+  private:
+const std::string _env[24] = {
+   "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
+   "HTTP_ACCEPT", "HTTP_ACCEPT_ENCODING",
+   "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION",
+   "HTTP_HOST", "HTTP_USER_AGENT", "PATH",
+   "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
+   "REQUEST_METHOD", "REQUEST_URI", "SCRIPT_FILENAME",
+   "SCRIPT_NAME", "SERVER_ADDR", "SERVER_ADMIN",
+   "SERVER_NAME","SERVER_PORT","SERVER_PROTOCOL",
+   "SERVER_SIGNATURE","SERVER_SOFTWARE" };
   };
 }
 
