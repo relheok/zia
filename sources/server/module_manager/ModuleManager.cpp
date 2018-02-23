@@ -17,10 +17,8 @@ namespace zia::api {
   void            ModuleManager::init(ModulePathList const &modules, Conf &conf) {
     for (auto it = modules.begin(); it != modules.end(); it++) {
       try {
-        zia::Logger::getInstance().info("Launching module : " + it->first);
         if (!loadModule(it->second, it->first)->config(conf))
           throw ModuleManagerError("can't config module " + it->first);
-        zia::Logger::getInstance().info("Launched module : " + it->first);
       } catch (std::exception &e) {
         zia::Logger::getInstance().error(e.what());
       }

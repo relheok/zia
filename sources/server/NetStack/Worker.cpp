@@ -126,9 +126,7 @@ void			Worker::loop()
       receivFd();
       if (_cliFd > 0)
       	{
-          zia::Logger::getInstance().info("Work::loop : got a fd");
       	  handleRequestFromClient();
-          zia::Logger::getInstance().info("Work::loop : got a request");
       	  resp = _http.get()->interpret(_cliReq);
       	  write(_cliFd, resp.c_str(), resp.size());
       	  resetClient();

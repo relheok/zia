@@ -5,10 +5,6 @@
   "modules_path" : [
     "./sources/modules"
   ],
-  "modules" : [
-    "php_module",
-    "ssl_module"
-  ],
   "roots" : {
     "localhost" : "/var/www"
   }
