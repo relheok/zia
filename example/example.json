@@ -11,5 +11,8 @@
   ],
   "roots" : {
     "localhost" : "/var/www"
+  },
+  "SSL" : {
+    "cert" : "cert.pem"
   }
 }
