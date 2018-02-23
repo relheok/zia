@@ -1,10 +1,12 @@
 #ifndef SSLMODULE_HPP_
 # define SSLMODULE_HPP_
 
-#include <cstring>
+# include <string>
 # include <iostream>
 # include <memory>
-
+# include <cstring>
+# include <limits.h>
+# include <unistd.h>
 # include "conf.h"
 # include "http.h"
 # include "IModule.hpp"
@@ -33,7 +35,7 @@ namespace zia::api {
 
     virtual bool config(const Conf &conf);
     virtual bool exec(HttpDuplex &http);
-    virtual unsigned int getPriority() const;
+    virtual unsigned int getPriority() const { return 0; }
 
   private:
     Bio_ptr       _sbio{NULL, BIO_free_all};
@@ -41,10 +43,12 @@ namespace zia::api {
     Bio_ptr       _sslbio{NULL, BIO_free_all};
     Ctx_ptr       _ctx{NULL, SSL_CTX_free};
     Ssl_ptr       _ssl{NULL, SSL_free};
+    std::string   _path;
     unsigned int  _prio;
 
-    void          initCtx();
-    void          loadCertificate();
+    void      initCtx();
+    void      loadCertificate();
+    std::string getCurrentDir();
     template<typename E>
     void          exitOnError(E e);
   };

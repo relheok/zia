@@ -16,6 +16,7 @@
 #include "module_manager/ModuleManager.hpp"
 #include "config_manager/json-lib/JSON.h"
 #include "config_manager/json-lib/JSONValue.h"
+#include "logger.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -45,6 +46,7 @@ namespace zia::api {
 			std::string						getPath() const;
 			std::vector<std::string>		getModules() const;
 			std::vector<std::string>		getModules_path() const;
+      std::map<std::string, std::string> getRoots();
 			JSONValue*						getDoc() const;
 			zia::api::ModulePathList		getListModules() const;
 			void							setPath(std::string const &);

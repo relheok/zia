@@ -7,7 +7,9 @@ extern "C" {
 }
 
 namespace zia::api {
-  LogModule::LogModule() : _prio(100) {}
+  LogModule::LogModule() : _prio(100) {
+    std::cout << "LogModule creation" << std::endl;
+  }
 
   LogModule::LogModule(LogModule const &copy) {
     (void)copy;
@@ -26,14 +28,16 @@ namespace zia::api {
   }
 
   bool LogModule::exec(HttpDuplex &http) {
-    std::ofstream  file;
+    std::cout << "Config LogModule" << std::endl;
+    std::fstream file;
     auto now = std::chrono::system_clock::now();
     auto now_c = std::chrono::system_clock::to_time_t(now);
 
-    file.open(FILE_PATH);
+    file.open(FILE_PATH, std::fstream::in | std::fstream::out | std::fstream::app);
     file << "Time : " << std::put_time(std::localtime(&now_c), "%c") << '\n';
+//  file << "Request : " << http.req << '\n';
+//  file << "Response : " << http.resp << '\n';
     file.close();
-    (void)http;
     return true;
   }
 

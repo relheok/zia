@@ -10,15 +10,15 @@
 
 NAME	= libssl_module.so
 
-NAMEPHP	= php_module.so
+NAMEPHP	= libphp_module.so
 
-NAMELOG = log_module.so
+NAMELOG = liblog_module.so
 
 CC	= g++
 
 RM	= rm -f
 
-CXXFLAGS += -I../../includes/modules/ -I../../includes/server/api/ -W -Wall -Wextra -std=c++17 #-Werror
+CXXFLAGS += -I../../includes/modules/ -I../../includes/server/api/ -I../../includes/server -W -Wall -Wextra -std=c++17 #-Werror
 
 LDFLAGS	 += -lssl -lcrypto
 
@@ -27,6 +27,7 @@ CXXFLAGS += -fPIC -c
 LDFLAGS	+= -shared
 
 SRCS	= SSLModule.cpp
+
 
 SRCSPHP = phpcpp.cpp
 

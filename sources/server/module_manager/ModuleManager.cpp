@@ -15,11 +15,12 @@ namespace zia::api {
   ModuleManager::~ModuleManager() {}
 
   void            ModuleManager::init(ModulePathList const &modules, Conf &conf) {
-    for (ModulePathList::const_iterator it = modules.begin(); it < modules.end(); it++) {
-      zia::Logger::getInstance().info("Module : " + it->first);
+    for (auto it = modules.begin(); it != modules.end(); it++) {
       try {
+        zia::Logger::getInstance().info("Launching module : " + it->first);
         if (!loadModule(it->second, it->first)->config(conf))
           throw ModuleManagerError("can't config module " + it->first);
+        zia::Logger::getInstance().info("Launched module : " + it->first);
       } catch (std::exception &e) {
         zia::Logger::getInstance().error(e.what());
       }
@@ -33,9 +34,9 @@ namespace zia::api {
         throw ModuleManagerError("can't config module " + name);
       return (module);
     } catch (ModuleNotFoundError &e) {
-      std::cerr << e.what() << '\n';
+      zia::Logger::getInstance().error(e.what());
     } catch (ModuleLoaderError &e) {
-      std::cerr << e.what() << '\n';
+      zia::Logger::getInstance().error(e.what());
     }
     return (nullptr);
   }
