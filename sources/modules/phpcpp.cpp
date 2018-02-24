@@ -29,7 +29,6 @@ bool  zia::api::cppModule::initComponent() {
 }
 
 bool	zia::api::cppModule::config(const Conf& conf) {
-  std::cerr << "Config PHP Module" << '\n';
   std::cout << "Content-type:text/html\r\n\r\n";
   std::cout << "<html>\n";
   std::cout << "<head>\n";
@@ -41,9 +40,9 @@ bool	zia::api::cppModule::config(const Conf& conf) {
   for (int i = 0; i < 24; i++) {
     std::cout << "<tr><td>" << _env[i] << "</td><td>";
     // attempt to retrieve value of environment variable
-    char *value = getenv(_env[i].c_str() );  
+    char *value = getenv(_env[i].c_str() );
     if ( value != 0 ) {
-      std::cout << value;                                 
+      std::cout << value;
     }
     else {
       std::cout << "Environment variable does not exist.";
@@ -60,5 +59,13 @@ bool	zia::api::cppModule::config(const Conf& conf) {
 
 bool	zia::api::cppModule::exec(HttpDuplex& http) {
   (void)http;
-  return (true);
+  return (false);
+}
+
+zia::api::Net::Raw    zia::api::cppModule::stringToRaw(std::string const &str) {
+  Net::Raw  r;
+
+  for (auto it = str.begin(); it != str.end(); it++)
+    r.push_back(std::byte(*it));
+  return r;
 }

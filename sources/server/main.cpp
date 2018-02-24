@@ -35,36 +35,35 @@ int		process(std::string confPath)
     // zia::api::ConfigManager p(confPath);
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
-    zia::Daemon &daemon = zia::Daemon::getInstance();
+    // zia::Daemon &daemon = zia::Daemon::getInstance();
     Network::Socket	inet(4248);
-    
+
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
     std::map<std::string, std::string> map = p.get()->getRoots();
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
-    
+
     // pipe.display();
 
-    daemon.setConf(p.get());
-    daemon.setModuleManager(m.get());
-    
-    Balancer		pipe;
-
-    while (daemon.isAlive()) {
-      inet.loop();
-      inet.displayRequest();
-      pipe.balancer(inet.getRequest());
-      sleep(3);
-      
-    }
+    // daemon.setConf(p.get());
+    // daemon.setModuleManager(m.get());
+    //
+    // Balancer		pipe;
+    //
+    // while (daemon.isAlive()) {
+    //   inet.loop();
+    //   inet.displayRequest();
+    //   pipe.balancer(inet.getRequest());
+    //   sleep(3);
+    // }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
     return (1);
   }
   return (0);
 }
-  
-int		main(int argc, char **argv)
+
+int		old_main(int argc, char **argv)
 {
   static struct option long_options[] =
     {
@@ -115,7 +114,7 @@ int		main(int argc, char **argv)
 int		create_socket(int port);
 int		accept_socket(int fd, int port);
 
-int		old_main(int ac, char **av)
+int		main(int ac, char **av)
 {
   int fd_cliGlobal;
   int fd_inetGlobal;
@@ -124,11 +123,12 @@ int		old_main(int ac, char **av)
     zia::api::ConfigManager p(path);
     if (!p.browser_conf())
       std::cerr << "no conf file !" << std::endl;
-    //zia::Daemon &daemon = zia::Daemon::getInstance();
+    std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
+    m.get()->init(p.getListModules(), p.getConf());
 
     /* BEGIN TEST CODE */
     char			buff[BUFFSIZE];
-    zia::api::HttpInterpreter interpreter(p.getConf(), std::map<std::string, std::string>{{"localhost:" + std::string(av[2]), "."}}, zia::api::ModulesList());
+    zia::api::HttpInterpreter interpreter(p.getConf(), p.getRoots(), m.get()->getModules());
 
     printf("port: %d\n", std::stoi(av[2]));
 

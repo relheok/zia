@@ -7,6 +7,6 @@
   ],
     "modules" : ["php_module"],
   "roots" : {
-    "localhost" : "/var/www"
+    "localhost" : "."
   }
 }

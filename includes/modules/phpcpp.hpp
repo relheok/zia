@@ -5,6 +5,7 @@
 # include <memory>
 # include "IModule.hpp"
 # include "http.h"
+# include "net.h"
 # include "conf.h"
 # include "net.h"
 
@@ -19,6 +20,8 @@ namespace zia::api {
     bool          initComponent();
     virtual bool  config(const Conf& conf);
     virtual bool  exec(HttpDuplex& http);
+
+    Net::Raw    stringToRaw(std::string const &str);
 
     virtual unsigned int getPriority() const { return 1; }
   private:
