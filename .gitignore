@@ -12,3 +12,6 @@ package/*.tar.xz
 package/*.tar.gz
 package/*.db
 package/*.files
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
