@@ -6,7 +6,6 @@
     "./sources/modules"
   ],
   "modules" : [
-    "log_module"
   ],
   "roots" : {
     "localhost" : "/var/www"

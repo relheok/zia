@@ -120,8 +120,8 @@ void			Worker::loop()
       	{
       	  handleRequestFromClient();
 
-      	  // resp = _http.get()->interpret(_cliReq);
-	  resp = std::string("received : ") + _cliReq;
+      	  resp = _http.get()->interpret(_cliReq);
+	        // resp = std::string("received : ") + _cliReq;
 
 	  if (send(_cliFd, resp.c_str(), resp.size(), 0) < 0)
 	    zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
