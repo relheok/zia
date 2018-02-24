@@ -21,20 +21,21 @@ namespace zia::api {
     virtual bool  config(const Conf& conf);
     virtual bool  exec(HttpDuplex& http);
 
-    Net::Raw    stringToRaw(std::string const &str);
+    Net::Raw    stringToRaw(Net::Raw req);
 
     virtual unsigned int getPriority() const { return 1; }
   private:
-const std::string _env[24] = {
-   "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
-   "HTTP_ACCEPT", "HTTP_ACCEPT_ENCODING",
-   "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION",
-   "HTTP_HOST", "HTTP_USER_AGENT", "PATH",
-   "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
-   "REQUEST_METHOD", "REQUEST_URI", "SCRIPT_FILENAME",
-   "SCRIPT_NAME", "SERVER_ADDR", "SERVER_ADMIN",
-   "SERVER_NAME","SERVER_PORT","SERVER_PROTOCOL",
-   "SERVER_SIGNATURE","SERVER_SOFTWARE" };
+    const std::string _version = "7.2.2";
+    const std::string _env[24] = {
+      "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
+      "HTTP_ACCEPT", "HTTP_ACCEPT_ENCODING",
+      "HTTP_ACCEPT_LANGUAGE", "HTTP_CONNECTION",
+      "HTTP_HOST", "HTTP_USER_AGENT", "PATH",
+      "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
+      "REQUEST_METHOD", "REQUEST_URI", "SCRIPT_FILENAME",
+      "SCRIPT_NAME", "SERVER_ADDR", "SERVER_ADMIN",
+      "SERVER_NAME","SERVER_PORT","SERVER_PROTOCOL",
+      "SERVER_SIGNATURE","SERVER_SOFTWARE" };
   };
 }
 

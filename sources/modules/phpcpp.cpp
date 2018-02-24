@@ -1,6 +1,7 @@
 #include "phpcpp.hpp"
 #include <unistd.h>
 #include <cstring>
+#include <sstream>
 #include "getpost.hpp"
 
 extern "C" {
@@ -29,43 +30,23 @@ bool  zia::api::cppModule::initComponent() {
 }
 
 bool	zia::api::cppModule::config(const Conf& conf) {
-  std::cout << "Content-type:text/html\r\n\r\n";
-  std::cout << "<html>\n";
-  std::cout << "<head>\n";
-  std::cout << "<title>CGI Environment Variables</title>\n";
-  std::cout << "</head>\n";
-  std::cout << "<body>\n";
-  std::cout << "<table border = \"0\" cellspacing = \"2\">";
-
-  for (int i = 0; i < 24; i++) {
-    std::cout << "<tr><td>" << _env[i] << "</td><td>";
-    // attempt to retrieve value of environment variable
-    char *value = getenv(_env[i].c_str() );
-    if ( value != 0 ) {
-      std::cout << value;
-    }
-    else {
-      std::cout << "Environment variable does not exist.";
-    }
-    std::cout << "</td></tr>\n";
-  }
-  std::cout << "</table><\n";
-  std::cout << "</body>\n";
-  std::cout << "</html>\n";
-  (void)conf;
-  getpost_test();
-  return (true);
-}
-
-bool	zia::api::cppModule::exec(HttpDuplex& http) {
-  (void)http;
+  auto it = conf.find("PHP");
+  if (it != conf.end())
+    return (true);
+  else
+    std::cerr << "No conf file for php module :(" << std::endl;
   return (false);
 }
 
-zia::api::Net::Raw    zia::api::cppModule::stringToRaw(std::string const &str) {
-  Net::Raw  r;
+bool	zia::api::cppModule::exec(HttpDuplex& http) {
+  http.resp.body = stringToRaw(http.req.body);
+  http.resp.headers["Content-Length"] = std::to_string(http.resp.body.size());
+  http.resp.headers["Content-Type"] = "text/html; char-set=UTF=8";
+  return (true);
+}
 
-  for (auto it = str.begin(); it != str.end(); it++)
-    r.push_back(std::byte(*it));
-  return r;
+zia::api::Net::Raw    zia::api::cppModule::stringToRaw(Net::Raw req) {
+  Net::Raw  r;
+  r = req;
+  return (r);
 }

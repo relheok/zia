@@ -1,27 +1,28 @@
 #include "getpost.hpp"
+#include <sstream>
 
-int     getpost_test() {
+std::string     getpost_test() {
   std::map<std::string, std::string> Get;
+  std::stringstream net;
   initializeGet(Get);
-  std::cout<< "Content-type: text/html" << std::endl << std::endl;
-  std::cout<< "<html><body>" << std::endl;
-  std::cout<< "<h1>Try post and get method</h1>" << std::endl;
-  std::cout<< "<form method=\"get\">" << std::endl;
-  std::cout<< " <label for=\"fname\">First name: </label>" << std::endl;
-  std::cout<< " <input type=\"text\" name=\"fname\" id=\"fname\"><br>" << std::endl;
-  std::cout<< " <label for=\"lname\">Last name: </label>" << std::endl;
-  std::cout<< " <input type=\"text\" name=\"lname\" id=\"lname\"><br>" << std::endl;
-  std::cout<< " <input type=\"submit\" />" << std::endl;
-  std::cout<< "</form><br /><br />" << std::endl;
-  if (Get.find("fname")!=Get.end() && Get.find("lname")!=Get.end()) {
-    std::cout << "Hello " << Get["fname"] << " " << Get["lname"]
+  net<< "<html><body>" << std::endl;
+  net<< "<h1>Try post and get method</h1>" << std::endl;
+  net<< "<form method=\"get\">" << std::endl;
+  net<< " <label for=\"fname\">First name: </label>" << std::endl;
+  net<< " <input type=\"text\" name=\"fname\" id=\"fname\"><br>" << std::endl;
+  net<< " <label for=\"lname\">Last name: </label>" << std::endl;
+  net<< " <input type=\"text\" name=\"lname\" id=\"lname\"><br>" << std::endl;
+  net<< " <input type=\"submit\" />" << std::endl;
+  net<< "</form><br /><br />" << std::endl;
+  if (Get.find("fname")!=Get.end() && Get.find("lname")!=Get.end()) { 
+    net << "Hello " << Get["fname"] << " " << Get["lname"]
               << ", I guess php-cgi module works" << std::endl;
   }
   else {
-    std::cout << "Fill up the above from and press submit" << std::endl;
+    net << "Fill up the above from and press submit" << std::endl;
   }
-  std::cout << "</body></html>" << std::endl;
-  return (0);
+  net << "</body></html>" << std::endl;
+  return (net.str());
 }
 
 std::string urlDecode(std::string str)
