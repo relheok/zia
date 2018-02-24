@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Sat Feb 24 20:42:28 2018 Quentin Albertone
+// Last update Sat Feb 24 20:50:28 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -119,7 +119,7 @@ void			Worker::sendToClient(char *buff)
     {
       len = len-lenw;
       lenw = send(_cliFd, buff + lenw, len, MSG_NOSIGNAL);
-      if (++err == 10)
+      if (++err == 10 || lenw < 0)
 	{
 	  zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
 					   + std::to_string(_cliFd) + "- Can't send answer to client");
@@ -154,10 +154,6 @@ void			Worker::loop()
       	  resp = _http.get()->interpret(_cliReq);
 	  resp = std::string("received : ") + _cliReq;
 	  sendToClient(strdup(resp.c_str()));
-
-	  // if (send(_cliFd, resp.c_str(), resp.size(), 0) < 0)
-	  //   zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
-	  // 				     + std::to_string(_cliFd) + " - Can't send answer to client");
       	  resetClient();
       	}
     }
