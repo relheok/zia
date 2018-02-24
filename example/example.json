@@ -5,7 +5,18 @@
   "modules_path" : [
     "./sources/modules"
   ],
+  "modules" : [
+    "ssl_module",
+    "log_module"
+  ],
   "roots" : {
     "localhost" : "/var/www"
+  },
+  "SSL" : {
+    "cert" : "cert.pem",
+    "key" : "key.pem"
+  },
+  "Log" : {
+    "path" : "logFile"
   }
 }

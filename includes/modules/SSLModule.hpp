@@ -1,7 +1,6 @@
 #ifndef SSLMODULE_HPP_
 # define SSLMODULE_HPP_
 
-
 # include <string>
 # include <iostream>
 # include <memory>
@@ -18,9 +17,11 @@
 
 typedef zia::api::Module *(*myModule)();
 
-#define PRIVATE_KEY "key.pem"
-#define CERTIFICATE "cert.pem"
-#define BUFSIZE 1024
+#define BUFSIZE 4096
+
+using Ssl_ptr = std::unique_ptr<SSL, decltype(&SSL_free)>;
+using Bio_ptr = std::unique_ptr<BIO, decltype(&BIO_free_all)>;
+using Ctx_ptr = std::unique_ptr<SSL_CTX, decltype(&SSL_CTX_free)>;
 
 namespace zia::api {
   class SSLModule : public IModule {
@@ -32,25 +33,25 @@ namespace zia::api {
 
     virtual bool config(const Conf &conf);
     virtual bool exec(HttpDuplex &http);
-
     virtual unsigned int getPriority() const { return 0; }
 
   private:
-    BIO       *_sbio;
-    BIO       *_io;
-    BIO       *_sslbio;
-    SSL       *_ssl;
-    SSL_CTX   *_ctx;
-    std::string _path;
+    Bio_ptr       _sbio{NULL, BIO_free_all};
+    Bio_ptr       _io{NULL, BIO_free_all};
+    Bio_ptr       _sslbio{NULL, BIO_free_all};
+    Ctx_ptr       _ctx{NULL, SSL_CTX_free};
+    Ssl_ptr       _ssl{NULL, SSL_free};
+    std::string   _cert;
+    std::string   _key;
+    std::string   _path;
+    unsigned int  _prio;
 
     void      initCtx();
     void      loadCertificate();
     std::string getCurrentDir();
     template<typename E>
-    void      exitOnError(E e);
+    void          exitOnError(E e);
   };
 }
-
-using Bio_ptr = std::unique_ptr<BIO, decltype(&BIO_free_all)>;
 
 #endif /* end of include guard: SSLMODULE_HPP_ */

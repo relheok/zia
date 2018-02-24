@@ -12,6 +12,8 @@ NAME	= libssl_module.so
 
 NAMEPHP	= libphp_module.so
 
+NAMELOG = liblog_module.so
+
 CC	= g++
 
 RM	= rm -f
@@ -29,15 +31,20 @@ SRCS	= SSLModule.cpp
 
 SRCSPHP = phpcpp.cpp
 
+SRCSLOG = LogModule.cpp
+
 OBJS	= $(SRCS:.cpp=.o)
 
 OBJSPHP	= $(SRCSPHP:.cpp=.o)
 
+OBJSLOG = $(SRCSLOG:.cpp=.o)
+
 all: $(NAME)
 
-$(NAME): $(OBJS) $(OBJSPHP)
+$(NAME): $(OBJS) $(OBJSLOG)
 	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
-	$(CC) $(OBJSPHP) -o $(NAMEPHP) $(LDFLAGS)
+	$(CC) $(OBJSLOG) -o $(NAMELOG) $(LDFLAGS)
+##	$(CC) $(OBJSPHP) -o $(NAMEPHP) $(LDFLAGS)
 
 clean:
 	@$(RM) $(OBJS) $(OBJSPHP)
