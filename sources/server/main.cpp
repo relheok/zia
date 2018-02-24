@@ -36,7 +36,7 @@ int		process(std::string confPath)
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
     zia::Daemon &daemon = zia::Daemon::getInstance();
-    Network::Socket	inet(4248);
+    Network::Socket	inet(4242);
 
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");

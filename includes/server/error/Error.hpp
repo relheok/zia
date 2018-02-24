@@ -108,6 +108,22 @@ public:
   virtual const char  *what() const throw() { return ("Request Uri Too large"); }
 };
 
+/**
+* Thrown in case of unsupported thing
+*/
+class                 NotImplementedError : public std::exception {
+public:
+  NotImplementedError(std::string const &err) throw() {
+    _err = "Not implemented : " + err + ".";
+  }
+  virtual ~NotImplementedError() throw() {}
+
+  virtual const char  *what() const throw() { return (_err.c_str()); }
+
+  private:
+      std::string         _err;
+};
+
 class                 FileNotFound : public std::exception {
 public:
   FileNotFound(std::string const &err) throw() {
