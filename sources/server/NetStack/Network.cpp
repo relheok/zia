@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Wed Feb 21 17:33:27 2018 Quentin Albertone
+// Last update Sat Feb 24 17:12:09 2018 Jérémy Koehler
 //
 
 #include "Network.hpp"
@@ -18,7 +18,7 @@
 Network::Socket::Socket(int port)
   : _port(port)
 {
-  int		use;
+  int		use = 0;
 
   _sock.sin_family = AF_INET;
   _sock.sin_port = htons(_port);
@@ -26,22 +26,24 @@ Network::Socket::Socket(int port)
   _size = sizeof(sockaddr_in);
 
   // Open socket and get fd on it
-  if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 3 || (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &use, sizeof(use))) == -1)
-    std::cout << "[:" << _port << "] - Error while create socket on port :" << _port << std::endl;
-  std::cout << "[:" << _port << "] - Socket create on port : " << _port << std::endl;
-
+  if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 1
+      || (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &use, sizeof(use))) == -1)
+    {
+      zia::Logger::getInstance().error(std::string("[NETWORK] - ") + strerror(errno) + ": " + std::to_string(_fd));
+      zia::Daemon::getInstance().stop();
+      return ;
+    }
+  zia::Logger::getInstance().info("[NETWORK] - Socket create on port: " + std::to_string(_port));
 
   // Bind socket on ip and port / wait a t_sockaddr *
   if (bind(_fd, (const t_sockaddr *)&_sock, _size) == -1)
-    std::cout << "\t[:" << _port << "] - Error while binding socket" << std::endl;
-  std::cout << "\t[:" << _port << "] - Socket bind" << std::endl;
+    zia::Logger::getInstance().error("[NETWORK] - Error while bind socket");
+  zia::Logger::getInstance().info("[NETWORK] - Socket bind" + std::to_string(_port));
 
   // Listen create a queue implicitely create maw client server can have
   if (listen(_fd, 42) == -1)
-    std::cout << "\t[:" << _port << "] - Error while listening on socket" << std::endl;
-
-  std::cout << "\t[:" << _port << "] - Add POLLIN event." << std::endl;
-  std::cout << "[:" << _port << "] - Socket listening new client" << std::endl;
+    zia::Logger::getInstance().error("[NETWORK] - Error while listening on socket");
+  zia::Logger::getInstance().info("[NETWORK] - Socket create whith success" + std::to_string(_port));
 }
 
 Network::Socket::Socket(Network::Socket const &socket)
@@ -54,8 +56,10 @@ Network::Socket::Socket(Network::Socket const &socket)
 
 Network::Socket::~Socket()
 {
-  std::cout << "[:" << _port << "] - Close socket: " << _fd << " on port: " << _port << std::endl;
-  close(_fd);
+  if (close(_fd) == -1)
+    zia::Logger::getInstance().error("[NETWORK] - can't close mmasterSocket");
+  else
+    zia::Logger::getInstance().warning("[NETWORK] - Close MasterSocket: END OF NETWORKSTACK");
 }
 
 Network::Socket		&Network::Socket::operator=(Network::Socket const &other)
@@ -75,7 +79,6 @@ std::ostream	&operator<<(std::ostream &os, Network::Socket const &socket)
   os << "Socket: " << socket.getFd() << " port: " << socket.getPort();
   return (os);
 }
-
 
 // ---------------------------- ----------------------------  //
 //		Getteur and Setteur function		      //
@@ -123,9 +126,9 @@ void			Network::Socket::loop()
   _pollServer.fd = _fd;
   _pollServer.events = POLLIN;
 
-  if ((check = poll(&_pollServer, 1, 2000)) == -1)
-    std::cout << "[:" << _port << "] - Erreur poll serverSocket" << std::endl;
-  std::cout << "[" << _port << "] - loop - poll: " << check << std::endl;
+  if ((check = poll(&_pollServer, 1, 100)) == -1)
+    zia::Logger::getInstance().error("[NETWORK] - Error Poll: MasterSocket");
+  zia::Logger::getInstance().debug("[NETWORK] - Loop poll");
   if (check > 0)
     {
       Client		*nClient = new Client(_fd);
@@ -140,14 +143,10 @@ void			Network::Socket::loop()
 
       std::map<int, Client *>::iterator	clientIt;
 
-      // // Debug //
-      // for (std::map<int, Client *>::iterator i = _clients.begin, i != )
-
       if ((check = poll(_clientFds.data(), static_cast<nfds_t>(_clientFds.size()), 10)) == -1)
-	std::cout << "\t[:" << _port << "] - Erreur poll client on socket: " << _fd << std::endl;
+	zia::Logger::getInstance().error("[NETWORK] - Error poll on client socket");
       if (check > 0)
 	{
-	  // for (std::vector<t_pollfd>::iterator it = _clientFds.begin(); it != _clientFds.end(); it++)
 	  std::vector<t_pollfd>::iterator it = _clientFds.begin();
 	  while (it != _clientFds.end())
 	    {
@@ -155,32 +154,27 @@ void			Network::Socket::loop()
 	      if ((clientIt = _clients.find(it->fd)) == _clients.end())
 		{
 		  it = _clientFds.erase(it);
-		  std::cout << "\t[:" << _port << "] - deleted !" << std::endl;
+		  zia::Logger::getInstance().debug("[NETWORK] - Delete client");
 		}
-	      //	      Client const &client = (*clientIt->second);
 	      disconnect = false;
-
 	      // Check error from connection with client
 	      if (it->revents & (POLLERR | POLLHUP | POLLNVAL))
 		{
-		  std::cout << "\t[:" << _port << "] - Erreur in connection of client: " << it->fd << std::endl;
+		  zia::Logger::getInstance().debug("[NETWORK] - No client connection");
 		  disconnect = true;
 		}
 	      else if (it->revents & POLLIN)
 		{
-		  // char		rec[200] = {0};
 
-		  std::cout << "\t[:" << _port << "] - New input from: " << clientIt->first << std::endl;
-		  // if (read(clientIt->first, &rec, 1) == -1 || rec[0] == 0)
-		  //   disconnect = true;
-		  // // Register new POLLIN
-		  _req.setRequest(clientIt->second, /*std::string(rec)*/"NULL");
+		  zia::Logger::getInstance().info("[NETWORK] - New input from : " + std::to_string(clientIt->first));
+		  _req.setRequest(clientIt->second);
+		  // TODO:
 		  it->revents = 0;
 		}
 	      // Disconnect user with matters
 	      if (disconnect)
 		{
-		  std::cout << "\t[:" << _port << "] - Disconnecting user: " << clientIt->first << std::endl;
+		  zia::Logger::getInstance().info("[NETWORK] - Delete user : " + std::to_string(clientIt->first));
 		  it = _clientFds.erase(it);
 		  clientIt = _clients.erase(clientIt);
 		}
@@ -191,7 +185,7 @@ void			Network::Socket::loop()
     }
 }
 
-void			Network::Socket::displayRequest()
-{
-  _req.displayRequest();
-}
+// void			Network::Socket::displayRequest()
+// {
+//   _req.displayRequest();
+// }

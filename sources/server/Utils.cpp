@@ -49,3 +49,19 @@ bool          Utils::isDirectory(std::string const &path) {
   stat(path.c_str(), &buf);
   return S_ISDIR(buf.st_mode);
 }
+
+std::string   Utils::rawToString(zia::api::Net::Raw const &r) {
+  std::string str;
+
+  for (auto it = r.begin(); it != r.end(); it++)
+    str += (char)*it;
+  return str;
+}
+
+zia::api::Net::Raw      Utils::stringToRaw(std::string const &str) {
+  zia::api::Net::Raw    r;
+
+  for (auto it = str.begin(); it != str.end(); it++)
+    r.push_back(std::byte(*it));
+  return r;
+}

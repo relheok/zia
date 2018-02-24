@@ -5,8 +5,20 @@
   "modules_path" : [
     "./sources/modules"
   ],
-    "modules" : ["php_module"],
+  "modules" : [
+    "php_module"
+  ],
   "roots" : {
     "localhost" : "."
+  },
+  "SSL" : {
+    "cert" : "cert.pem",
+    "key" : "key.pem"
+  },
+  "Log" : {
+    "path" : "logFile"
+  },
+  "PHP" : {
+    "version" : "1.0"
   }
 }

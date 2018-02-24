@@ -52,8 +52,6 @@ namespace zia::api {
     std::map<std::string, std::string>  getRoots() const { return _roots; }
     ModulesList                         getModules() const { return _modules; }
 
-    static Net::Raw            getBody(std::string const &);
-
   private:
     struct HttpResponse get(struct HttpRequest &request, bool body = true);
 
