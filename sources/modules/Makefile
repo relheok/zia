@@ -30,7 +30,7 @@ SRCS	= SSLModule.cpp
 
 
 SRCSPHP = phpcpp.cpp \
-	functions_php.cpp
+	functions_php.cpp \
 
 SRCSLOG = LogModule.cpp
 

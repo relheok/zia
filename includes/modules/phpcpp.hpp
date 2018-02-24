@@ -21,7 +21,7 @@ namespace zia::api {
     virtual bool  config(const Conf& conf);
     virtual bool  exec(HttpDuplex& http);
 
-    Net::Raw    stringToRaw(Net::Raw req);
+    Net::Raw    stringToRaw(std::string const &str);
 
     virtual unsigned int getPriority() const { return 1; }
   private:
