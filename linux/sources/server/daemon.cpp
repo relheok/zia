@@ -5,10 +5,15 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:04:17 2018 Jérémy Koehler
-// Last update Wed Feb 21 19:39:58 2018 Quentin Albertone
+// Last update Sat Feb 24 18:36:03 2018 Jérémy Koehler
 //
 
 #include "daemon.hpp"
+
+zia::Daemon::~Daemon() {
+  for (int x = sysconf(_SC_OPEN_MAX); x >= 0; --x)
+    close(x);
+}
 
 zia::Daemon		&zia::Daemon::getInstance(std::string file) {
   static zia::Daemon	daemon(file);
@@ -16,8 +21,7 @@ zia::Daemon		&zia::Daemon::getInstance(std::string file) {
   return daemon;
 }
 
-void	zia::Daemon::sendSignal(std::string signal)
-{
+void	zia::Daemon::sendSignal(std::string signal) {
   if (signal == "stop" || signal == "STOP"
       || signal == "quit" || signal == "QUIT")
     {
@@ -69,6 +73,7 @@ void	zia::Daemon::updateConf() {
 zia::Daemon::Daemon(std::string file):
   _killed(true), _fileName(file), _conf(NULL) {
   signal(SIGCHLD, SIG_IGN);
+  signal(SIGPIPE, SIG_IGN);
 
   /* shutdown signals */
   signal(SIGTERM, zia::Daemon::shutdownSignal);
@@ -114,7 +119,7 @@ void	zia::Daemon::daemonize() {
 
   /* Close all open file descriptors */
   for (int x = sysconf(_SC_OPEN_MAX); x >= 0; --x)
-    close (x);
+    close(x);
   Logger::getInstance().info("[ZIA] starting server");
 }
 
