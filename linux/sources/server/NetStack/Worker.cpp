@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Sat Feb 24 20:21:20 2018 Quentin Albertone
+// Last update Sat Feb 24 20:42:28 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -118,7 +118,7 @@ void			Worker::sendToClient(char *buff)
   while (lenw != len)
     {
       len = len-lenw;
-      lenw = write(_cliFd, buff + lenw, len);
+      lenw = send(_cliFd, buff + lenw, len, MSG_NOSIGNAL);
       if (++err == 10)
 	{
 	  zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
