@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Sat Feb 24 01:44:39 2018 Quentin Albertone
+// Last update Sat Feb 24 17:12:09 2018 Jérémy Koehler
 //
 
 #include "Network.hpp"
@@ -18,7 +18,7 @@
 Network::Socket::Socket(int port)
   : _port(port)
 {
-  int		use;
+  int		use = 0;
 
   _sock.sin_family = AF_INET;
   _sock.sin_port = htons(_port);
@@ -26,19 +26,24 @@ Network::Socket::Socket(int port)
   _size = sizeof(sockaddr_in);
 
   // Open socket and get fd on it
-  if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 3 || (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &use, sizeof(use))) == -1)
-    zia::Logger::getInstance().error("[Balancer] - Error while creating socket");
-  zia::Logger::getInstance().info("[Balancer] - Socket create on port: " + std::to_string(_port));
+  if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 1
+      || (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &use, sizeof(use))) == -1)
+    {
+      zia::Logger::getInstance().error(std::string("[NETWORK] - ") + strerror(errno) + ": " + std::to_string(_fd));
+      zia::Daemon::getInstance().stop();
+      return ;
+    }
+  zia::Logger::getInstance().info("[NETWORK] - Socket create on port: " + std::to_string(_port));
 
   // Bind socket on ip and port / wait a t_sockaddr *
   if (bind(_fd, (const t_sockaddr *)&_sock, _size) == -1)
-    zia::Logger::getInstance().error("[Balancer] - Error while bind socket");
-  zia::Logger::getInstance().info("[Balancer] - Socket bind" + std::to_string(_port));
+    zia::Logger::getInstance().error("[NETWORK] - Error while bind socket");
+  zia::Logger::getInstance().info("[NETWORK] - Socket bind" + std::to_string(_port));
 
   // Listen create a queue implicitely create maw client server can have
   if (listen(_fd, 42) == -1)
-    zia::Logger::getInstance().error("[Balancer] - Error while listening on socket");
-  zia::Logger::getInstance().info("[Balancer] - Socket create whith success" + std::to_string(_port));
+    zia::Logger::getInstance().error("[NETWORK] - Error while listening on socket");
+  zia::Logger::getInstance().info("[NETWORK] - Socket create whith success" + std::to_string(_port));
 }
 
 Network::Socket::Socket(Network::Socket const &socket)
@@ -52,9 +57,9 @@ Network::Socket::Socket(Network::Socket const &socket)
 Network::Socket::~Socket()
 {
   if (close(_fd) == -1)
-    zia::Logger::getInstance().error("[Balancer] - can't close mmasterSocket");
+    zia::Logger::getInstance().error("[NETWORK] - can't close mmasterSocket");
   else
-    zia::Logger::getInstance().warning("[Balancer] - Close MasterSocket: END OF NETWORKSTACK");
+    zia::Logger::getInstance().warning("[NETWORK] - Close MasterSocket: END OF NETWORKSTACK");
 }
 
 Network::Socket		&Network::Socket::operator=(Network::Socket const &other)
@@ -122,8 +127,8 @@ void			Network::Socket::loop()
   _pollServer.events = POLLIN;
 
   if ((check = poll(&_pollServer, 1, 100)) == -1)
-    zia::Logger::getInstance().error("[Balancer] - Error Poll: MasterSocket");
-  zia::Logger::getInstance().debug("[Balancer] - Loop poll");
+    zia::Logger::getInstance().error("[NETWORK] - Error Poll: MasterSocket");
+  zia::Logger::getInstance().debug("[NETWORK] - Loop poll");
   if (check > 0)
     {
       Client		*nClient = new Client(_fd);
@@ -139,7 +144,7 @@ void			Network::Socket::loop()
       std::map<int, Client *>::iterator	clientIt;
 
       if ((check = poll(_clientFds.data(), static_cast<nfds_t>(_clientFds.size()), 10)) == -1)
-	zia::Logger::getInstance().error("[Balancer] - Error poll on client socket");
+	zia::Logger::getInstance().error("[NETWORK] - Error poll on client socket");
       if (check > 0)
 	{
 	  std::vector<t_pollfd>::iterator it = _clientFds.begin();
@@ -149,18 +154,19 @@ void			Network::Socket::loop()
 	      if ((clientIt = _clients.find(it->fd)) == _clients.end())
 		{
 		  it = _clientFds.erase(it);
-		  zia::Logger::getInstance().debug("[Balancer] - Delete client");
+		  zia::Logger::getInstance().debug("[NETWORK] - Delete client");
 		}
 	      disconnect = false;
 	      // Check error from connection with client
 	      if (it->revents & (POLLERR | POLLHUP | POLLNVAL))
 		{
-		  zia::Logger::getInstance().debug("[Balancer] - No client connection");
+		  zia::Logger::getInstance().debug("[NETWORK] - No client connection");
 		  disconnect = true;
 		}
 	      else if (it->revents & POLLIN)
 		{
-		  zia::Logger::getInstance().info("[Balancer] - New input from : " + std::to_string(clientIt->first));
+
+		  zia::Logger::getInstance().info("[NETWORK] - New input from : " + std::to_string(clientIt->first));
 		  _req.setRequest(clientIt->second);
 		  // TODO:
 		  it->revents = 0;
@@ -168,7 +174,7 @@ void			Network::Socket::loop()
 	      // Disconnect user with matters
 	      if (disconnect)
 		{
-		  zia::Logger::getInstance().info("[Balancer] - Delete user : " + std::to_string(clientIt->first));
+		  zia::Logger::getInstance().info("[NETWORK] - Delete user : " + std::to_string(clientIt->first));
 		  it = _clientFds.erase(it);
 		  clientIt = _clients.erase(clientIt);
 		}

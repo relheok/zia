@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Sat Feb 24 01:36:57 2018 Quentin Albertone
+// Last update Sat Feb 24 17:13:23 2018 Jérémy Koehler
 //
 
 #ifndef WORKER_HPP_
@@ -64,7 +64,6 @@ public:
 protected:
   int			_id;
   int			_srvFd;
-  int			_logFd;
 
   int			_cliFd;
   std::string		_cliReq;

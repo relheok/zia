@@ -6,7 +6,6 @@
     "./sources/modules"
   ],
   "modules" : [
-    "ssl_module",
     "log_module"
   ],
   "roots" : {
