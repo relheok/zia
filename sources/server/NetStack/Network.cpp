@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Sat Feb 24 00:25:21 2018 Quentin Albertone
+// Last update Sat Feb 24 01:44:39 2018 Quentin Albertone
 //
 
 #include "Network.hpp"
@@ -51,8 +51,10 @@ Network::Socket::Socket(Network::Socket const &socket)
 
 Network::Socket::~Socket()
 {
-  zia::Logger::getInstance().warning("[Balancer] - Close MasterSocket: END OF NETWORKSTACK");
-  close(_fd);
+  if (close(_fd) == -1)
+    zia::Logger::getInstance().error("[Balancer] - can't close mmasterSocket");
+  else
+    zia::Logger::getInstance().warning("[Balancer] - Close MasterSocket: END OF NETWORKSTACK");
 }
 
 Network::Socket		&Network::Socket::operator=(Network::Socket const &other)

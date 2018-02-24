@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Fri Feb 23 22:20:03 2018 Quentin Albertone
+// Last update Sat Feb 24 01:42:05 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -26,19 +26,16 @@ Worker::Worker(int id, zia::Daemon *daemon)
 
   sleep(1);
   if ((_logFd = open(_DEBUG_FILE, O_CREAT | O_APPEND | O_RDWR, _RIGHT)) < 1)
-    {
-      zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - " + "Error debug file");
-      //std::cout << "[" << _pid << ":" << _id << "] - " << "Error debug file" << std::endl;
-    }
-  // dprintf(_logFd, "[%d:%d] - Open file %s\n", _pid, _id, _DEBUG_FILE);
+    zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - " + "Error debug file");
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created end");
+
   createSocketWorker();
   loop();
 }
 
 Worker::~Worker()
 {
-  //dprintf(_logFd, "[%d:%d] - Disconnect worker\n", _pid, _id);
+  zia::Logger::getInstance().warning("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Worker is stopping his activity");
   close(_srvFd);
   close(_logFd);
 }
@@ -50,30 +47,25 @@ void			Worker::createSocketWorker()
   if ((_srvFd = socket(AF_UNIX, SOCK_STREAM, 0)) < 3)
     {
       zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Error create socket");
-      //dprintf(_logFd, "[%d:%d] - Error create socket\n", _pid, _id);
       return ;
     }
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Create socket");
-  //dprintf(_logFd, "[%d:%d] - Create socket\n", _pid, _id);
   addr.sun_family = AF_UNIX;
   strcpy(addr.sun_path, SRV_SOCK_PATH);
+
   if (connect(_srvFd, (t_sockaddr *)&addr, sizeof(t_sockaddr_un)) < 0)
     {
       zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Error connect Socket");
-      //dprintf(_logFd, "[%d:%d] - Error connect socket: %s\n", _pid, _id, SRV_SOCK_PATH);
-      return ;
+        return ;
     }
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Connect on" +
 				  SRV_SOCK_PATH + std::to_string(_srvFd));
-  //  dprintf(_logFd, "[%d:%d] - Connect on %s with fd: %d\n",
-  //	  _pid, _id, SRV_SOCK_PATH, _srvFd);
 }
 
 void			Worker::receivFd()
 {
   unsigned char		*data;
   char			cBuffer[256];
-  //int			fd;
   char			mBuffer[256];
   struct msghdr		msg;
   struct iovec		iov = {.iov_base = mBuffer, .iov_len = sizeof(mBuffer)};
@@ -92,7 +84,6 @@ void			Worker::receivFd()
 
   _cliFd = *((int *)data);
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - New client");
-  //  dprintf(_logFd, "[%d:%d] - new client %d\n", _pid, _id, _cliFd);
 }
 
 void			Worker::handleRequestFromClient()
@@ -100,15 +91,11 @@ void			Worker::handleRequestFromClient()
   std::vector<char>	buff(BUFFSIZE);
   int			bytes;
 
-  //dprintf(_logFd, "[%d:%d]:%d - Reading fd\n", _pid, _id, _cliFd);
   while ((bytes = recv(_cliFd, &buff[0], BUFFSIZE, 0)) == BUFFSIZE)
-    {
-      _cliReq.append(buff.cbegin(), buff.cend());
-    }
+    _cliReq.append(buff.cbegin(), buff.cend());
   _cliReq.append(buff.cbegin(), buff.cend());
   zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:" + std::to_string(_cliFd) +
 				   "- " + _cliReq);
-  //  dprintf(_logFd, "[%d:%d]:%d - %s\n", _pid, _id, _cliFd, _cliReq.c_str());
 }
 
 void			Worker::resetClient()
@@ -128,7 +115,9 @@ void			Worker::loop()
       	{
       	  handleRequestFromClient();
       	  resp = _http.get()->interpret(_cliReq);
-      	  write(_cliFd, resp.c_str(), resp.size());
+	  if (send(_cliFd, resp.c_str(), resp.size(), 0) < 0)
+	    zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
+					     + std::to_string(_cliFd) + " - Can't send answer to client");
       	  resetClient();
       	}
     }
