@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:06:13 2018 Jérémy Koehler
-// Last update Wed Feb 21 19:40:28 2018 Quentin Albertone
+// Last update Sat Feb 24 18:35:42 2018 Jérémy Koehler
 //
 
 #ifndef DAEMON_HPP_
@@ -29,7 +29,7 @@ namespace zia {
 
   public:
     static Daemon	&getInstance(std::string file = "/run/zia.pid");
-    ~Daemon()					= default;
+    ~Daemon();
 
     static void		sendSignal(std::string signal);
 
