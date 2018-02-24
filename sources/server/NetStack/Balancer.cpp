@@ -14,7 +14,6 @@ Balancer::Balancer()
   : _nbWorker(_DEBUG_NBWORKER)
 {
   _daemon = &zia::Daemon::getInstance();
-  zia::Logger::getInstance().info("Ctr Balancer");
   createSocket();
   createWorker();
   acceptWorker();

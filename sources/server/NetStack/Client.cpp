@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 14:54:28 2017 Quentin Albertone
-// Last update Fri Feb 23 22:21:58 2018 Quentin Albertone
+// Last update Sat Feb 24 20:31:59 2018 Quentin Albertone
 //
 
 #include "Client.hpp"
@@ -23,7 +23,7 @@ Client::Client(int server)
   _poll.events = POLLIN;
 
   zia::Logger::getInstance().info("[Balancer] - Client Accept new client");
-  zia::Logger::getInstance().info("[Balancer] - Client new client: " + std::to_string(_fd) + "port: " +
+  zia::Logger::getInstance().info("[Balancer] - Client new client: " + std::to_string(_fd) + " port: " +
 				  _addr + std::to_string(_port));
 }
 

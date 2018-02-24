@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Sat Feb 24 17:13:23 2018 Jérémy Koehler
+// Last update Sat Feb 24 20:09:23 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_
@@ -59,7 +59,7 @@ public:
 
   void			createSocketWorker();
   void			loop();
-  //  void			sendToClient(std::string &);
+  void			sendToClient(char *);
 
 protected:
   int			_id;

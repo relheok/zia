@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Sat Feb 24 17:14:47 2018 Jérémy Koehler
+// Last update Sat Feb 24 20:21:20 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -35,6 +35,8 @@ Worker::~Worker()
 {
   zia::Logger::getInstance().warning("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Worker is stopping his activity");
   close(_srvFd);
+  for (int x = sysconf(_SC_OPEN_MAX); x >= 0; --x)
+    close(x);
 }
 
 void			Worker::createSocketWorker()
@@ -103,6 +105,35 @@ void			Worker::handleRequestFromClient()
 				   "- " + _cliReq);
 }
 
+void			Worker::sendToClient(char *buff)
+{
+  int                           len;
+  int                           lenw;
+  int                           err;
+
+  lenw = 0;
+  err = 0;
+  if ((len = strlen(buff)) <= 0)
+    return ;
+  while (lenw != len)
+    {
+      len = len-lenw;
+      lenw = write(_cliFd, buff + lenw, len);
+      if (++err == 10)
+	{
+	  zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
+					   + std::to_string(_cliFd) + "- Can't send answer to client");
+	  free(buff);
+	  return ;
+	}
+    }
+  zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
+				   + std::to_string(_cliFd) + "- " + buff);
+
+  free(buff);
+}
+
+
 void			Worker::resetClient()
 {
   _cliFd = 0;
@@ -113,19 +144,20 @@ void			Worker::loop()
 {
   std::string		resp;
 
-  while (true)
+  while (_daemon->isAlive())
     {
       receivFd();
       if (_cliFd > 0)
       	{
       	  handleRequestFromClient();
 
-      	  // resp = _http.get()->interpret(_cliReq);
+      	  resp = _http.get()->interpret(_cliReq);
 	  resp = std::string("received : ") + _cliReq;
+	  sendToClient(strdup(resp.c_str()));
 
-	  if (send(_cliFd, resp.c_str(), resp.size(), 0) < 0)
-	    zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
-	  				     + std::to_string(_cliFd) + " - Can't send answer to client");
+	  // if (send(_cliFd, resp.c_str(), resp.size(), 0) < 0)
+	  //   zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
+	  // 				     + std::to_string(_cliFd) + " - Can't send answer to client");
       	  resetClient();
       	}
     }
