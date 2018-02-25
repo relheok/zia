@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Sat Feb 24 20:33:38 2018 Quentin Albertone
+// Last update Sun Feb 25 14:16:39 2018 Jérémy Koehler
 //
 
 #include "Network.hpp"
@@ -37,12 +37,20 @@ Network::Socket::Socket(int port)
 
   // Bind socket on ip and port / wait a t_sockaddr *
   if (bind(_fd, (const t_sockaddr *)&_sock, _size) == -1)
-    zia::Logger::getInstance().error("[NETWORK] - Error while bind socket");
+    {
+      zia::Logger::getInstance().error("[NETWORK] - Error while bind socket");
+      zia::Daemon::getInstance().stop();
+      return ;
+    }
   zia::Logger::getInstance().info("[NETWORK] - Socket bind" + std::to_string(_port));
 
   // Listen create a queue implicitely create maw client server can have
   if (listen(_fd, 42) == -1)
-    zia::Logger::getInstance().error("[NETWORK] - Error while listening on socket");
+    {
+      zia::Logger::getInstance().error("[NETWORK] - Error while listening on socket");
+      zia::Daemon::getInstance().stop();
+      return ;
+    }
   zia::Logger::getInstance().info("[NETWORK] - Socket create whith success on port " + std::to_string(_port));
 }
 
