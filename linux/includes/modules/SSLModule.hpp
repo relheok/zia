@@ -44,13 +44,14 @@ namespace zia::api {
     std::string   _cert;
     std::string   _key;
     std::string   _path;
-    unsigned int  _prio;
 
-    void      initCtx();
-    void      loadCertificate();
+    bool      initCtx();
+    bool      loadCertificate();
     std::string getCurrentDir();
     template<typename E>
-    void          exitOnError(E e);
+    bool      exitOnError(E e);
+    std::string   rawToString(zia::api::Net::Raw const &r);
+    zia::api::Net::Raw  stringToRaw(std::string const &str);
   };
 }
 
