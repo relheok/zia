@@ -17,13 +17,15 @@ namespace zia::api {
     cppModule &operator=(const cppModule &);
     ~cppModule();
 
-    bool          initComponent();
     virtual bool  config(const Conf& conf);
     virtual bool  exec(HttpDuplex& http);
 
     Net::Raw    stringToRaw(std::string const &str);
     std::string rawToString(zia::api::Net::Raw const &r);
     std::vector<std::string> split(std::string const &str, std::string const &delimiters);
+    bool execRequest(HttpDuplex& http, std::string &url, std::string &args);
+
+    char    **getArgs(std::string &url, std::string &args);
 
     virtual unsigned int getPriority() const { return 1; }
   private:

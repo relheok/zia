@@ -18,7 +18,7 @@ CC	= g++
 
 RM	= rm -f
 
-CXXFLAGS += -I../../includes/modules/ -I../../includes/server/api/ -I../../includes/server -W -Wall -Wextra -std=c++17 #-Werror
+CXXFLAGS += -g3 -I../../includes/modules/ -I../../includes/server/api/ -I../../includes/server -W -Wall -Wextra -std=c++17 #-Werror
 
 LDFLAGS	 += -lssl -lcrypto
 

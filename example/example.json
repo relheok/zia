@@ -9,7 +9,7 @@
     "php_module"
   ],
   "roots" : {
-    "localhost" : "/home/loris/Work/cpp_zia"
+    "localhost" : "/home/maxoulak/work/B5/C++/cpp_zia"
   },
   "SSL" : {
     "cert" : "cert.pem",

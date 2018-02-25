@@ -125,7 +125,7 @@ namespace zia::api {
       if (i < v.size())
         sbody += '\n';
     }
-    sbody = sbody.substr(0, sbody.size() - 1);
+    sbody = sbody.substr(0, sbody.size());
     for (size_t j = 0; j < sbody.size(); j++)
       body.push_back(std::byte(sbody[j]));
     return body;

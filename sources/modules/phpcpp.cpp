@@ -11,9 +11,7 @@ extern "C" {
   }
 }
 
-zia::api::cppModule::cppModule() {
-  initComponent();
-}
+zia::api::cppModule::cppModule() {}
 
 zia::api::cppModule::cppModule(const zia::api::cppModule &copy) {
   (void)copy;
@@ -26,16 +24,10 @@ zia::api::cppModule &zia::api::cppModule::operator=(const zia::api::cppModule &c
 
 zia::api::cppModule::~cppModule() {}
 
-bool  zia::api::cppModule::initComponent() {
-  return (true);
-}
-
 bool	zia::api::cppModule::config(const Conf& conf) {
   auto it = conf.find("PHP");
   if (it != conf.end())
     return (true);
-  else
-    std::cerr << "No conf file for php module :(" << std::endl;
   return (false);
 }
 
@@ -56,51 +48,71 @@ zia::api::Net::Raw      zia::api::cppModule::stringToRaw(std::string const &str)
 }
 
 bool		zia::api::cppModule::exec(HttpDuplex& http) {
-  Net::Raw	net;
+  std::vector<std::string> vGet = split(rawToString(http.raw_req), "?");
+  std::string   url = vGet[0];
+  std::string   args = "";
+
+  if (http.req.method == http::Method::post) {
+    args = rawToString(http.req.body);
+  } else if (http.req.method == http::Method::get) {
+    args = (vGet.size() > 1 ? vGet[1] : "");
+  }
+  return (execRequest(http, url, args));
+}
+
+bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &url, std::string &args) {
   int		link[2];
-  pid_t		pid;
   char		foo[4096 + 1];
   int		nbytes = 0;
+  pid_t		pid;
   std::string	totalStr;
-  std::string   url = split(rawToString(http.raw_req), "?")[0];
-  std::cerr << url << std::endl;
-  if (split(url, ".").back().compare("php") == 0 ||
-      split(url, ".").back().compare("html") == 0) {
+
+  if (split(url, ".").back().compare("php") == 0
+    || split(url, ".").back().compare("html") == 0
+    || split(url, ".").back().compare("htm") == 0) {
     memset(foo, 0, 4096);
-    if (pipe(link)==-1)
-      return (false);
+    if (pipe(link) == -1)
+      return false;
+    int i = 0;
     if ((pid = fork()) == -1)
       return (false);
     if(pid == 0) {
       dup2(link[1], STDOUT_FILENO);
       close(link[0]);
       close(link[1]);
-      char *bite[5] = {	"-q --no-header",
-			strdup(url.c_str()),
-		        "name=loris",
-			"email=bonjour",
-			NULL};
-      execv("/usr/bin/php-cgi", bite);
-      return (false);
-    }
-    else {
+      execv("/usr/bin/php-cgi", getArgs(url, args));
+      exit(0);
+    } else {
       close(link[1]);
       while(0 != (nbytes = read(link[0], foo, sizeof(foo)))) {
-	totalStr = totalStr + foo;
-	printf("Output: %.*s\n", nbytes, foo);
-	http.resp.body = stringToRaw(foo);
-	http.resp.headers["Content-Type"] = "text/html; charset=UTF-8";
-	http.resp.headers["Content-Length"] = std::to_string(http.resp.body.size());
-	memset(foo, 0, 4096);
+      	totalStr = totalStr + foo;
+      	http.resp.body = stringToRaw(foo);
+      	http.resp.headers["Content-Type"] = "text/html; charset=UTF-8";
+      	http.resp.headers["Content-Length"] = std::to_string(http.resp.body.size());
+      	memset(foo, 0, 4096);
       }
       wait(NULL);
     }
     return (true);
   }
-  else
-    return (true);
 }
 
+char                      **zia::api::cppModule::getArgs(std::string &url, std::string &args) {
+  std::vector<std::string> v = split(args, "&");
+  char      **argv = new char*[v.size() + 3];
+  int       i = 2;
+
+  argv[0] = strdup("-q");
+  argv[1] = strdup(url.c_str());
+  if (!v.empty()) {
+    for (auto it = v.begin(); it != v.end(); ++it) {
+      argv[i] = strdup(it->c_str());
+      i++;
+    }
+  }
+  argv[i] = NULL;
+  return argv;
+}
 
 std::vector<std::string>    zia::api::cppModule::split(std::string const &str, std::string const &delimiters) {
   std::vector<std::string>  v;
