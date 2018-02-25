@@ -73,7 +73,6 @@ bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &ur
     memset(foo, 0, 4096);
     if (pipe(link) == -1)
       return false;
-    int i = 0;
     if ((pid = fork()) == -1)
       return (false);
     if(pid == 0) {
@@ -95,6 +94,7 @@ bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &ur
     }
     return (true);
   }
+  return true;
 }
 
 char                      **zia::api::cppModule::getArgs(std::string &url, std::string &args) {
