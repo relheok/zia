@@ -5,6 +5,7 @@
 // juniqu_v
 //
 
+#include "logger.hpp"
 #include "config_manager/ConfigManager.hpp"
 
 namespace zia::api {
@@ -17,7 +18,7 @@ bool		ConfigManager::browser_conf()
 	}
 	catch (std::exception &err)
 	{
-		std::cerr << err.what() << std::endl;
+	    zia::Logger::getInstance().error(err.what());
 		return (false);
 	}
 	JSONObject mod;

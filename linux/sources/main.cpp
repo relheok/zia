@@ -36,7 +36,7 @@ int		process(std::string confPath)
     zia::Daemon &daemon = zia::Daemon::getInstance();
 
     if (!p.get()->browser_conf())
-      zia::Logger::getInstance().error("No conf file");
+      zia::Logger::getInstance().error("Server launch only with his default value");
 
     Network::Socket	inet_http(std::get<long long>(p.get()->getConf()["port"].v), Network::PLAIN);
     Network::Socket	inet_ssl(std::get<long long>(p.get()->getConf()["port_ssl"].v), Network::SSL);

@@ -5,6 +5,7 @@
 // juniqu_v
 //
 
+#include "logger.hpp"
 #include "config_manager/ConfigManager.hpp"
 
 namespace zia::api {
@@ -19,7 +20,7 @@ void		ConfigManager::ReadFile()
 	JSONValue *doc = JSON::Parse(content);
 	setDoc(doc);
 	if (doc == NULL || doc->IsObject() == false)
-		throw ConfigError("Is it a json file ?");
+		throw ConfigError("File: " + getPath() + "syntax error.");
 }
 
 void		ConfigManager::find_modules(JSONObject mod)
@@ -78,8 +79,8 @@ void		ConfigManager::getModByPath()
 				break ;
 			}
 		}
-	        if (_list.empty() || _list.back().first != _modules[i])
-		  std::cerr << "modules: " << _modules[i] << " not found !" << std::endl;
+	    if (_list.empty() || _list.back().first != _modules[i])
+	       	zia::Logger::getInstance().error("modules: " + _modules[i] + " not found.");
 	}
 }
 
@@ -88,10 +89,10 @@ void		ConfigManager::CheckPath()
 	std::regex pattern {"^.*\\.(json)$"};
 
 	if (regex_match(getPath(), pattern) &&
-		access(getPath().c_str(), F_OK) == 0)
+		access(getPath().c_str(), F_OK | R_OK) == 0)
 		return ReadFile();
 	else
-		throw ConfigError("Need json file");
+		throw ConfigError("JSON File: " + getPath() + " not found.");
 	return ;
 }
 
