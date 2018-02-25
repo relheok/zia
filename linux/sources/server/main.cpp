@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Sun Feb 25 02:13:21 2018 Jérémy Koehler
+// Last update Sun Feb 25 18:13:10 2018 Jérémy Koehler
 //
 
 #include "main.hpp"
@@ -29,22 +29,34 @@ void		usage(std::string execName)
   std::cout << "  -h, --help          display this help and exit" << std::endl;
 }
 
+int	getPortFromConf(zia::api::ConfigManager *p,
+			const char *key,
+			const int default_port)
+{
+  try {
+    return std::get<long long>(p->getConf()[key].v);
+  } catch (std::exception &e) {
+    return default_port;
+  }
+}
+
 int		process(std::string confPath)
 {
   try {
     std::cout << "Run with config file: " << confPath << std::endl;
-    // zia::api::ConfigManager p(confPath);
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
-    zia::Daemon &daemon = zia::Daemon::getInstance();
-    Network::Socket	inet(4248);
-
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
+    zia::Daemon &daemon = zia::Daemon::getInstance();
+
+    Network::Socket	inet_http(getPortFromConf(p.get(), "port", 80));
+    // Network::Socket	inet_http(getPortFromConf(p.get(), "port", 80), NetWork::PLAIN);
+    // Network::Socket	inet_ssl(getPortFromConf(p.get(), "port_ssl", 443), NetWork::SSL);
+
+
     std::map<std::string, std::string> map = p.get()->getRoots();
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
-
-    // pipe.display();
 
     daemon.setConf(p.get());
     daemon.setModuleManager(m.get());
@@ -52,8 +64,8 @@ int		process(std::string confPath)
     Balancer		pipe;
 
     while (daemon.isAlive()) {
-      inet.loop();
-      pipe.balancer(inet.getRequest());
+      inet_http.loop();
+      pipe.balancer(inet_http.getRequest());
       sleep(3);
     }
   } catch (std::exception &e) {
