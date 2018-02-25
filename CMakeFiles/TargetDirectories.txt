@@ -1,7 +1,0 @@
-/home/juniqu_v/cpp_zia/CMakeFiles/rebuild_cache.dir
-/home/juniqu_v/cpp_zia/CMakeFiles/clean_zia.dir
-/home/juniqu_v/cpp_zia/CMakeFiles/zia.dir
-/home/juniqu_v/cpp_zia/CMakeFiles/fclean_zia.dir
-/home/juniqu_v/cpp_zia/CMakeFiles/test_zia.dir
-/home/juniqu_v/cpp_zia/CMakeFiles/re_zia.dir
-/home/juniqu_v/cpp_zia/CMakeFiles/edit_cache.dir
