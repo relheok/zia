@@ -25,10 +25,8 @@ zia::api::cppModule &zia::api::cppModule::operator=(const zia::api::cppModule &c
 zia::api::cppModule::~cppModule() {}
 
 bool	zia::api::cppModule::config(const Conf& conf) {
-  auto it = conf.find("PHP");
-  if (it != conf.end())
-    return (true);
-  return (false);
+  (void)conf;
+  return (true);
 }
 
 std::string   zia::api::cppModule::rawToString(zia::api::Net::Raw const &r) {
