@@ -8,7 +8,7 @@ license=('GPL')
 depends=()
 optdepends=()
 backup=()
-source=('zia' 'liblog_module.so' 'libphp_module.so' 'libssl_module.so' 'zia.service' 'zia.8.gz' 'zia.conf')
+source=('zia' 'liblog_module.so' 'libphp_module.so' 'libssl_module.so' 'zia.service' 'zia.8.gz' 'zia.json')
 sha256sums=(
 	SKIP
 	SKIP
@@ -22,7 +22,7 @@ package() {
   install -Dm644 "$srcdir"/zia.service "$pkgdir"/usr/lib/systemd/system/zia.service
   install -Dm755 "$srcdir"/zia "$pkgdir"/usr/bin/zia
   install -Dm644 "$srcdir"/zia.8.gz "$pkgdir"/usr/share/man/man8/zia.8.gz
-  install -Dm644 "$srcdir"/zia.conf "$pkgdir"/etc/zia/zia.conf
+  install -Dm644 "$srcdir"/zia.json "$pkgdir"/etc/zia/zia.json
   install -Dm755 "$srcdir"/liblog_module.so "$pkgdir"/usr/lib/zia/liblog_module.so
   install -Dm755 "$srcdir"/liblog_module.so "$pkgdir"/usr/lib/zia/libphp_module.so
   install -Dm755 "$srcdir"/liblog_module.so "$pkgdir"/usr/lib/zia/libssl_module.so
