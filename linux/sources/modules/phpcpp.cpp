@@ -25,10 +25,8 @@ zia::api::cppModule &zia::api::cppModule::operator=(const zia::api::cppModule &c
 zia::api::cppModule::~cppModule() {}
 
 bool	zia::api::cppModule::config(const Conf& conf) {
-  auto it = conf.find("PHP");
-  if (it != conf.end())
-    return (true);
-  return (false);
+  (void)conf;
+  return (true);
 }
 
 std::string   zia::api::cppModule::rawToString(zia::api::Net::Raw const &r) {
@@ -137,10 +135,11 @@ char    **zia::api::cppModule::getEnv(HttpDuplex &http, std::string const &url) 
 
 char                      **zia::api::cppModule::getArgs(std::string &url, std::string &args) {
   std::vector<std::string> v = split(args, "&");
-  char      **argv = new char*[v.size() + 2];
-  int       i = 1;
+  char      **argv = new char*[v.size() + 3];
+  int       i = 2;
 
-  argv[0] = strdup(url.c_str());
+  argv[0] = strdup("-f");
+  argv[1] = strdup(url.c_str());
   if (!v.empty()) {
     for (auto it = v.begin(); it != v.end(); ++it) {
       argv[i] = strdup(it->c_str());
