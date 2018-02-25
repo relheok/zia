@@ -112,7 +112,8 @@ int			Balancer::sendToWorker(int workerFd, std::pair<Client *, Network::SockType
 {
   struct msghdr		msg;
   char			buff[CMSG_SPACE(sizeof(client.first->getFd()))];
-  struct iovec  	iov = {.iov_base = ((char *)((_convert[client.second]).c_str())), .iov_len = 5};
+  std::string		tmp = std::string() + ((char *)((_convert[client.second]).c_str())) + "|" + std::to_string(client.first->getFd()).c_str();
+  struct iovec  	iov = {.iov_base = ((char *)tmp.c_str()), .iov_len = 256};
 
   memset(&msg, 0, sizeof(struct msghdr));
   memset(buff, 0, sizeof(buff));
@@ -138,7 +139,7 @@ int			Balancer::sendToWorker(int workerFd, std::pair<Client *, Network::SockType
   zia::Logger::getInstance().info("[BALANCER] - Send fd: " + std::to_string(client.first->getFd()) +
 				  " of type " + std::string((char *)iov.iov_base) +
 				  " to worker: " + std::to_string(workerFd));
-  usleep(100);
+  usleep(5);
   return (0);
 }
 

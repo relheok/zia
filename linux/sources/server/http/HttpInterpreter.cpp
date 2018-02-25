@@ -72,6 +72,8 @@ namespace zia::api {
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
       duplex.raw_req = Utils::stringToRaw(getRootFromHost(duplex.req.headers) + duplex.req.uri);
       for (auto it = _modules.begin(); it != _modules.end(); it++) {
+        if (it->priority > 1)
+          duplex.raw_req = Utils::stringToRaw(request);
         if (it->priority != 0 && !it->module->exec(duplex)) {
           _logger.error("Module method exec failed : " + it->name);
           duplex.resp = getDefaultResponse(duplex.req, http::common_status::internal_server_error, "Internal Server Error");

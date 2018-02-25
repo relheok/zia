@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Sun Feb 25 19:50:26 2018 Quentin Albertone
+// Last update Sat Mar  3 18:33:18 2018 Max
 //
 
 #include "Network.hpp"
@@ -142,9 +142,9 @@ void			Network::Socket::loop()
   _pollServer.fd = _fd;
   _pollServer.events = POLLIN;
 
-  if ((check = poll(&_pollServer, 1, 100)) == -1)
+  if ((check = poll(&_pollServer, 1, 10)) == -1)
     zia::Logger::getInstance().error("[NETWORK] - Error Poll: MasterSocket");
-  zia::Logger::getInstance().debug("[NETWORK] - Loop poll");
+  //zia::Logger::getInstance().debug("[NETWORK] - Loop poll");
   if (check > 0)
     {
       Client		*nClient = new Client(_fd);

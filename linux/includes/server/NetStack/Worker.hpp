@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Sun Feb 25 23:02:41 2018 Quentin Albertone
+// Last update Mon Feb 26 00:28:09 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_
@@ -14,6 +14,7 @@
 # include "Network.hpp"
 # include "http/HttpInterpreter.hpp"
 # include "logger.hpp"
+# include "Utils.hpp"
 
 
 # ifndef __STREAMPROTO_
@@ -61,6 +62,7 @@ public:
   void			createSocketWorker();
   void			loop();
   void			sendToClient(char *);
+  void			historyClient(std::string , int);
 
   static void		signalHandler(int sig);
 
@@ -77,6 +79,7 @@ protected:
   zia::Daemon		*_daemon;
   std::unique_ptr<zia::api::HttpInterpreter> _http{nullptr};
   std::map<std::string, Network::SockType>	_convert;
+  std::map<int, int>				_hClient;
 };
 
 
