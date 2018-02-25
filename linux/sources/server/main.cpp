@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Sun Feb 25 18:13:10 2018 Jérémy Koehler
+// Last update Sun Feb 25 20:14:07 2018 Jérémy Koehler
 //
 
 #include "main.hpp"
@@ -43,7 +43,6 @@ int	getPortFromConf(zia::api::ConfigManager *p,
 int		process(std::string confPath)
 {
   try {
-    std::cout << "Run with config file: " << confPath << std::endl;
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
     zia::Daemon &daemon = zia::Daemon::getInstance();
@@ -58,8 +57,6 @@ int		process(std::string confPath)
 
     std::map<std::string, std::string> map = p.get()->getRoots();
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
-
-    // pipe.display();
 
     daemon.setConf(p.get());
     daemon.setModuleManager(m.get());
@@ -89,7 +86,10 @@ int		main(int argc, char **argv)
     };
   int option_index = 0;
   int c;
-  std::string confPath("./example/example.json"); // this will be the default value of our conf path
+  std::string default_path = (zia::Daemon::fileExist("/etc/zia/zia.json")
+			      ? "/etc/zia/zia.json"
+			      : "./conf/zia.json");
+  std::string confPath(default_path); // this will be the default value of our conf path
 
   while ((c = getopt_long (argc, argv, "c:rs:h",
 			   long_options, &option_index)) != -1)
@@ -114,72 +114,4 @@ int		main(int argc, char **argv)
     }
 
   return (process(confPath));
-
-  // backlog
-  /* Print any remaining command line arguments (not options). */
-  if (optind < argc)
-    {
-      printf ("non-option ARGV-elements: ");
-      while (optind < argc)
-        printf ("%s ", argv[optind++]);
-      putchar ('\n');
-    }
-
-  return (0);
-}
-
-int		create_socket(int port);
-int		accept_socket(int fd, int port);
-
-int		old_main(int ac, char **av)
-{
-  int fd_cliGlobal;
-  int fd_inetGlobal;
-  try {
-    std::string path((ac >= 2) ? (av[1]) : (""));
-    zia::api::ConfigManager p(path);
-    if (!p.browser_conf())
-      std::cerr << "no conf file !" << std::endl;
-    std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
-    m.get()->init(p.getListModules(), p.getConf());
-
-    /* BEGIN TEST CODE */
-    char			buff[BUFFSIZE];
-    zia::api::HttpInterpreter interpreter(p.getConf(), p.getRoots(), m.get()->getModules());
-
-    printf("port: %d\n", std::stoi(av[2]));
-
-    fd_inetGlobal = create_socket(std::stoi(av[2]));
-    fd_cliGlobal = accept_socket(fd_inetGlobal, std::stoi(av[2]));
-    memset(buff, 0, BUFFSIZE);
-    while (read(fd_cliGlobal, &buff, BUFFSIZE) > 0)
-      {
-        try {
-          std::cout << "\ngot :\n" << buff << '\n';
-          std::string str = interpreter.interpret(buff);
-          std::cout << "\nwrite :\n" << str << '\n';
-          write(fd_cliGlobal, str.c_str(), str.size());
-        } catch (std::exception &e) {
-          std::cout << e.what() << '\n';
-        }
-        //printf("%s", buff);
-        memset(buff, 0, BUFFSIZE);
-      }
-    close(fd_cliGlobal);
-    close(fd_inetGlobal);
-    /* END TEST CODE */
-
-    //start server
-    // while (daemon.isAlive()) {
-    //   /*
-    //   ** TODO
-    //   */
-    // }
-
-    return (0);
-  } catch (std::exception &e) {
-    std::cerr << e.what() << std::endl;
-    return (-1);
-  }
-  return (0);
 }
