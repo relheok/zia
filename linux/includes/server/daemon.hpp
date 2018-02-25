@@ -5,11 +5,6 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:06:13 2018 Jérémy Koehler
-<<<<<<< HEAD
-// Last update Sun Feb 25 21:31:16 2018 Quentin Albertone
-=======
-// Last update Sun Feb 25 20:07:08 2018 Jérémy Koehler
->>>>>>> 6def59da70bf7ce6b24ec9cbff5e7b39ba6e704f
 //
 
 #ifndef DAEMON_HPP_
@@ -49,11 +44,8 @@ namespace zia {
     static void		quickShutdownSignal(int sig);
     static void		gracefullShutdownSignal(int sig);
     static void		reloadSignal(int sig);
-<<<<<<< HEAD
-=======
     static bool		fileExist(std::string file);
 
->>>>>>> 6def59da70bf7ce6b24ec9cbff5e7b39ba6e704f
   private:
     Daemon(std::string file);
     static void		daemonize();

@@ -5,11 +5,6 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-<<<<<<< HEAD:linux/sources/server/main.cpp
-// Last update Sun Feb 25 20:55:34 2018 Quentin Albertone
-=======
-// Last update Sun Feb 25 20:14:07 2018 Jérémy Koehler
->>>>>>> 6def59da70bf7ce6b24ec9cbff5e7b39ba6e704f:linux/sources/main.cpp
 //
 
 #include "main.hpp"
