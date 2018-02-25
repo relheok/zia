@@ -66,6 +66,7 @@ namespace zia::api {
           ssl = true;
       duplex.req = _parser.parse(Utils::rawToString(duplex.raw_req));
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
+      duplex.raw_req = getRootFromHost(request.headers) + duplex.req.uri;
       for (auto it = _modules.begin(); it != _modules.end(); it++) {
         if (it->priority != 0 && !it->module->exec(duplex)) {
           _logger.error("Module method exec failed : " + it->name);
