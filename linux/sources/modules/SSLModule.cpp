@@ -47,7 +47,7 @@ namespace zia::api {
     std::string   req;
 
     _ssl.reset(SSL_new(_ctx.get()));
-    SSL_set_fd(_ssl.get(), http.info.sock->s);
+    SSL_set_fd(_ssl.get(), http.info.port);
     if (SSL_accept(_ssl.get()) <= 0)
       return exitOnError("SSL accept error");
 
