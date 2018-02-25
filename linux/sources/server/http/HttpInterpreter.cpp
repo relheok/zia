@@ -103,8 +103,8 @@ namespace zia::api {
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::bad_request, "Bad Request");
     } catch (RequestUriTooLargeError &e) {
       _logger.error(e.what());
-    } catch (NotImplementedError &e) {
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::request_uri_too_large, "Request-URI Too Long");
+    } catch (NotImplementedError &e) {
       _logger.error(e.what());
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::not_implemented, "Not Implemented");
     }
@@ -124,6 +124,7 @@ namespace zia::api {
     if (ssl)
       if (!_modules.front().module->exec(duplex))
         return _parser.parse(getDefaultResponse(duplex.req, http::common_status::internal_server_error, "Internal Server Error"));
+    _logger.info(Utils::rawToString(duplex.raw_resp));
     return Utils::rawToString(duplex.raw_resp);
   }
 

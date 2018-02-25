@@ -31,12 +31,12 @@ OBJS		= $(SRCS:.cpp=.o)
 DEPS		= $(SRCS:.cpp=.d)
 
 all: $(NAME)
-	cd sources/modules && make
 
 $(NAME): $(OBJS)
 	@echo "Building $(NAME)..."
 	@$(CXX) -o $(NAME) $(OBJS) $(CXXFLAGS) $(LDFLAGS)
-	@cp $(NAME) $(PACKAGE)
+	@make -C sources/modules
+	@cp $(NAME) sources/modules/*.so $(PACKAGE)
 	@make -C $(PACKAGE)
 
 clean:
@@ -48,10 +48,10 @@ clean:
 
 fclean: clean
 	@echo "Cleaning executable..."
-	@$(RM) $(NAME)
 	@$(RM) $(TEST)
-	cd sources/modules && make fclean
-	@make -C $(PACKAGE) clean
+	@$(RM) $(NAME) $(PACKAGE)/$(NAME) $(PACKAGE)/*.so
+	@make -C $(PACKAGE) clean	
+	@make -C sources/modules fclean
 
 re: fclean all
 

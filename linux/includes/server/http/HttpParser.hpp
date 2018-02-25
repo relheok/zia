@@ -11,6 +11,7 @@
 namespace zia::api {
   class                 HttpParser {
   public:
+    HttpParser();
     HttpParser(Conf &conf);
     HttpParser(HttpParser const &);
     HttpParser  &operator=(HttpParser const &);

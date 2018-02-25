@@ -1,6 +1,8 @@
 #include "http/HttpParser.hpp"
 
 namespace zia::api {
+  HttpParser::HttpParser() : _logger(zia::Logger::getInstance()) {}
+
   HttpParser::HttpParser(Conf &conf) : _conf(conf), _logger(zia::Logger::getInstance()) {}
 
   HttpParser::HttpParser(HttpParser const &original) : _logger(zia::Logger::getInstance()) {

@@ -1,0 +1,25 @@
+{
+  "server_name" : "Zia",
+  "server_version" : "1.0",
+  "port" : 4245,
+  "max_uri_size" : 1000,
+  "modules_path" : [
+    "./sources/modules"
+  ],
+  "modules" : [
+    "php_module"
+  ],
+  "roots" : {
+    "localhost" : "/home/maxoulak/work/B5/C++/cpp_zia"
+  },
+  "SSL" : {
+    "cert" : "cert.pem",
+    "key" : "key.pem"
+  },
+  "Log" : {
+    "path" : "logFile"
+  },
+  "PHP" : {
+    "version" : "1.0"
+  }
+}
