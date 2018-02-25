@@ -46,9 +46,10 @@ int		process(std::string confPath)
     std::cout << "Run with config file: " << confPath << std::endl;
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
+    zia::Daemon &daemon = zia::Daemon::getInstance();
+
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
-    zia::Daemon &daemon = zia::Daemon::getInstance();
 
     Network::Socket	inet_http(getPortFromConf(p.get(), "port", 80));
     // Network::Socket	inet_http(getPortFromConf(p.get(), "port", 80), NetWork::PLAIN);
@@ -57,6 +58,8 @@ int		process(std::string confPath)
 
     std::map<std::string, std::string> map = p.get()->getRoots();
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
+
+    // pipe.display();
 
     daemon.setConf(p.get());
     daemon.setModuleManager(m.get());
