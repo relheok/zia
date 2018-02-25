@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Feb  7 14:26:37 2018 Quentin Albertone
-// Last update Wed Feb 21 20:18:17 2018 Quentin Albertone
+// Last update Sun Feb 25 19:40:05 2018 Quentin Albertone
 //
 
 #ifndef BALANCER_HPP_
@@ -27,14 +27,15 @@ public:
   void			display();
 
   int			balancer(RequestList &req);
-  int			sendToWorker(int workerFd, int clientFd);
+  int			sendToWorker(int workerFd, std::pair<Client *, Network::SockType>);
 
 protected:
-  int			_fd;
-  std::map<int, int>	_worker;
-  int			_nbWorker;
+  int						_fd;
+  std::map<int, int>				_worker;
+  int						_nbWorker;
 
-  zia::Daemon		*_daemon;
+  zia::Daemon					*_daemon;
+  std::map<Network::SockType, std::string>	_convert; // = {{Network::SockType::SSL}, {Network::SockType::PLAIN}};
 };
 
 

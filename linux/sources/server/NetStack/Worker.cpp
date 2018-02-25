@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Sat Feb 24 20:50:28 2018 Quentin Albertone
+// Last update Sun Feb 25 22:39:52 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -14,6 +14,8 @@ Worker::Worker(int id, zia::Daemon *daemon)
   : _id(id)
   , _daemon(daemon)
 {
+  signal(SIGTERM, Worker::signalHandler);
+  signal(SIGINT, Worker::signalHandler);
   _pid = getpid();
   _pPid = getppid();
 
@@ -28,7 +30,11 @@ Worker::Worker(int id, zia::Daemon *daemon)
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created end");
 
   createSocketWorker();
-  loop();
+  //loop();
+  _convert =  {
+    { "SSL", Network::SockType::SSL},
+    { "PLAIN", Network::SockType::PLAIN }
+  };
 }
 
 Worker::~Worker()
@@ -65,7 +71,7 @@ void			Worker::receivFd()
 {
   unsigned char		*data;
   char			cBuffer[256];
-  char			mBuffer[256];
+  char			mBuffer[10] = {0};
   char			nBuffer[256];
   struct msghdr		msg;
   struct iovec		iov = {.iov_base = mBuffer, .iov_len = sizeof(mBuffer)};
@@ -84,25 +90,24 @@ void			Worker::receivFd()
       zia::Logger::getInstance().error("[WORKER] failed to receive fd");
       return ;
     }
-  zia::Logger::getInstance().info("[WORKER] fd received");
-
   cmsg = CMSG_FIRSTHDR(&msg);
   data = CMSG_DATA(cmsg);
 
-  _cliFd = *((int *)data);
-  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - New client " + std::to_string(_cliFd));
+  _cliFd.first = *((int *)data);
+  _cliFd.second = _convert[std::string((char *)mBuffer)];
+  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - New client "
+				  + std::to_string(_cliFd.first) + " of type " + std::string((char *)mBuffer));
 }
 
-void			Worker::handleRequestFromClient()
+void			Worker::resetClient()
 {
-  std::vector<char>	buff(BUFFSIZE);
-  int			bytes;
+  _cliFd.first = 0;
+  _cliReq.erase(_cliReq.begin(), _cliReq.end());
+}
 
-  while ((bytes = recv(_cliFd, &buff[0], BUFFSIZE, 0)) == BUFFSIZE)
-    _cliReq.append(buff.cbegin(), buff.cend());
-  _cliReq.append(buff.cbegin(), buff.cend());
-  zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:" + std::to_string(_cliFd) +
-				   "- " + _cliReq);
+void			Worker::signalHandler(__attribute__((unused))int sig)
+{
+  exit(0);
 }
 
 void			Worker::sendToClient(char *buff)
@@ -118,46 +123,62 @@ void			Worker::sendToClient(char *buff)
   while (lenw != len)
     {
       len = len-lenw;
-      lenw = send(_cliFd, buff + lenw, len, MSG_NOSIGNAL);
+      lenw = send(_cliFd.first, buff + lenw, len, MSG_NOSIGNAL);
       if (++err == 10 || lenw < 0)
 	{
 	  zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
-					   + std::to_string(_cliFd) + "- Can't send answer to client");
+					   + std::to_string(_cliFd.first) + "- Can't send answer to client");
 	  free(buff);
 	  return ;
 	}
     }
   zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
-				   + std::to_string(_cliFd) + "- " + buff);
-
+				   + std::to_string(_cliFd.first) + "- " + buff);
   free(buff);
 }
 
-
-void			Worker::resetClient()
+void			Worker::handleRequestFromClient()
 {
-  _cliFd = 0;
-  _cliReq.erase(_cliReq.begin(), _cliReq.end());
+  std::vector<char>	buff(BUFFSIZE);
+  int			bytes;
+
+  if (_cliFd.second != Network::SockType::PLAIN)
+    {
+      _cliReq.erase(_cliReq.begin(), _cliReq.end());
+      _cliReq = std::string("");
+      return ;
+    }
+  while ((bytes = recv(_cliFd.first, &buff[0], BUFFSIZE, 0)) == BUFFSIZE)
+    _cliReq.append(buff.cbegin(), buff.cend());
+  _cliReq.append(buff.cbegin(), buff.cend());
+  zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
+				   + std::to_string(_cliFd.first) + "- " + _cliReq);
 }
 
 void			Worker::loop()
 {
   std::string		resp;
+  t_implSocket		o;
 
-  while (_daemon->isAlive())
+    while (_daemon->isAlive())
     {
       receivFd();
-      if (_cliFd > 0)
+      if (_cliFd.first > 0)
       	{
+	  zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - New client "
+					  + std::to_string(_cliFd.first) + " of type "
+					  + ((_cliFd.second == Network::SockType::SSL) ? "SSL" : "PLAIN"));
       	  handleRequestFromClient();
-
+	  o.cliFd = _cliFd.first;
       	  resp = _http.get()->interpret(_cliReq);
-	        // resp = std::string("received : ") + _cliReq;
-
-	  if (send(_cliFd, resp.c_str(), resp.size(), 0) < 0)
-	    zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
-	  				     + std::to_string(_cliFd) + " - Can't send answer to client");
-      	  resetClient();
+	  if (_cliFd.second == Network::SockType::PLAIN)
+	    {
+	      if (send(_cliFd.first, resp.c_str(), resp.size(), 0) < 0)
+		zia::Logger::getInstance().error("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "]:"
+						 + std::to_string(_cliFd.first) + " - Can't send answer to client");
+	    }
+	  resetClient();
+	  resp.erase(resp.begin(), resp.end());
       	}
     }
 }

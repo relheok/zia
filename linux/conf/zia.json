@@ -13,8 +13,8 @@
     "localhost" : "/home/maxoulak/work/B5/C++/cpp_zia"
   },
   "SSL" : {
-    "cert" : "/home/rodolphe/cpp_zia/linux/ressources/cert.pem",
-    "key" : "/home/rodolphe/cpp_zia/linux/ressources/key.pem"
+    "cert" : "cert.pem",
+    "key" : "key.pem"
   },
   "Log" : {
     "path" : "logFile"

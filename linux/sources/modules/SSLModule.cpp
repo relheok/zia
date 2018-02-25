@@ -7,10 +7,7 @@ extern "C" {
 }
 
 namespace zia::api {
-  SSLModule::SSLModule() : _prio(0) {
-    _path = getCurrentDir();
-    _path = _path.substr(0, _path.find_last_of("/\\")) + "/ressources/";
-  }
+  SSLModule::SSLModule() {}
 
   SSLModule::SSLModule(SSLModule const &copy) {
     (void)copy;
@@ -38,37 +35,38 @@ namespace zia::api {
       _key = std::get<std::string>(obj["key"].v);
     } catch (std::exception &e) {
       std::cerr << e.what() << std::endl;
-      exit(EXIT_FAILURE);
+      return false;
     }
-    initCtx();
-    loadCertificate();
-    return (true);
+    if (initCtx() == false)
+      return false;
+    return loadCertificate();
   }
 
   bool SSLModule::exec(HttpDuplex &http) {
-    char buf[BUFSIZE];
+    char          buf[BUFSIZE];
+    std::string   req;
 
-    _sbio.reset(BIO_new_socket(http.info.sock->s, BIO_NOCLOSE));
     _ssl.reset(SSL_new(_ctx.get()));
-    SSL_set_bio(_ssl.get(), _sbio.get(), _sbio.get());
+    SSL_set_fd(_ssl.get(), http.info.sock->s);
     if (SSL_accept(_ssl.get()) <= 0)
-      exitOnError("SSL accept error");
+      return exitOnError("SSL accept error");
 
-    _io.reset(BIO_new(BIO_f_buffer()));
-    _sslbio.reset(BIO_new(BIO_f_ssl()));
-    BIO_set_ssl(_sslbio.get(), _ssl.get(), BIO_CLOSE);
-    BIO_push(_io.get(), _sslbio.get());
-
-    while (!std::strcmp(buf,"\r\n") || !std::strcmp(buf,"\n")) {
-      BIO_gets(_io.get(), buf, BUFSIZE - 1);
+    if (http.raw_resp.size() == 0) {
+      while (!std::strcmp(buf,"\r\n") || !std::strcmp(buf,"\n")) {
+        SSL_read(_ssl.get(), buf, sizeof(buf));
+        req.append(buf);
+      }
+      http.raw_req = stringToRaw(req);
+      std::cout << "Request == " << req << std::endl;
+    } else {
+      std::cout << "Response == " << rawToString(http.raw_resp) << std::endl;
+      SSL_write(_ssl.get(), rawToString(http.raw_resp).c_str(),
+                sizeof(rawToString(http.raw_resp).c_str()));
     }
-    std::cout << "Request: " << buf << std::endl;
-    http.resp.reason.clear();
-    http.resp.reason.append(buf);
-    return (true);
+    return true;
   }
 
-  void  SSLModule::initCtx() {
+  bool  SSLModule::initCtx() {
     const SSL_METHOD  *meth;
 
     SSL_library_init();
@@ -77,19 +75,19 @@ namespace zia::api {
 
     meth = SSLv23_method();
     _ctx.reset(SSL_CTX_new(meth));
-    if (!_ctx.get()) {
-      ERR_print_errors_fp(stderr);
-      exit(EXIT_FAILURE);
-    }
+    if (!_ctx.get())
+      return exitOnError("Cannot instantiate CTX");
+    return true;
   }
 
-  void SSLModule::loadCertificate() {
-    if (!(SSL_CTX_use_certificate_chain_file(_ctx.get(), (_path + _cert).c_str())))
-      exitOnError("Cannot use Certificate file: ");
-    if (!(SSL_CTX_use_PrivateKey_file(_ctx.get(), (_path + _key).c_str(), SSL_FILETYPE_PEM)))
-      exitOnError("Cannot use PrivateKey fi, ERR_error_string( ERR_get_error(), NULL )le: ");
-    if (!SSL_CTX_load_verify_locations(_ctx.get(), (_path + _cert).c_str(), NULL))
-      exitOnError("Cannot verify Certificate: ");
+  bool SSLModule::loadCertificate() {
+    if (!(SSL_CTX_use_certificate_chain_file(_ctx.get(), _cert.c_str())))
+      return exitOnError("Cannot use Certificate file: ");
+    if (!(SSL_CTX_use_PrivateKey_file(_ctx.get(), _key.c_str(), SSL_FILETYPE_PEM)))
+      return exitOnError("Cannot use PrivateKey fi, ERR_error_string( ERR_get_error(), NULL )le: ");
+    if (!SSL_CTX_load_verify_locations(_ctx.get(), _cert.c_str(), NULL))
+      return exitOnError("Cannot verify Certificate: ");
+    return true;
   }
 
   std::string SSLModule::getCurrentDir() {
@@ -99,8 +97,24 @@ namespace zia::api {
   }
 
   template<typename E>
-  void  SSLModule::exitOnError(E e) {
+  bool  SSLModule::exitOnError(E e) {
     std::cerr << e << ERR_error_string( ERR_get_error(), NULL ) << '\n';
-    exit(EXIT_FAILURE);
+    return false;
+  }
+
+  std::string SSLModule::rawToString(zia::api::Net::Raw const &r) {
+    std::string str;
+
+    for (auto it = r.begin(); it != r.end(); it++)
+      str += (char)*it;
+    return str;
+  }
+
+  zia::api::Net::Raw    SSLModule::stringToRaw(std::string const &str) {
+    zia::api::Net::Raw  r;
+
+    for (auto it = str.begin(); it != str.end(); it++)
+      r.push_back(std::byte(*it));
+    return r;
   }
 }

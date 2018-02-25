@@ -7,43 +7,56 @@
 
 NAME		= zia
 
+TEST 		= unitTest
+
 PACKAGE		= package
 
 RM		= rm -f
 
 CXX		= g++
 
-CXXFLAGS	+= -g3 -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/server -Iincludes/server/api -Iincludes/server/error -I./includes/server/NetStack -Iincludes/modules -g3
+CXXFLAGS	+= -g3 -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/ -Iincludes/server -Iincludes/server/api -Iincludes/server/error -I./includes/server/NetStack -Iincludes/modules -g3
 
-LDFLAGS		+= -ldl
+LDFLAGS		+= -ldl -lssl -lcrypto
 
-SRCS		= $(foreach dir,$(shell find sources/server -type d),$(wildcard $(dir)/*.cpp))
+SRCS		= $(foreach dir,$(shell find sources/server -type d),$(wildcard $(dir)/*.cpp)) \
+					sources/main.cpp
 
+SRCS_TEST =  $(foreach dir,$(shell find sources/server -type d),$(wildcard $(dir)/*.cpp)) \
+						 sources/modules/SSLModule.cpp \
+					   sources/unitTest/unitTest.cpp
+
+OBJS_TEST = $(SRCS_TEST:.cpp=.o)
 OBJS		= $(SRCS:.cpp=.o)
 DEPS		= $(SRCS:.cpp=.d)
 
 all: $(NAME)
-	cd sources/modules && make
 
 $(NAME): $(OBJS)
 	@echo "Building $(NAME)..."
 	@$(CXX) -o $(NAME) $(OBJS) $(CXXFLAGS) $(LDFLAGS)
-	@cp $(NAME) $(PACKAGE)
+	@make -C sources/modules
+	@cp $(NAME) sources/modules/*.so $(PACKAGE)
 	@make -C $(PACKAGE)
 
 clean:
 	@echo "Cleaning temporary files..."
 	@$(RM) $(OBJS)
 	@$(RM) $(DEPS)
+	@$(RM) $(OBJS_TEST)
 	cd sources/modules && make clean
 
 fclean: clean
 	@echo "Cleaning executable..."
-	@$(RM) $(NAME)
-	cd sources/modules && make fclean
-	@make -C $(PACKAGE) clean
+	@$(RM) $(TEST)
+	@$(RM) $(NAME) $(PACKAGE)/$(NAME) $(PACKAGE)/*.so
+	@make -C $(PACKAGE) clean	
+	@make -C sources/modules fclean
 
 re: fclean all
+
+test: $(OBJS_TEST)
+	@$(CXX) -o $(TEST) $(OBJS_TEST) $(CXXFLAGS) $(LDFLAGS)
 
 %.o: %.cpp
 	@echo "=>" $<

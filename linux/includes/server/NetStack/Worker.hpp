@@ -5,14 +5,14 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Sat Feb 24 20:09:23 2018 Quentin Albertone
+// Last update Sun Feb 25 22:34:40 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_
 # define WORKER_HPP_
 # include "ziainclude.hpp"
+# include "Network.hpp"
 # include "http/HttpInterpreter.hpp"
-# include "daemon.hpp"
 # include "logger.hpp"
 
 
@@ -30,6 +30,7 @@
 #  include <sys/time.h>
 
 #  include <sys/wait.h>
+# include <signal.h>
 
 #  define SRV_SOCK_PATH		"/tmp/ux_socket"
 #  define BUFFSIZE		1024
@@ -39,13 +40,14 @@
 #  define _DEBUG_NBWORKER	2
 
 #  define _RIGHT		S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
+#  define _BEGINMSG		"[" << _pid << ":" << _id << "] - "
 
-typedef struct sockaddr_un	t_sockaddr_un;
-typedef struct sockaddr		t_sockaddr;
-
+typedef struct sockaddr_un			t_sockaddr_un;
+typedef struct sockaddr				t_sockaddr;
+typedef std::pair<int, Network::SockType>	t_fd;
+typedef zia::api::ImplSocket		t_implSocket;
 # endif /* !__STREAMPROTO_ */
 
-# define _BEGINMSG		"[" << _pid << ":" << _id << "] - "
 
 class			Worker
 {
@@ -61,11 +63,14 @@ public:
   void			loop();
   void			sendToClient(char *);
 
+  static void		signalHandler(int sig);
+
 protected:
   int			_id;
   int			_srvFd;
 
-  int			_cliFd;
+  t_fd			_cliFd;
+  //int			_cliFd;
   std::string		_cliReq;
 
   int			_pid;
@@ -73,6 +78,7 @@ protected:
 
   zia::Daemon		*_daemon;
   std::unique_ptr<zia::api::HttpInterpreter> _http{nullptr};
+  std::map<std::string, Network::SockType>	_convert;
 };
 
 

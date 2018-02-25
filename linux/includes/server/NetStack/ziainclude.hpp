@@ -5,11 +5,14 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:45:06 2017 Quentin Albertone
-// Last update Tue Feb 20 12:14:01 2018 Jérémy Koehler
+// Last update Sun Feb 25 22:24:42 2018 Quentin Albertone
 //
 
 #ifndef ZIAINCLUDE_HPP_
 # define  ZIAINCLUDE_HPP_
+
+// API
+# include "../api/net.h"
 
 // Common
 # include <iostream>
@@ -20,7 +23,7 @@
 # include <string>
 # include <unistd.h>
 
-// include for Socket
+// Socket
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netdb.h>
@@ -30,6 +33,7 @@
 // poll
 # include <poll.h>
 
+# include  "daemon.hpp"
 
 # define TCP			0
 

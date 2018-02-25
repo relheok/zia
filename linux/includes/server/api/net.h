@@ -21,7 +21,7 @@ namespace zia::api {
     * Struct identifying socket (implementation-defined).
     */
     struct ImplSocket {
-      int 					s;
+      int 					cliFd;
     };
 
     /**

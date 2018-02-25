@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:41:38 2017 Quentin Albertone
-// Last update Sat Feb 24 00:26:14 2018 Quentin Albertone
+// Last update Sun Feb 25 19:50:44 2018 Quentin Albertone
 //
 
 #ifndef NETWORK_HPP_
@@ -16,15 +16,17 @@
 # include "Request.hpp"
 # include "Balancer.hpp"
 
+class RequestList;
+
 namespace	Network
 {
   class		Socket
   {
   public:
-    Socket(int port);
-    Socket(Socket const &socket);
+    Socket(int, SockType);
+    Socket(Socket const &);
     ~Socket();
-    Socket		&operator=(Socket const &socket);
+    Socket		&operator=(Socket const &);
 
     // Socket
     int				getFd() const;
@@ -32,6 +34,7 @@ namespace	Network
     t_sockaddr_in		*getSock();
     socklen_t			getSize() const;
     RequestList			&getRequest();
+    Network::SockType		getSockType() const;
     // Client
     std::vector<t_pollfd>	getClientFds();
 
@@ -42,6 +45,7 @@ namespace	Network
   private:
     int				_fd;
     int				_port;
+    SockType			_type;
     t_sockaddr_in		_sock;
     socklen_t			_size;
 

@@ -4,12 +4,12 @@ if (WIN32)
 # Notre projet zia
 project(zia)
 
-# Fichier à compiler
+# Fichier ï¿½ compiler
 set(SRCS
     windows/main.cpp
     )
 
-# Notre exécutable
+# Notre exï¿½cutable
 add_executable(zia ${SRCS})
 
 endif (WIN32)
@@ -35,5 +35,10 @@ add_custom_target(re_zia
                   COMMAND make re
                   WORKING_DIRECTORY linux/
   )
+
+add_custom_target(test_zia
+                  COMMAND make test
+                  WORKING_DIRECTORY linux/
+)
 
 endif(UNIX)

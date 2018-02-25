@@ -28,7 +28,6 @@ LDFLAGS	+= -shared
 
 SRCS	= SSLModule.cpp
 
-
 SRCSPHP = phpcpp.cpp \
 	functions_php.cpp \
 

@@ -18,6 +18,10 @@ Balancer::Balancer()
   createWorker();
   acceptWorker();
   _daemon->getModuleManager()->getModules();
+  _convert =  {
+    { Network::SockType::SSL, "SSL" },
+    { Network::SockType::PLAIN, "PLAIN" },
+  };
 }
 
 Balancer::~Balancer()
@@ -104,11 +108,11 @@ void			Balancer::acceptWorker()
 //     printf("\tWorker id: %d - fd: %d\n", it->first, it->second);
 // }
 
-int			Balancer::sendToWorker(int workerFd, int clientFd)
+int			Balancer::sendToWorker(int workerFd, std::pair<Client *, Network::SockType> client)
 {
   struct msghdr		msg;
-  char			buff[CMSG_SPACE(sizeof(clientFd))];
-  struct iovec  	iov = {.iov_base = ((char *)"zia"), .iov_len = 3};
+  char			buff[CMSG_SPACE(sizeof(client.first->getFd()))];
+  struct iovec  	iov = {.iov_base = ((char *)((_convert[client.second]).c_str())), .iov_len = 5};
 
   memset(&msg, 0, sizeof(struct msghdr));
   memset(buff, 0, sizeof(buff));
@@ -120,9 +124,9 @@ int			Balancer::sendToWorker(int workerFd, int clientFd)
   struct cmsghdr	*cmsg = CMSG_FIRSTHDR(&msg);
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  cmsg->cmsg_len = CMSG_LEN(sizeof(clientFd));
+  cmsg->cmsg_len = CMSG_LEN(sizeof(client.first->getFd()));
 
-  *(int*) CMSG_DATA(cmsg) = clientFd;
+  *(int*) CMSG_DATA(cmsg) = client.first->getFd();
 
   msg.msg_controllen = cmsg->cmsg_len;
 
@@ -131,7 +135,9 @@ int			Balancer::sendToWorker(int workerFd, int clientFd)
       zia::Logger::getInstance().error("[BALANCER] - Failed communicate with worker: " + std::to_string(workerFd));
       return (-1); //printf("Failed communicate with worker:%2d\n", workerFd));
     }
-  zia::Logger::getInstance().info("[BALANCER] - Send fd: " + std::to_string(clientFd) + " to worker: " + std::to_string(workerFd));
+  zia::Logger::getInstance().info("[BALANCER] - Send fd: " + std::to_string(client.first->getFd()) +
+				  " of type " + std::string((char *)iov.iov_base) +
+				  " to worker: " + std::to_string(workerFd));
   //printf("Send fd:%d to worker:%d\n", clientFd, workerFd);
   usleep(100);
   // while (read(clientFd, buff, sizeof(clientFd)) == sizeof(clientFd))
@@ -149,7 +155,7 @@ int			Balancer::balancer(RequestList &req)
   err = 0;
   i = -1;
   while (req.getSize() > 0)
-    if (sendToWorker(_worker[++i % _nbWorker], req.popFrontFd()) != 0)
+    if (sendToWorker(_worker[++i % _nbWorker], req.popFrontReq()) != 0)
       err = -1;
   return (err);
 }

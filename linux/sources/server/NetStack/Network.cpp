@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 14:46:06 2017 Quentin Albertone
-// Last update Sun Feb 25 14:16:39 2018 Jérémy Koehler
+// Last update Sun Feb 25 19:50:26 2018 Quentin Albertone
 //
 
 #include "Network.hpp"
@@ -15,8 +15,9 @@
 //			Coplien form			      //
 // ---------------------------- ----------------------------  //
 
-Network::Socket::Socket(int port)
+Network::Socket::Socket(int port, Network::SockType type)
   : _port(port)
+  , _type(type)
 {
   int		use = 0;
 
@@ -57,6 +58,7 @@ Network::Socket::Socket(int port)
 Network::Socket::Socket(Network::Socket const &socket)
   : _fd(socket._fd)
   , _port(socket._port)
+  , _type(socket._type)
   , _sock(socket._sock)
   , _size(socket._size)
 {
@@ -74,6 +76,7 @@ Network::Socket		&Network::Socket::operator=(Network::Socket const &other)
 {
   if (&other != this)
     {
+      _type = other._type;
       _fd = other._fd;
       _port = other._port;
       _sock = other._sock;
@@ -120,6 +123,11 @@ std::vector<t_pollfd>	Network::Socket::getClientFds()
 RequestList		&Network::Socket::getRequest()
 {
   return (_req);
+}
+
+Network::SockType	Network::Socket::getSockType() const
+{
+  return (_type);
 }
 
 // ---------------------------- ----------------------------  //
@@ -175,9 +183,9 @@ void			Network::Socket::loop()
 		{
 
 		  zia::Logger::getInstance().info("[NETWORK] - New input from : " + std::to_string(clientIt->first));
-		  _req.setRequest(clientIt->second);
+		  _req.setRequest(clientIt->second, _type);
 		  // TODO:
-		  it->revents = 0;
+		  //it->revents = 0;
 		}
 	      // Disconnect user with matters
 	      if (disconnect)

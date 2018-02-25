@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Wed Nov  8 17:52:26 2017 Quentin Albertone
-// Last update Sat Feb 24 00:25:13 2018 Quentin Albertone
+// Last update Sun Feb 25 20:53:02 2018 Quentin Albertone
 //
 
 //#include <utility>
@@ -35,9 +35,9 @@ RequestList		&RequestList::operator=(RequestList &req)
 
 // ------------------------------------------------------------------------------------------------ //
 
-void					RequestList::setRequest(Client *client)
+void					RequestList::setRequest(Client *client, Network::SockType type)
 {
-  _request.push_back(client);
+  _request.push_back(std::make_pair(client, type));
 }
 
 RequestList				&RequestList::operator+(RequestList const &list)
@@ -51,21 +51,21 @@ int					RequestList::getSize()
   return (_request.size());
 }
 
-int					RequestList::popFrontFd()
+std::pair<Client *, Network::SockType>		RequestList::popFrontReq()
 {
-  int					fd;
+  std::pair<Client *, Network::SockType>	req;
 
   if (_request.size() < 1)
     {
       zia::Logger::getInstance().error("[REQUESTSTACK] - invalide size of list");
-      return (-1);
+      return (req);
     }
-  fd = _request.front()->getFd();
+  req = _request.front();
   _request.pop_front();
-  return (fd);
+  return (req);
 }
 
-std::list<Client *>		RequestList::getRequestList()
+std::list<std::pair<Client *, Network::SockType>>		RequestList::getRequestList()
 {
   return (_request);
 }
