@@ -135,10 +135,11 @@ char    **zia::api::cppModule::getEnv(HttpDuplex &http, std::string const &url) 
 
 char                      **zia::api::cppModule::getArgs(std::string &url, std::string &args) {
   std::vector<std::string> v = split(args, "&");
-  char      **argv = new char*[v.size() + 2];
-  int       i = 1;
+  char      **argv = new char*[v.size() + 3];
+  int       i = 2;
 
-  argv[0] = strdup(url.c_str());
+  argv[0] = strdup("-f");
+  argv[1] = strdup(url.c_str());
   if (!v.empty()) {
     for (auto it = v.begin(); it != v.end(); ++it) {
       argv[i] = strdup(it->c_str());
