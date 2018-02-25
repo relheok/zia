@@ -29,7 +29,7 @@ namespace zia::api {
     * Interpret the request [request]
     * \return the formatted HTTP Response
     */
-    std::string         interpret(std::string const &request);
+    std::string         interpret(std::string const &request, size_t sock);
 
     /**
     * Create a default HttpResponse with [status] and [reason] (has to be format with this._parser.parse(HttpResponse))

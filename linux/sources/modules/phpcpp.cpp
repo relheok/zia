@@ -100,6 +100,8 @@ bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &ur
       http.resp.body = stringToRaw(removeHeaders(totalStr));
       http.resp.headers["Content-Type"] = "text/html; charset=UTF-8";
       http.resp.headers["Content-Length"] = std::to_string(http.resp.body.size());
+      if (http.req.method == zia::api::http::Method::head)
+        http.resp.body.clear();
       wait(NULL);
     }
     return (true);

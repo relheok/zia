@@ -54,18 +54,20 @@ namespace zia::api {
 
   HttpInterpreter::~HttpInterpreter() {}
 
-  std::string           HttpInterpreter::interpret(std::string const &request) {
+  std::string           HttpInterpreter::interpret(std::string const &request, size_t sock) {
     struct HttpDuplex   duplex;
-    bool                ssl = false;
+    bool                ssl = (request.compare("") == 0);
 
     try {
-      if (request.compare("") == 0)
-        throw BadRequestError("empty request");
+      duplex.info.port = sock;
       duplex.raw_req = Utils::stringToRaw(request);
-      /* If SSL Module, try to decode the request */
-      if (_modules.size() > 0 && _modules.front().priority == 0)
-        if (_modules.front().module->exec(duplex))
-          ssl = true;
+      if (ssl) {
+        if (_modules.size() > 0 && _modules.front().priority == 0) {
+          if (!_modules.front().module->exec(duplex))
+            throw BadRequestError("SSL Module failed");
+        } else
+          throw BadRequestError("No SSL Module");
+      }
       duplex.req = _parser.parse(Utils::rawToString(duplex.raw_req));
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
       duplex.raw_req = Utils::stringToRaw(getRootFromHost(duplex.req.headers) + duplex.req.uri);
@@ -121,9 +123,12 @@ namespace zia::api {
     }
     duplex.raw_resp = Utils::stringToRaw(_parser.parse(duplex.resp));
     /* If SSL Module, encode the response */
-    if (ssl)
+    if (ssl) {
       if (!_modules.front().module->exec(duplex))
         return _parser.parse(getDefaultResponse(duplex.req, http::common_status::internal_server_error, "Internal Server Error"));
+      else
+        return "";
+    }
     _logger.info(Utils::rawToString(duplex.raw_resp));
     return Utils::rawToString(duplex.raw_resp);
   }

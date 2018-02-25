@@ -158,7 +158,6 @@ void			Worker::handleRequestFromClient()
 void			Worker::loop()
 {
   std::string		resp;
-  t_implSocket		o;
 
     while (_daemon->isAlive())
     {
@@ -169,8 +168,7 @@ void			Worker::loop()
 					  + std::to_string(_cliFd.first) + " of type "
 					  + ((_cliFd.second == Network::SockType::SSL) ? "SSL" : "PLAIN"));
       	  handleRequestFromClient();
-	  o.cliFd = _cliFd.first;
-      	  resp = _http.get()->interpret(_cliReq);
+      	  resp = _http.get()->interpret(_cliReq, _cliFd.first);
 	  if (_cliFd.second == Network::SockType::PLAIN)
 	    {
 	      if (send(_cliFd.first, resp.c_str(), resp.size(), 0) < 0)

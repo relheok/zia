@@ -33,8 +33,9 @@ namespace zia::api {
     request.method = getMethod(line[0]);
     request.uri = line[1];
     try {
-      if (line[1].size() > static_cast<unsigned long long>(std::get<long long>(_conf["max_uri_size"].v)))
-        throw RequestUriTooLargeError();
+      if (_conf.find("max_uri_size") != _conf.end())
+        if (line[1].size() > static_cast<unsigned long long>(std::get<long long>(_conf["max_uri_size"].v)))
+          throw RequestUriTooLargeError();
     } catch (std::bad_variant_access &) {
       _logger.error("HttpParser : invalid variant access");
     }
