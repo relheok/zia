@@ -22,6 +22,8 @@ namespace zia::api {
     virtual bool  exec(HttpDuplex& http);
 
     Net::Raw    stringToRaw(std::string const &str);
+    std::string rawToString(zia::api::Net::Raw const &r);
+    std::vector<std::string> split(std::string const &str, std::string const &delimiters);
 
     virtual unsigned int getPriority() const { return 1; }
   private:
