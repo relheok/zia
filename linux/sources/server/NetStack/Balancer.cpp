@@ -138,24 +138,21 @@ int			Balancer::sendToWorker(int workerFd, std::pair<Client *, Network::SockType
   zia::Logger::getInstance().info("[BALANCER] - Send fd: " + std::to_string(client.first->getFd()) +
 				  " of type " + std::string((char *)iov.iov_base) +
 				  " to worker: " + std::to_string(workerFd));
-  //printf("Send fd:%d to worker:%d\n", clientFd, workerFd);
   usleep(100);
-  // while (read(clientFd, buff, sizeof(clientFd)) == sizeof(clientFd))
-  //   {
-  //     printf("%s\n", buff);
-  //   }
   return (0);
 }
 
 int			Balancer::balancer(RequestList &req)
 {
-  int			i;
   int			err;
+  std::pair<Client *, Network::SockType> client;
 
   err = 0;
-  i = -1;
   while (req.getSize() > 0)
-    if (sendToWorker(_worker[++i % _nbWorker], req.popFrontReq()) != 0)
-      err = -1;
+    {
+      client = req.popFrontReq();
+      if (sendToWorker(_worker[client.first->getFd() % _nbWorker], client) != 0)
+	err = -1;
+    }
   return (err);
 }
