@@ -11,9 +11,14 @@
   E-mail: <input type="text" name="email"><br>
   <input type="submit">
 </form>
-<?php $name = $_POST['name'];
-      $email = $_POST['email'];
-      echo $name;
-      echo $email;
+<?php
+  if (isset($_POST['test1']))
+    echo $_POST['test1'];
+  if (isset($_POST['test2']))
+    echo $_POST['test2'];
+  if (isset($_GET['toto']))
+    echo $_GET['toto'];
+  if (isset($_GET['foo']))
+    echo $_GET['foo'];
   ?>
 </body></html>
