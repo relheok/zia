@@ -5,12 +5,13 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:04:17 2018 Jérémy Koehler
-// Last update Sat Feb 24 18:36:03 2018 Jérémy Koehler
+// Last update Sun Feb 25 02:11:22 2018 Jérémy Koehler
 //
 
 #include "daemon.hpp"
 
 zia::Daemon::~Daemon() {
+  remove(_fileName.c_str());
   for (int x = sysconf(_SC_OPEN_MAX); x >= 0; --x)
     close(x);
 }
@@ -22,25 +23,39 @@ zia::Daemon		&zia::Daemon::getInstance(std::string file) {
 }
 
 void	zia::Daemon::sendSignal(std::string signal) {
-  if (signal == "stop" || signal == "STOP"
-      || signal == "quit" || signal == "QUIT")
+  std::map<std::string, int> signals = {
+    {"stop", SIGINT},
+    {"quit", SIGQUIT},
+    {"restart", SIGHUP},
+    {"reload", SIGUSR1},
+  };
+  auto it = signals.find(signal);
+
+  if (it != signals.end())
     {
-      if (killProcess(SIGINT) == false)
-	std::cerr << "Failed to kill process" << std::endl;
-    }
-  else if (signal == "reload" || signal == "RELOAD")
-    {
-      if (killProcess(SIGUSR1) == false)
-	std::cerr << "Failed to reload conf" << std::endl;
+      if (killProcess(it->second) == false)
+	std::cerr << "Failed to send signal " << signal << std::endl;
     }
   else
+    std::cerr << "Invalid signal " << signal << std::endl;
+  if (signal == "restart")
     {
-      std::cerr << "Invalid signal " << signal << std::endl;
+      int i = -1;
+
+      std::cout << "Shutting down master process. It could take a while, please wait for a moment." << std::endl;
+      while (fileExist("/run/zia.pid"))
+	if (++i < 100)
+	  break ;
+      if (i == 100 && killProcess(SIGINT) == false) {
+	std::cerr << "Failed to send signal " << signal << std::endl;
+	return ;
+      }
+      while (fileExist("/run/zia.pid"));
+      usleep(100);
     }
 }
 
 void	zia::Daemon::stop() {
-  remove(_fileName.c_str());
   _killed = false;
   Logger::getInstance().info("[ZIA] shutting down");
 }
@@ -75,21 +90,20 @@ zia::Daemon::Daemon(std::string file):
   signal(SIGCHLD, SIG_IGN);
   signal(SIGPIPE, SIG_IGN);
 
-  /* shutdown signals */
-  signal(SIGTERM, zia::Daemon::shutdownSignal);
-  signal(SIGINT, zia::Daemon::shutdownSignal);
-  signal(SIGQUIT, zia::Daemon::shutdownSignal);
-  signal(SIGKILL, zia::Daemon::shutdownSignal);
+  /* shutdown */
+  signal(SIGTERM, zia::Daemon::quickShutdownSignal);
+  signal(SIGINT, zia::Daemon::quickShutdownSignal);
+  signal(SIGKILL, zia::Daemon::quickShutdownSignal);
+  signal(SIGQUIT, zia::Daemon::gracefullShutdownSignal);
 
-  /* As the other daemons: reload config file */
-  signal(SIGHUP, zia::Daemon::shutdownSignal);
+  /* restart */
+  signal(SIGHUP, zia::Daemon::gracefullShutdownSignal);
 
-  /* do smth */
+  /* relaod conf */
   signal(SIGUSR1, zia::Daemon::reloadSignal);
   signal(SIGUSR2, zia::Daemon::reloadSignal);
 
-  struct stat info;
-  if (stat(_fileName.c_str(), &info) != 0)
+  if (!fileExist(_fileName))
     {
       std::ofstream test(_fileName);
 
@@ -97,6 +111,8 @@ zia::Daemon::Daemon(std::string file):
 	std::cerr << "Can not open file " << file << ": Permission denied" << std::endl;
 	exit(2);
       };
+      test.close();
+      std::cout << "Starting a new session" << std::endl;
       daemonize();
     }
   else
@@ -106,16 +122,15 @@ zia::Daemon::Daemon(std::string file):
     }
 }
 
+bool	zia::Daemon::fileExist(std::string file) {
+  struct stat info;
+  return (stat(file.c_str(), &info) == 0);
+}
+
 void	zia::Daemon::daemonize() {
   /* Fork off the parent process */
   zia::Daemon::closeParent();
   writePid();
-
-  /* Set new file permissions */
-  // umask(0);
-
-  /* Change the working directory to the appropriated directory */
-  // chdir("/");
 
   /* Close all open file descriptors */
   for (int x = sysconf(_SC_OPEN_MAX); x >= 0; --x)
@@ -157,10 +172,17 @@ bool		zia::Daemon::killProcess(int signal) {
   return false;
 }
 
-// signal handlers
-void	zia::Daemon::shutdownSignal(__attribute__((unused))int sig) {
+  // signal handlers
+void	zia::Daemon::quickShutdownSignal(__attribute__((unused))int sig) {
+  zia::Logger::getInstance().info("Quick shut down");
+  zia::Daemon::getInstance().~Daemon();
+  std::exit(0);
+}
+
+void	zia::Daemon::gracefullShutdownSignal(__attribute__((unused))int sig) {
   zia::Daemon::getInstance().stop();
 }
+
 
 void	zia::Daemon::reloadSignal(__attribute__((unused))int sig) {
   zia::Daemon::getInstance().updateConf();

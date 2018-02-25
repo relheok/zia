@@ -11,7 +11,7 @@ backup=()
 source=('zia' 'zia.service' 'zia.8.gz')
 sha256sums=(SKIP
 '736925b39f5854a27fcd526d4103aeedd6a3b2ffd3adfd4b5d8ad6052ce6dfd6'
-'ca20d766a3be5b846b2c77ef619649ad7baf2285505c008d66ef65a0a8616f39')
+'75006110e4d8245278633e2b1ac5a7613187fdc2757329b7c023cc44f8ffe534')
 
 package() {
   # mkdir -p -m 750 "$pkgdir"/var/lib/zia

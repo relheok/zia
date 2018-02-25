@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Sun Nov  5 16:42:43 2017 Quentin Albertone
-// Last update Sat Feb 24 00:26:43 2018 Quentin Albertone
+// Last update Sun Feb 25 02:13:21 2018 Jérémy Koehler
 //
 
 #include "main.hpp"
@@ -24,7 +24,8 @@ void		usage(std::string execName)
   std::cout << "Options:" << std::endl;
   std::cout << "  -c, --config=file   set configuration file (default: /etc/zia/zia.json)" << std::endl;
   std::cout << "  -r, --reload        reload the configuration file" << std::endl;
-  std::cout << "  -s, --signal=sig    send signal sig to the master process: stop, quit, reload" << std::endl;
+  std::cout << "  -s, --signal=sig    send signal sig to the master process:" << std::endl;
+  std::cout << "                        stop, quit, restart, reload" << std::endl;
   std::cout << "  -h, --help          display this help and exit" << std::endl;
 }
 
@@ -89,7 +90,9 @@ int		main(int argc, char **argv)
 	  return (0);
 	case 's':
 	  zia::Daemon::sendSignal(optarg);
-	  return (0);
+	  if (std::string(optarg) != "restart")
+	    return (0);
+	  break;
 	case 'h':
 	  usage(argv[0]);
 	  return (0);
