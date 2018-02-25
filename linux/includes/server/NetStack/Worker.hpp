@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:59 2018 Quentin Albertone
-// Last update Sun Feb 25 22:34:40 2018 Quentin Albertone
+// Last update Sun Feb 25 23:02:41 2018 Quentin Albertone
 //
 
 #ifndef WORKER_HPP_
@@ -45,7 +45,6 @@
 typedef struct sockaddr_un			t_sockaddr_un;
 typedef struct sockaddr				t_sockaddr;
 typedef std::pair<int, Network::SockType>	t_fd;
-typedef zia::api::ImplSocket		t_implSocket;
 # endif /* !__STREAMPROTO_ */
 
 
@@ -70,7 +69,6 @@ protected:
   int			_srvFd;
 
   t_fd			_cliFd;
-  //int			_cliFd;
   std::string		_cliReq;
 
   int			_pid;

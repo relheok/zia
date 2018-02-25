@@ -28,17 +28,6 @@ void		usage(std::string execName)
   std::cout << "  -h, --help          display this help and exit" << std::endl;
 }
 
-int	getPortFromConf(zia::api::ConfigManager *p,
-			const char *key,
-			const int default_port)
-{
-  try {
-    return std::get<long long>(p->getConf()[key].v);
-  } catch (std::exception &e) {
-    return default_port;
-  }
-}
-
 int		process(std::string confPath)
 {
   try {
@@ -49,10 +38,8 @@ int		process(std::string confPath)
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
 
-    //Network::Socket	inet_http(getPortFromConf(p.get(), "port", 80));
-    Network::Socket	inet_http(getPortFromConf(p.get(), "port", 801), Network::PLAIN);
-    // Network::Socket	inet_ssl(getPortFromConf(p.get(), "port_ssl", 443), NetWork::SSL);
-
+    Network::Socket	inet_http(std::get<long long>(p.get()->getConf()["port"].v), Network::PLAIN);
+    Network::Socket	inet_ssl(std::get<long long>(p.get()->getConf()["port_ssl"].v), Network::SSL);
 
     std::map<std::string, std::string> map = p.get()->getRoots();
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
@@ -64,7 +51,9 @@ int		process(std::string confPath)
 
     while (daemon.isAlive()) {
       inet_http.loop();
+      inet_ssl.loop();
       pipe.balancer(inet_http.getRequest());
+      pipe.balancer(inet_ssl.getRequest());
       sleep(3);
     }
   } catch (std::exception &e) {

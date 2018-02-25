@@ -5,7 +5,7 @@
 // Login   <albert_q@epitech.net>
 //
 // Started on  Tue Feb  6 11:03:49 2018 Quentin Albertone
-// Last update Sun Feb 25 22:39:52 2018 Quentin Albertone
+// Last update Sun Feb 25 23:20:11 2018 Quentin Albertone
 //
 
 #include "Worker.hpp"
@@ -24,7 +24,7 @@ Worker::Worker(int id, zia::Daemon *daemon)
   conf->getConf();
   manager->getModules();
 
-  _http.reset(new zia::api::HttpInterpreter(conf->getConf(), std::map<std::string, std::string>{{"localhost", "."}}, manager->getModules()));
+  _http.reset(new zia::api::HttpInterpreter(conf->getConf(), conf->getRoots(), manager->getModules()));
 
   sleep(1);
   zia::Logger::getInstance().info("[" + std::to_string(_pid) + ":" + std::to_string(_id) + "] - Created end");
