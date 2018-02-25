@@ -29,5 +29,6 @@ namespace zia::api {
       std::string printBody(Net::Raw const &body) const;
       std::string printVersion(http::Version v) const ;
       std::string printMethod(http::Method m) const;
+      std::string   rawToString(zia::api::Net::Raw const &r);
   };
 }

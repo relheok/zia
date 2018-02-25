@@ -36,12 +36,7 @@ namespace zia::api {
 
     file.open(_path, std::fstream::in | std::fstream::out | std::fstream::app);
     file << "Time : " << std::put_time(std::localtime(&now_c), "%c") << '\n';
-    file << "Request : " << printVersion(http.req.version) << '\n' <<
-                            printMethod(http.req.method) << " " <<
-                            printBody(http.req.body) << '\n';
-    file << "Response : " << http.resp.status << '\n' <<
-                             printVersion(http.req.version) << '\n' <<
-                             printBody(http.resp.body) << '\n';
+    file << "Request : " << rawToString(http.raw_req) << '\n';
     file.close();
     return true;
   }
@@ -90,5 +85,13 @@ namespace zia::api {
       default:
         return "unknown";
     }
+  }
+
+  std::string LogModule::rawToString(zia::api::Net::Raw const &r) {
+    std::string str;
+
+    for (auto it = r.begin(); it != r.end(); it++)
+      str += (char)*it;
+    return str;
   }
 }
