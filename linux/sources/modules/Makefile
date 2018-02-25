@@ -5,7 +5,7 @@
 ## Login   <maxime.maisonnas@epitech.eu>
 ##
 ## Started on  Mon Mar  6 11:20:32 2017 Maxime Maisonnas
-## Last update Mon Apr  3 21:38:13 2017 Maxime Maisonnas
+## Last update Sun Feb 25 01:31:13 2018 Quentin Albertone
 ##
 
 NAME	= libssl_module.so
@@ -47,10 +47,10 @@ $(NAME): $(OBJS) $(OBJSLOG)
 ##	$(CC) $(OBJSPHP) -o $(NAMEPHP) $(LDFLAGS)
 
 clean:
-	@$(RM) $(OBJS) $(OBJSPHP)
+	@$(RM) $(OBJS) $(OBJSPHP) $(OBJLOGS)
 
 fclean: clean
-	@$(RM) $(NAME) $(NAMEPHP)
+	@$(RM) $(NAME) $(NAMEPHP) $(NAMELOG)
 
 re: fclean all
 
