@@ -5,7 +5,7 @@
 // Login   <koehle_j@epitech.net>
 //
 // Started on  Tue Jan  9 10:04:17 2018 Jérémy Koehler
-// Last update Sun Feb 25 02:11:22 2018 Jérémy Koehler
+// Last update Sun Feb 25 20:09:28 2018 Jérémy Koehler
 //
 
 #include "daemon.hpp"
@@ -85,6 +85,11 @@ void	zia::Daemon::updateConf() {
     _conf->browser_conf();
 }
 
+bool	zia::Daemon::fileExist(std::string file) {
+  struct stat info;
+  return (stat(file.c_str(), &info) == 0);
+}
+
 zia::Daemon::Daemon(std::string file):
   _killed(true), _fileName(file), _conf(NULL) {
   signal(SIGCHLD, SIG_IGN);
@@ -120,11 +125,6 @@ zia::Daemon::Daemon(std::string file):
       std::cerr << "Can not launch server: " << _fileName << " already exist." << std::endl;
       exit(2);
     }
-}
-
-bool	zia::Daemon::fileExist(std::string file) {
-  struct stat info;
-  return (stat(file.c_str(), &info) == 0);
 }
 
 void	zia::Daemon::daemonize() {

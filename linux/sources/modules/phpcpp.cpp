@@ -52,9 +52,7 @@ bool		zia::api::cppModule::exec(HttpDuplex& http) {
   std::string   url = vGet[0];
   std::string   args = "";
 
-  if (http.req.method == http::Method::post) {
-    args = rawToString(http.req.body);
-  } else if (http.req.method == http::Method::get) {
+  if (http.req.method == http::Method::get) {
     args = (vGet.size() > 1 ? vGet[1] : "");
   }
   return (execRequest(http, url, args));
@@ -62,11 +60,13 @@ bool		zia::api::cppModule::exec(HttpDuplex& http) {
 
 bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &url, std::string &args) {
   int		link[2];
+  int		linkIn[2];
   char		foo[4096 + 1];
   int		nbytes = 0;
   pid_t		pid;
-  std::string	totalStr;
+  std::string	totalStr("");
   char **tab = getArgs(url, args);
+  char **env = getEnv(http, url);
 
   if (split(url, ".").back().compare("php") == 0
     || split(url, ".").back().compare("html") == 0
@@ -77,21 +77,29 @@ bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &ur
     if ((pid = fork()) == -1)
       return (false);
     if(pid == 0) {
+      if (pipe(linkIn) == -1)
+        return false;
       dup2(link[1], STDOUT_FILENO);
+      dup2(linkIn[0], STDIN_FILENO);
+      write(linkIn[1], rawToString(http.req.body).c_str(), http.req.body.size());
       close(link[0]);
       close(link[1]);
-      execv("/usr/bin/php-cgi", tab);
+      close(linkIn[0]);
+      close(linkIn[1]);
+      execve("/usr/bin/php-cgi", tab, env);
       exit(0);
     } else {
       close(link[1]);
-      freeArgs(tab);
+      freeTab(tab);
+      freeTab(env);
       while(0 != (nbytes = read(link[0], foo, sizeof(foo)))) {
+        foo[nbytes] = '\0';
       	totalStr = totalStr + foo;
-      	http.resp.body = stringToRaw(foo);
-      	http.resp.headers["Content-Type"] = "text/html; charset=UTF-8";
-      	http.resp.headers["Content-Length"] = std::to_string(http.resp.body.size());
       	memset(foo, 0, 4096);
       }
+      http.resp.body = stringToRaw(removeHeaders(totalStr));
+      http.resp.headers["Content-Type"] = "text/html; charset=UTF-8";
+      http.resp.headers["Content-Length"] = std::to_string(http.resp.body.size());
       wait(NULL);
     }
     return (true);
@@ -99,13 +107,38 @@ bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &ur
   return true;
 }
 
+std::string   zia::api::cppModule::removeHeaders(std::string const &str) {
+  size_t      pos;
+
+  pos = str.find("\r\n\r\n");
+  if (pos == std::string::npos)
+    return str;
+  return str.substr(pos + 4);
+}
+
+char    **zia::api::cppModule::getEnv(HttpDuplex &http, std::string const &url) {
+  char  **env = NULL;
+
+  if (http.req.method == zia::api::http::Method::post && http.req.body.size() != 0
+    && http.req.headers.find("Content-Type") != http.req.headers.end()
+    && http.req.headers.find("Content-Length") != http.req.headers.end()) {
+    env = new char*[6];
+    env[0] = strdup("REQUEST_METHOD=POST");
+    env[1] = strdup(std::string("CONTENT_LENGTH=" + http.req.headers["Content-Length"]).c_str());
+    env[2] = strdup(std::string("CONTENT_TYPE=" + http.req.headers["Content-Type"]).c_str());
+    env[3] = strdup("REDIRECT_STATUS=true");
+    env[4] = strdup(std::string("SCRIPT_FILENAME=" + url).c_str());
+    env[5] = NULL;
+  }
+  return env;
+}
+
 char                      **zia::api::cppModule::getArgs(std::string &url, std::string &args) {
   std::vector<std::string> v = split(args, "&");
-  char      **argv = new char*[v.size() + 3];
-  int       i = 2;
+  char      **argv = new char*[v.size() + 2];
+  int       i = 1;
 
-  argv[0] = strdup("-q");
-  argv[1] = strdup(url.c_str());
+  argv[0] = strdup(url.c_str());
   if (!v.empty()) {
     for (auto it = v.begin(); it != v.end(); ++it) {
       argv[i] = strdup(it->c_str());
@@ -116,9 +149,11 @@ char                      **zia::api::cppModule::getArgs(std::string &url, std::
   return argv;
 }
 
-void        zia::api::cppModule::freeArgs(char **tab) {
+void        zia::api::cppModule::freeTab(char **tab) {
   int       i = 0;
 
+  if (!tab)
+    return ;
   while (tab[i]) {
     free(tab[i]);
     i++;

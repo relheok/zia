@@ -124,6 +124,7 @@ namespace zia::api {
     if (ssl)
       if (!_modules.front().module->exec(duplex))
         return _parser.parse(getDefaultResponse(duplex.req, http::common_status::internal_server_error, "Internal Server Error"));
+    _logger.info(Utils::rawToString(duplex.raw_resp));
     return Utils::rawToString(duplex.raw_resp);
   }
 
