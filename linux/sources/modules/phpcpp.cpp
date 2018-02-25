@@ -1,6 +1,9 @@
 #include "phpcpp.hpp"
 #include <unistd.h>
+#include <sys/wait.h>
 #include <cstring>
+#include <sstream>
+#include "getpost.hpp"
 
 extern "C" {
   zia::api::cppModule *create() {
@@ -8,9 +11,7 @@ extern "C" {
   }
 }
 
-zia::api::cppModule::cppModule() {
-  initComponent();
-}
+zia::api::cppModule::cppModule() {}
 
 zia::api::cppModule::cppModule(const zia::api::cppModule &copy) {
   (void)copy;
@@ -23,49 +24,106 @@ zia::api::cppModule &zia::api::cppModule::operator=(const zia::api::cppModule &c
 
 zia::api::cppModule::~cppModule() {}
 
-bool  zia::api::cppModule::initComponent() {
-  char				**sysCline = NULL;
-  char				**sysEnv = NULL;
-  std::string			sData = "var_1=val_1&var_2=val_2";
-  std::vector<std::string>	aEnv;
-  std::vector<std::string>	aArgs;
-
-  aArgs.push_back("/usr/bin/php-cgi");
-  aArgs.push_back("/test.php");
-
-  aEnv.push_back("GATEWAY_INTERFACE=CGI/1.1");
-  aEnv.push_back("SERVER_PROTOCOL=HTTP/1.1");
-  aEnv.push_back("QUERY_STRING=test=querystring");
-  aEnv.push_back("REDIRECT_STATUS=200");
-  aEnv.push_back("REQUEST_METHOD=POST");
-  aEnv.push_back("CONTENT_TYPE=application/x-www-form-urlencoded;charset=utf-8");
-  aEnv.push_back("SCRIPT_FILENAME=/test.php");
-  aEnv.push_back("CONTENT_LENGTH="+ std::to_string(sData.length()) );
-
-  sysCline = new char*[aArgs.size() + 1];
-  for (size_t i = 0; i < aArgs.size(); i++) {
-    sysCline[i] = new char[aArgs[i].size()+1];
-    strncpy(sysCline[i], aArgs[i].c_str(), aArgs[i].size()+1);
-  }
-  sysCline[aArgs.size()] = NULL;
-
-  sysEnv = new char*[aEnv.size() + 1];
-  for (size_t i = 0; i < aEnv.size(); i++) {
-    sysEnv[i] = new char[aEnv[i].size()+1];
-    strncpy(sysEnv[i], aEnv[i].c_str(), aEnv[i].size() + 1);
-  }
-  sysEnv[aEnv.size()] = NULL;
-  execve(sysCline[0], sysCline, sysEnv);
-  return (true);
-}
-
 bool	zia::api::cppModule::config(const Conf& conf) {
-  std::cerr << "Config PHP Module" << '\n';
-  (void)conf;
-  return (true);
+  auto it = conf.find("PHP");
+  if (it != conf.end())
+    return (true);
+  return (false);
 }
 
-bool	zia::api::cppModule::exec(HttpDuplex& http) {
-  (void)http;
-  return (true);
+std::string   zia::api::cppModule::rawToString(zia::api::Net::Raw const &r) {
+  std::string str;
+
+  for (auto it = r.begin(); it != r.end(); it++)
+    str += (char)*it;
+  return str;
+}
+
+zia::api::Net::Raw      zia::api::cppModule::stringToRaw(std::string const &str) {
+  zia::api::Net::Raw    r;
+
+  for (auto it = str.begin(); it != str.end(); it++)
+    r.push_back(std::byte(*it));
+  return r;
+}
+
+bool		zia::api::cppModule::exec(HttpDuplex& http) {
+  std::vector<std::string> vGet = split(rawToString(http.raw_req), "?");
+  std::string   url = vGet[0];
+  std::string   args = "";
+
+  if (http.req.method == http::Method::post) {
+    args = rawToString(http.req.body);
+  } else if (http.req.method == http::Method::get) {
+    args = (vGet.size() > 1 ? vGet[1] : "");
+  }
+  return (execRequest(http, url, args));
+}
+
+bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &url, std::string &args) {
+  int		link[2];
+  char		foo[4096 + 1];
+  int		nbytes = 0;
+  pid_t		pid;
+  std::string	totalStr;
+
+  if (split(url, ".").back().compare("php") == 0
+    || split(url, ".").back().compare("html") == 0
+    || split(url, ".").back().compare("htm") == 0) {
+    memset(foo, 0, 4096);
+    if (pipe(link) == -1)
+      return false;
+    int i = 0;
+    if ((pid = fork()) == -1)
+      return (false);
+    if(pid == 0) {
+      dup2(link[1], STDOUT_FILENO);
+      close(link[0]);
+      close(link[1]);
+      execv("/usr/bin/php-cgi", getArgs(url, args));
+      exit(0);
+    } else {
+      close(link[1]);
+      while(0 != (nbytes = read(link[0], foo, sizeof(foo)))) {
+      	totalStr = totalStr + foo;
+      	http.resp.body = stringToRaw(foo);
+      	http.resp.headers["Content-Type"] = "text/html; charset=UTF-8";
+      	http.resp.headers["Content-Length"] = std::to_string(http.resp.body.size());
+      	memset(foo, 0, 4096);
+      }
+      wait(NULL);
+    }
+    return (true);
+  }
+}
+
+char                      **zia::api::cppModule::getArgs(std::string &url, std::string &args) {
+  std::vector<std::string> v = split(args, "&");
+  char      **argv = new char*[v.size() + 3];
+  int       i = 2;
+
+  argv[0] = strdup("-q");
+  argv[1] = strdup(url.c_str());
+  if (!v.empty()) {
+    for (auto it = v.begin(); it != v.end(); ++it) {
+      argv[i] = strdup(it->c_str());
+      i++;
+    }
+  }
+  argv[i] = NULL;
+  return argv;
+}
+
+std::vector<std::string>    zia::api::cppModule::split(std::string const &str, std::string const &delimiters) {
+  std::vector<std::string>  v;
+  char                      *tmp;
+  char                      *toFree = strdup(str.c_str());
+
+  tmp = strtok(toFree, delimiters.c_str());
+  while (tmp != NULL) {
+    v.push_back(tmp);
+    tmp = strtok(NULL, delimiters.c_str());
+  }
+  free(toFree);
+  return v;
 }

@@ -18,7 +18,7 @@ CC	= g++
 
 RM	= rm -f
 
-CXXFLAGS += -I../../includes/modules/ -I../../includes/server/api/ -I../../includes/server -W -Wall -Wextra -std=c++17 #-Werror
+CXXFLAGS += -g3 -I../../includes/modules/ -I../../includes/server/api/ -I../../includes/server -W -Wall -Wextra -std=c++17 #-Werror
 
 LDFLAGS	 += -lssl -lcrypto
 
@@ -29,7 +29,8 @@ LDFLAGS	+= -shared
 SRCS	= SSLModule.cpp
 
 
-SRCSPHP = phpcpp.cpp
+SRCSPHP = phpcpp.cpp \
+	functions_php.cpp \
 
 SRCSLOG = LogModule.cpp
 
@@ -41,10 +42,10 @@ OBJSLOG = $(SRCSLOG:.cpp=.o)
 
 all: $(NAME)
 
-$(NAME): $(OBJS) $(OBJSLOG)
+$(NAME): $(OBJS) $(OBJSLOG) $(OBJSPHP)
 	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
 	$(CC) $(OBJSLOG) -o $(NAMELOG) $(LDFLAGS)
-##	$(CC) $(OBJSPHP) -o $(NAMEPHP) $(LDFLAGS)
+	$(CC) $(OBJSPHP) -o $(NAMEPHP) $(LDFLAGS)
 
 clean:
 	@$(RM) $(OBJS) $(OBJSPHP) $(OBJLOGS)

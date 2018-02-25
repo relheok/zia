@@ -6,10 +6,10 @@
     "./sources/modules"
   ],
   "modules" : [
-    "log_module"
+    "php_module"
   ],
   "roots" : {
-    "localhost" : "/var/www"
+    "localhost" : "/home/maxoulak/work/B5/C++/cpp_zia"
   },
   "SSL" : {
     "cert" : "cert.pem",
@@ -17,5 +17,8 @@
   },
   "Log" : {
     "path" : "logFile"
+  },
+  "PHP" : {
+    "version" : "1.0"
   }
 }

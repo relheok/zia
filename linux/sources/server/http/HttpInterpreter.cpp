@@ -56,42 +56,59 @@ namespace zia::api {
 
   std::string           HttpInterpreter::interpret(std::string const &request) {
     struct HttpDuplex   duplex;
+    bool                ssl = false;
 
     try {
-      duplex.req = _parser.parse(request);
+      duplex.raw_req = Utils::stringToRaw(request);
+      /* If SSL Module, try to decode the request */
+      if (_modules.size() > 0 && _modules.front().priority == 0)
+        if (_modules.front().module->exec(duplex))
+          ssl = true;
+      duplex.req = _parser.parse(Utils::rawToString(duplex.raw_req));
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
-      for (auto it = _modules.begin(); it != _modules.end(); it++)
-        if (it->module->exec(duplex))
-          return _parser.parse(duplex.resp);
-      switch (duplex.req.method) {
-        case http::Method::get:
-          duplex.resp = get(duplex.req);
-          break;
-        case http::Method::head:
-          duplex.resp = get(duplex.req, false);
-          break;
-        case http::Method::options:
-        case http::Method::post:
-        case http::Method::put:
-        case http::Method::delete_:
-        case http::Method::trace:
-        case http::Method::connect:
-          duplex.resp = getDefaultResponse(duplex.req, http::common_status::ok, "OK");
-          break;
-        default:
-          duplex.resp = getDefaultResponse(duplex.req, http::common_status::bad_request, "Bad Request");
-          break;
+      duplex.raw_req = Utils::stringToRaw(getRootFromHost(duplex.req.headers) + duplex.req.uri);
+      for (auto it = _modules.begin(); it != _modules.end(); it++) {
+        if (it->priority != 0 && !it->module->exec(duplex)) {
+          _logger.error("Module method exec failed : " + it->name);
+          duplex.resp = getDefaultResponse(duplex.req, http::common_status::internal_server_error, "Internal Server Error");
+          break ;
+        }
+      }
+      /* If no module has set a response, try to interpret the request */
+      if (duplex.resp.body.empty()) {
+        switch (duplex.req.method) {
+          case http::Method::get:
+            duplex.resp = get(duplex.req);
+            break;
+          case http::Method::head:
+            duplex.resp = get(duplex.req, false);
+            break;
+          case http::Method::options:
+          case http::Method::post:
+          case http::Method::put:
+          case http::Method::delete_:
+          case http::Method::trace:
+          case http::Method::connect:
+            throw NotImplementedError("method isn't implemented");
+            break;
+          default:
+            throw BadRequestError("invalid method");
+            break;
+        }
       }
     } catch (BadRequestError &e) {
       _logger.error(e.what());
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::bad_request, "Bad Request");
     } catch (RequestUriTooLargeError &e) {
       _logger.error(e.what());
+    } catch (NotImplementedError &e) {
       duplex.resp = getDefaultResponse(duplex.req, http::common_status::request_uri_too_large, "Request-URI Too Long");
+      _logger.error(e.what());
+      duplex.resp = getDefaultResponse(duplex.req, http::common_status::not_implemented, "Not Implemented");
     }
     if (duplex.resp.status != http::common_status::ok && duplex.resp.body.empty()) {
       try {
-        duplex.resp.body = getBody(HtmlManager::viewError(duplex.resp.status, duplex.resp.reason, duplex.req.headers["Host"]));
+        duplex.resp.body = Utils::stringToRaw(HtmlManager::viewError(duplex.resp.status, duplex.resp.reason, duplex.req.headers["Host"]));
         duplex.resp.headers["Content-Type"] = _mimeType["html"];
         duplex.resp.headers["Content-Length"] = std::to_string(duplex.resp.body.size());
       } catch (std::exception &e) {
@@ -100,7 +117,15 @@ namespace zia::api {
         duplex.resp.reason = "Internal Server Error";
       }
     }
-    return _parser.parse(duplex.resp);
+    duplex.raw_resp = Utils::stringToRaw(_parser.parse(duplex.resp));
+    /* If SSL Module, encode the response */
+    if (ssl)
+      if (!_modules.front().module->exec(duplex))
+        return _parser.parse(getDefaultResponse(duplex.req, http::common_status::internal_server_error, "Internal Server Error"));
+    /* If method equals HEAD, delete the body response content */
+    if (duplex.req.method == http::Method::head)
+      duplex.resp.body.clear();
+    return Utils::rawToString(duplex.raw_resp);
   }
 
   struct HttpResponse   HttpInterpreter::getDefaultResponse(struct HttpRequest &req, http::Status const &status, std::string const &reason) {
@@ -131,26 +156,22 @@ namespace zia::api {
 
     try {
       std::string path = getRootFromHost(request.headers) + request.uri;
+      response = getDefaultResponse(request, http::common_status::ok, "OK");
       if (_mimeType.find(Utils::getExtension(v[0])) != _mimeType.end()) {
-        response = getDefaultResponse(request, http::common_status::ok, "OK");
-        response.body = getBody(Utils::readFile(path));
+        response.body = Utils::stringToRaw(Utils::readFile(path));
         response.headers["Content-Type"] = _mimeType[Utils::getExtension(v[0])];
         response.headers["Content-Length"] = std::to_string(response.body.size());
-        if (!body)
-          response.body.clear();
       } else if (Utils::isDirectory(path)) {
-        response = getDefaultResponse(request, http::common_status::ok, "OK");
-        response.body = getBody(HtmlManager::viewDirectory(path, request.uri));
+        response.body = Utils::stringToRaw(HtmlManager::viewDirectory(path, request.uri));
         response.headers["Content-Type"] = _mimeType["html"];
         response.headers["Content-Length"] = std::to_string(response.body.size());
-        return response;
       } else {
-        response = getDefaultResponse(request, http::common_status::ok, "OK");
-        response.body = getBody(Utils::readFile(path));
+        response.body = Utils::stringToRaw(Utils::readFile(path));
         response.headers["Content-Type"] = "text/plain ; charset=UTF-8";
         response.headers["Content-Length"] = std::to_string(response.body.size());
-        return response;
       }
+      if (!body)
+        response.body.clear();
     } catch (FileNotFound &e) {
       _logger.error(e.what());
       return getDefaultResponse(request, http::common_status::not_found, "Not found");
@@ -162,14 +183,6 @@ namespace zia::api {
       return getDefaultResponse(request, http::common_status::internal_server_error, "Internal Server Error");
     }
     return response;
-  }
-
-  Net::Raw    HttpInterpreter::getBody(std::string const &str) {
-    Net::Raw  body;
-
-    for (std::string::const_iterator it = str.begin(); it != str.end(); it++)
-      body.push_back(std::byte(*it));
-    return body;
   }
 
   std::string   HttpInterpreter::getRootFromHost(std::map<std::string, std::string> const &headers) {

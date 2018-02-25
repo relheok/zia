@@ -10,6 +10,7 @@
 # include <sys/stat.h>
 # include <unistd.h>
 # include "Error.hpp"
+# include "net.h"
 
 class Utils {
 public:
@@ -44,6 +45,18 @@ public:
   * \return : bool
   */
   static bool         isDirectory(std::string const &path);
+
+  /**
+  * Transform a Net::Raw [r] into a string
+  * \return : the string
+  */
+  static std::string  rawToString(zia::api::Net::Raw const &r);
+
+  /**
+  * Transform a string [str] into a Net::Raw
+  * \return : the Net::Raw
+  */
+  static zia::api::Net::Raw stringToRaw(std::string const &str);
 };
 
 #endif /* end of include guard: UTILS_HPP_ */

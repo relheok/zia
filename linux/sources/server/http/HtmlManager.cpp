@@ -6,7 +6,7 @@ namespace zia::api {
     DIR           *dir = opendir(path.c_str());
     struct dirent *odir = NULL;
 
-    if (!dir)
+    if (!(dir = opendir(path.c_str())))
       throw FileNotFound("file not found : " + path);
     body.replace(body.find("[path]"), 6, uri);
     if (uri[uri.size() - 1] != '/')
