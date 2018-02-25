@@ -59,6 +59,8 @@ namespace zia::api {
     bool                ssl = false;
 
     try {
+      if (request.compare("") == 0)
+        throw BadRequestError("empty request");
       duplex.raw_req = Utils::stringToRaw(request);
       /* If SSL Module, try to decode the request */
       if (_modules.size() > 0 && _modules.front().priority == 0)
@@ -122,9 +124,6 @@ namespace zia::api {
     if (ssl)
       if (!_modules.front().module->exec(duplex))
         return _parser.parse(getDefaultResponse(duplex.req, http::common_status::internal_server_error, "Internal Server Error"));
-    /* If method equals HEAD, delete the body response content */
-    if (duplex.req.method == http::Method::head)
-      duplex.resp.body.clear();
     return Utils::rawToString(duplex.raw_resp);
   }
 

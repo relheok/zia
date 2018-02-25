@@ -66,6 +66,7 @@ bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &ur
   int		nbytes = 0;
   pid_t		pid;
   std::string	totalStr;
+  char **tab = getArgs(url, args);
 
   if (split(url, ".").back().compare("php") == 0
     || split(url, ".").back().compare("html") == 0
@@ -79,10 +80,11 @@ bool          zia::api::cppModule::execRequest(HttpDuplex& http, std::string &ur
       dup2(link[1], STDOUT_FILENO);
       close(link[0]);
       close(link[1]);
-      execv("/usr/bin/php-cgi", getArgs(url, args));
+      execv("/usr/bin/php-cgi", tab);
       exit(0);
     } else {
       close(link[1]);
+      freeArgs(tab);
       while(0 != (nbytes = read(link[0], foo, sizeof(foo)))) {
       	totalStr = totalStr + foo;
       	http.resp.body = stringToRaw(foo);
@@ -112,6 +114,16 @@ char                      **zia::api::cppModule::getArgs(std::string &url, std::
   }
   argv[i] = NULL;
   return argv;
+}
+
+void        zia::api::cppModule::freeArgs(char **tab) {
+  int       i = 0;
+
+  while (tab[i]) {
+    free(tab[i]);
+    i++;
+  }
+  delete tab;
 }
 
 std::vector<std::string>    zia::api::cppModule::split(std::string const &str, std::string const &delimiters) {

@@ -19,6 +19,8 @@ namespace zia::api {
     std::vector<std::string>  line;
     struct HttpRequest        request;
 
+    if (str.compare("") == 0)
+      throw BadRequestError("empty request");
     v = Utils::split(str, "\n");
     line = Utils::split(inspectHttpLine(v[0]), " ");
     if (line.size() != 3)

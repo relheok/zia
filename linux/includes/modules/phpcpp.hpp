@@ -26,6 +26,7 @@ namespace zia::api {
     bool execRequest(HttpDuplex& http, std::string &url, std::string &args);
 
     char    **getArgs(std::string &url, std::string &args);
+    void    freeArgs(char **tab);
 
     virtual unsigned int getPriority() const { return 1; }
   private:
