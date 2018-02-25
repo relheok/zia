@@ -17,13 +17,14 @@ CXX		= g++
 
 CXXFLAGS	+= -g3 -Wall -Wextra -Werror -Wfatal-errors -MD -std=c++17 -Iincludes/ -Iincludes/server -Iincludes/server/api -Iincludes/server/error -I./includes/server/NetStack -Iincludes/modules -g3
 
-LDFLAGS		+= -ldl
+LDFLAGS		+= -ldl -lssl -lcrypto
 
 SRCS		= $(foreach dir,$(shell find sources/server -type d),$(wildcard $(dir)/*.cpp)) \
 					sources/main.cpp
 
 SRCS_TEST =  $(foreach dir,$(shell find sources/server -type d),$(wildcard $(dir)/*.cpp)) \
-					sources/unitTest/unitTest.cpp
+						 sources/modules/SSLModule.cpp \
+					   sources/unitTest/unitTest.cpp
 
 OBJS_TEST = $(SRCS_TEST:.cpp=.o)
 OBJS		= $(SRCS:.cpp=.o)

@@ -1,17 +1,30 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
-#include "unitTest/catch.hpp"
+#include "unitTest/unitTest.hpp"
 
-unsigned int Factorial( unsigned int number ) {
-    return number <= 1 ? number : Factorial(number-1)*number;
-}
+using namespace zia::api;
 
 TEST_CASE("Openssl certificate test", "[Openssl]") {
+  std::string path = "linux/sources/unitTest/example/";
 
-}
+  std::unique_ptr<SSLModule> ssl = std::make_unique<SSLModule>();
 
-TEST_CASE( "Factorials are computed", "[factorial]" ) {
-    REQUIRE( Factorial(1) == 1 );
-    REQUIRE( Factorial(2) == 2 );
-    REQUIRE( Factorial(3) == 6 );
-    REQUIRE( Factorial(10) == 3628800 );
+  std::unique_ptr<ConfigManager> c = std::make_unique<ConfigManager>(path + "allright.json");
+  c.get()->browser_conf();
+  REQUIRE( ssl.get()->config(c.get()->getConf()) == true );
+
+  c.reset(new ConfigManager(path + "NotTheGoodPath.json"));
+  c.get()->browser_conf();
+  REQUIRE( ssl.get()->config(c.get()->getConf()) == false );
+
+  c.reset(new ConfigManager(path + "wrongCert.json"));
+  c.get()->browser_conf();
+  REQUIRE( ssl.get()->config(c.get()->getConf()) == false );
+
+  c.reset(new ConfigManager(path + "wrongKey.json"));
+  c.get()->browser_conf();
+  REQUIRE( ssl.get()->config(c.get()->getConf()) == false );
+
+  c.reset(new ConfigManager(path + "diffCertAndKey.json"));
+  c.get()->browser_conf();
+  REQUIRE( ssl.get()->config(c.get()->getConf()) == false );
 }
