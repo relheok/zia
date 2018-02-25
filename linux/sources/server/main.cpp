@@ -37,12 +37,19 @@ int		process(std::string confPath)
     std::unique_ptr<zia::api::ConfigManager> p(new zia::api::ConfigManager(confPath));
     std::unique_ptr<zia::api::ModuleManager> m(new zia::api::ModuleManager);
     zia::Daemon &daemon = zia::Daemon::getInstance();
-    Network::Socket	inet(4248);
 
     if (!p.get()->browser_conf())
       zia::Logger::getInstance().error("No conf file");
     std::map<std::string, std::string> map = p.get()->getRoots();
     m.get()->init(p.get()->getListModules(), p.get()->getConf());
+
+    size_t port = 4242;
+    try {
+      port = static_cast<size_t>(std::get<long long>(p.get()->getConf()["port"].v));
+    } catch (std::exception &) {
+      zia::Logger::getInstance().error("No port ! Default : 4242");
+    }
+    Network::Socket	inet(port);
 
     // pipe.display();
 

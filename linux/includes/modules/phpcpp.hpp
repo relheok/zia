@@ -25,8 +25,10 @@ namespace zia::api {
     std::vector<std::string> split(std::string const &str, std::string const &delimiters);
     bool execRequest(HttpDuplex& http, std::string &url, std::string &args);
 
+    char    **getEnv(HttpDuplex& http, std::string const &url);
+    std::string   removeHeaders(std::string const &);
     char    **getArgs(std::string &url, std::string &args);
-    void    freeArgs(char **tab);
+    void    freeTab(char **tab);
 
     virtual unsigned int getPriority() const { return 1; }
   private:
