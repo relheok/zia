@@ -27,6 +27,9 @@ Quick shutdown:
 
 	./zia -s stop
 	
+## Package
+Please see [package/README.md](package/README.md).
+
 ## Authors
 Jérémy Koehler, Loris Sanchez, Maxime Maisonnas, Quentin Albertone,
 Rodolphe Chazal and Virgile Junique
