@@ -12,7 +12,9 @@ zia \- HTTP server
 is an HTTP server. It is known for its performance, stability, simple
 configuration, and low resource consumption.
 .SH OPTIONS
-.TP
+
+.RS 0
+.TP 20
 .B \-c, \-\-config\fR=\fI\,file\/\fR
 Use an alternative configuration
 .I file
@@ -23,19 +25,29 @@ instead of
 Tell master process to reload its configuration file
 .TP
 .B \-s, \-\-signal\fR=\fI\,sig\/\fR
-send signal
-.I sig
-to the master process. The argument
-.I sig
-can be one of:
-.B stop, quit, reload
+Send signal \fIsig\fR to the master process. The argument \fIsig\fR can be one of:
+.B stop\fR,\fB quit\fR,\fB restart\fR,\fB reload\fR\.
+The following table shows the corresponding system signals:
+.IP
+\fB    stop\fR		SIGTERM
+\fB    quit\fR		SIGQUIT
+\fB    restart\fR	SIGHUP
+\fB    reload\fR	SIGUSR1
 .TP
 .B \-h, \-\-help
 display help and exit
 .SH FILES
-.I /etc/zia/zia.json
-.RS
-The default configuration file.
+.I /etc/zia/zia.conf
+is the default configuration file.
+.PP
+If some values are not defined, those are used instead:
+.IT
+\fB    port\fR                  80
+\fB    port_ssl\fR              443
+\fB    server_name\fR           Zia
+\fB    server_version\fR        1.0
+\fB    max_uri_size\fR          1000
+
 .SH EXIT STATUS
 .TP
 0
